@@ -1,0 +1,89 @@
+<!-- Parametros de entrada -->
+{{def(data, idGestion, partida ,user)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ruddy Surco
+    Fecha: 14/12/2020 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="Planilla Aguinaldo.pdf">
+    <!-- 
+        pagesize:
+            oficioH: pagesize="(35.6cm, 21.6cm)",
+            oficioV: pagesize="(21.6cm, 35.6cm)",
+            cartaH: pagesize="(27.9cm, 21.6cm)"
+            cartaV: pagesize="(21.6cm, 27.9cm)"
+    -->
+    <template pagesize="(35.6cm, 21.6cm)" title="Planilla Aguinaldo Borrador" author="Modulo Aguinaldo">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <!-- Header -->
+                {{script}}
+                    import datetime
+                    from core.rml.util.extras import getFecha
+                    ev = '' if partida == '1' else ' 120'
+                    today=datetime.datetime.today()
+                    today=today.strftime("%d/%m/%y %H:%M")
+                    #se puede hacer lo que sea con la info
+                {{endscript}}
+                <setFont name="Helvetica" size="10"/>
+                <drawString x="4cm" y="20cm">UMSA - SIRH</drawString>
+                <setFont name="Helvetica" size="12"/>
+                <drawString x="13.5cm" y="19.5cm">Titulo- Administrativos {{ev}}</drawString>
+                <setFont name="Helvetica" size="10"/>
+                <drawString x="16.5cm" y="19cm">Gestion - {{idGestion}}
+                </drawString>
+                <drawString x="27cm" y="20cm">Fecha Emision: {{today}}</drawString>
+
+                <place x="4cm" y="16.6cm" width="30cm" height="2cm">
+                    <blockTable rowHeights="0.8cm, 0.5cm" colWidths="1cm, 3cm, 3cm" style="blocktablestyle1">
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </blockTable>
+                </place>
+                <!-- Footer -->
+                <setFont name="Helvetica" size="10"/>
+                <drawString x="30cm" y="2cm"><pageNumber/> de <getName id="lastPage" default="0" /></drawString>
+                <drawString x="4cm" y="2cm">Usuario: {{user}}</drawString>
+            </pageGraphics>
+            <frame showBoundary="0" id="first" x1="4cm" y1="3cm" width="30cm" height="14.3cm"/>
+        </pageTemplate>
+    </template>
+    <stylesheet>
+        <!-- definicion de estilos -->
+        <blockTableStyle id="blocktablestyle1">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" />
+            <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+
+        </blockTableStyle>
+        <blockTableStyle id="blocktablestyleData">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="7"/>
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
+        <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="center" fontSize="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+    </stylesheet>
+    <story>
+       <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
+       ...
+        <!--Variable para saber cuantas paginas tiene dejar al final para el total-->
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>

@@ -1,0 +1,146 @@
+<!-- Parametros de entrada -->
+{{def(data, idGestion, partida ,user)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ruddy Surco
+    Fecha: 14/12/2020 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="Planilla Personal Excluido.pdf">
+    <!-- 
+        pagesize:
+            oficioH: pagesize="(35.6cm, 21.6cm)",
+            oficioV: pagesize="(21.6cm, 35.6cm)",
+            cartaH: pagesize="(27.9cm, 21.6cm)"
+            cartaV: pagesize="(21.6cm, 27.9cm)"
+    -->
+    <!-- TEMPLATES -->
+    <template pagesize="(21.6cm, 27.9cm)" title="Planilla Personal Excluido" author="Roger">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <!-- Header -->
+                {{script}}
+                    import datetime
+                    from core.rml.util.extras import getFecha
+                    from itertools import groupby
+
+                    ev = '' if partida == '1' else ' 120'
+                    per = 'PLANTA' if partida == 1 else 'EVENTUAL'
+                    today=datetime.datetime.today()
+                    today=today.strftime("%d/%m/%y %H:%M")
+                    meses = [{'idMes': 1, 'mes': 'ENERO'}, {'idMes': 2, 'mes': 'FEBRERO'}, {'idMes': 3, 'mes': 'MARZO'}, {'idMes': 4, 'mes': 'ABRIL'}, {'idMes': 5, 'mes': 'MAYO'}, {'idMes': 6, 'mes': 'JUNIO'},
+                             {'idMes': 7, 'mes': 'JULIO'}, {'idMes': 8, 'mes': 'AGOSTO'}, {'idMes': 9, 'mes': 'SEPTIEMBRE'}, {'idMes': 10, 'mes': 'OCTUBRE'}, {'idMes': 11, 'mes': 'NOVIEMBRE'}, {'idMes': 12, 'mes': 'DICIEMBRE'}]
+                    
+                    #se puede hacer lo que sea con la info
+                    grupos = {}
+                    for cat, group in groupby(data, key=lambda x: x["ci"]):
+                        grupos[cat]= list(group)
+                {{endscript}}
+
+
+                <setFont name="Courier-Bold" size="8"/>
+                <drawString x="2cm" y="26.5cm">UMSA - SIRH</drawString>
+                <setFont name="Courier-Bold" size="10"/>
+                <drawString x="9cm" y="26cm">PLANILLA REINTEGRO</drawString>
+                <drawString x="8cm" y="25.5cm">PERSONAL EXCLUIDO - {{per}}</drawString>
+                <setFont name="Courier-Bold" size="8"/>
+                <drawCentredString x="11cm" y="25cm">Gestion - {{idGestion}}</drawCentredString>
+                <drawRightString x="20cm" y="26.5cm">Fecha Emision: {{today}}</drawRightString>
+
+                <place x="3cm" y="23.5cm" width="23cm" height="1cm">
+                    <blockTable rowHeights="0.6cm"  colWidths="2cm, 1.5cm, 2cm, 2.5cm, 2cm, 2cm, 2.5cm"  style="blocktablestyleHeader">
+                        <tr>
+                            <td align="center"></td>
+                            <td align="center">MES</td>
+                            <td align="center">DESCRIPCION</td>
+                            <td align="center">NIVEL - ITEM</td>
+                            <td align="center">USUARIO MOD.</td>
+                            <td align="center">FECHA MOD.</td>
+                            <td align="center">OBSERVACION</td>
+                        </tr>
+                    </blockTable>
+                </place>
+
+                <!-- Footer -->
+                <setFont name="Courier-Bold" size="8"/>
+                <drawString x="19cm" y="1cm"><pageNumber/> de <getName id="lastPage" default="0" /></drawString>
+                <drawString x="1cm" y="1cm">Usuario: {{user}}</drawString>
+            </pageGraphics>
+            <frame showBoundary="0" id="first" x1="2cm" y1="2cm" width="17.5cm" height="22cm"/>
+        </pageTemplate>
+    </template>
+
+
+
+    <!-- DEFINICION DE ESTILOS -->
+    <stylesheet>
+        <blockTableStyle id="blocktablestyleHeader">
+            <!-- <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <blockFont name="Courier-Bold" size="7"/>
+            <blockValign value="MIDDLE" start="0,0" stop="-1,-1"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="blocktablestyleData">
+            <blockLeading length="2cm"/>
+            <blockFont name="Courier-Bold" size="6"/>
+            <!-- <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+            <blockValign value="MIDDLE" start="0,0" stop="-1,0"/>
+        </blockTableStyle>
+
+        <paraStyle name="textstyle1" alignment="center" fontName="Courier-Bold" fontSize="7" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="left" fontName="Courier-Bold" fontSize="7" leading="10"/>
+        <paraStyle name="tableText2" alignment="right" fontName="Courier-Bold" fontSize="7"/>
+    </stylesheet>
+
+
+    <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
+    <!-- CONTENIDO DEL REPORTE -->
+    <story>
+       {{for key, values in grupos.items()}}
+            <illustration width="15cm" height="0.2cm">
+                <!-- <lineMode width="1" dash="3" /> -->
+                <lines> 1.2cm 0.1cm 15.5cm 0.1cm</lines>
+            </illustration>
+            <blockTable rowHeights="0.3cm"  colWidths="1cm, 10cm, 4cm"  style="blocktablestyleData">
+                <tr>
+                    <td> <para style="tableText"><seq/>. </para></td>
+                    <td align="left"> {{values[0]['nombreCompleto']}} </td>
+                    <td align="center"> C.I.: {{values[0]['ci']}} </td>
+                </tr>
+            </blockTable>
+            <illustration width="15cm" height="0.2cm">
+                <!-- <lineMode width="1" dash="3" /> -->
+                <lines> 1.2cm 0.1cm 15.5cm 0.1cm</lines>
+            </illustration>
+            {{script}}
+                count = 0
+                for item in values:
+                    if item['ci'] == values[0]['ci']:
+                        count = count + 1
+                obs = 'Exclusion Total' if count >= 4 else 'Exclusion Parcial'
+            {{endscript}}
+            {{for item in values}}
+                <blockTable rowHeights="0.3cm" colWidths="1cm, 1.5cm, 2cm, 2.5cm, 2cm, 2cm, 2.5cm" style="blocktablestyleData" >
+                    <tr>
+                        <td> </td>
+                        <td align="center">{{'' if item['idMes']==0 else meses[item['idMes']-1]['mes']}}</td>
+                        <td align="center">{{item['motivo']}}</td>
+                        <td align="center">{{item['descripcion']}}</td>
+                        <td align="center" >{{ 'admin' if item['idUsuarioRegistro'] == 1 else item['idUsuarioRegistro']}}</td>
+                        <td align="center">{{(datetime.datetime.strptime( item['fecRegistro'], '%Y-%m-%dT%H:%M:%S.%fZ')).date()}}</td>
+                        <td align="center">{{obs}}</td>
+                    </tr>
+                </blockTable>
+            {{endfor}}
+       {{endfor}}
+        <!--Variable para saber cuantas paginas tiene dejar al final para el total-->
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>

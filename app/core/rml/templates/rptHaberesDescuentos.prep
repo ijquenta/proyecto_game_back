@@ -1,0 +1,426 @@
+<!-- Parametros de entrada -->
+{{def(data, idGestion, partida ,user)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ruddy Surco
+    Fecha: 14/12/2020 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="Planilla Aguinaldo.pdf">
+    <!-- 
+        pagesize:
+            oficioH: pagesize="(35.6cm, 21.6cm)",
+            oficioV: pagesize="(21.6cm, 35.6cm)",
+            cartaH: pagesize="(27.9cm, 21.6cm)"
+            cartaV: pagesize="(21.6cm, 27.9cm)"
+    -->
+    <template pagesize="(35.6cm, 21.6cm)" title="Planilla Aguinaldo Borrador" author="Modulo Aguinaldo">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <!-- Header -->
+                {{script}}
+                    import datetime
+                    from anytree import Node
+                    from core.rml.util.extras import getFecha
+                    ev = ''
+                    if partida == 1:
+                        ev = 'ADMINISTRATIVOS'
+                    elif partida == 2:
+                        ev = 'EX ADMINISTRATIVOS'
+                    else:
+                        ev = 'ADMINISTRATIVOS - 120'
+                    today=datetime.datetime.today()
+                    today=today.strftime("%d/%m/%y %H:%M")
+                    #se puede hacer lo que sea con la info
+
+                    def __name(value):
+                        return value.name
+
+                    def __getNode(name, parent):
+                        for i in parent.children:
+                            if i.name == name:
+                                return i
+                    def __sumar(acumulado, item):
+                        acumulado['tmontohb'] += item['montoThbasico']
+                        acumulado['tmontoant'] += item['montoAntiguedad']
+                        acumulado['tmontolq'] += item['montoTliquido']
+                        acumulado['montoTganado'] +=  item['montoTganado']
+                        acumulado['rentaMonto'] +=  item['rentaMonto']
+                        acumulado['riesgoMonto'] +=  item['riesgoMonto']
+                        acumulado['solidarioMonto'] +=  item['solidarioMonto']
+                        acumulado['nacionalMonto'] +=  item['nacionalMonto']
+                        acumulado['montoTaporte'] +=  item['montoTaporte']
+
+                        return acumulado
+
+                    root = Node("root")
+                    base = {'tmontohb':0,'tmontoant': 0,'tmontolq':0, 'montoTganado':0, 'rentaMonto':0, 'riesgoMonto': 0, 'solidarioMonto': 0, 'nacionalMonto':0, 'montoTaporte':0}
+                    total = base.copy()
+                    for i in data:
+                        if i['un'] not in list(map(__name, root.children)):
+                            unidad=Node(i['un'], parent=root, foo=__sumar(base.copy(), i))
+                        else:
+                            unidad=__getNode(i['un'], root)
+                            unidad.foo = __sumar(unidad.foo, i)
+                        
+                        if i['pr'] not in list(map(__name, unidad.children)):
+                            pr=Node(i['pr'], parent=unidad, foo=__sumar(base.copy(), i))
+                        else:
+                            pr=__getNode(i['pr'], unidad)
+                            pr.foo = __sumar(pr.foo, i)
+                        
+                        if i['spr'] not in list(map(__name, pr.children)):
+                            spr=Node(i['spr'], parent=pr, foo=__sumar(base.copy(), i))
+                        else:
+                            spr=__getNode(i['spr'], pr)
+                            spr.foo = __sumar(spr.foo, i)
+                        
+                        if i['proy'] not in list(map(__name, spr.children)):
+                            proy=Node(i['proy'], parent=spr, foo=__sumar(base.copy(), i))
+                        else:
+                            proy=__getNode(i['proy'], spr)
+                            proy.foo = __sumar(proy.foo, i)
+                        
+                        if i['act'] not in list(map(__name, proy.children)):
+                            act=Node(i['act'], parent=proy, foo=__sumar(base.copy(), i))
+                        else:
+                            act=__getNode(i['act'], proy)
+                            act.foo = __sumar(act.foo, i)
+                        
+                        if i['ta'] not in list(map(__name, act.children)):
+                            ta=Node(i['ta'], parent=act, foo=__sumar(base.copy(), i))
+                        else:
+                            ta=__getNode(i['ta'], act)
+                            ta.foo = __sumar(ta.foo, i)
+                    
+                        if i['sta'] not in list(map(__name, ta.children)):
+                            sta=Node(i['sta'], parent=ta, foo=__sumar(base.copy(), i))
+                        else:
+                            sta=__getNode(i['sta'], ta)
+                            sta.foo = __sumar(sta.foo, i)
+                    
+                        if i['ot'] not in list(map(__name, sta.children)):
+                            ot=Node(i['ot'], parent=sta , bar=[i], foo=__sumar(base.copy(), i))
+                        else:
+                            ot=__getNode(i['ot'], sta)
+                            ot.bar.append(i)
+                            ot.foo = __sumar(ot.foo, i)
+                        total = __sumar(total, i)
+                {{endscript}}
+                <setFont name="Helvetica" size="10"/>
+                <drawString x="4cm" y="20cm">UMSA</drawString>
+                <setFont name="Helvetica" size="12"/>
+                <drawString x="12cm" y="19.5cm">PLANILLA HABERES DESCUENTOS REINTEGRO Gestion - {{idGestion}}</drawString>
+                <setFont name="Helvetica" size="10"/>
+                <drawString x="16.5cm" y="19cm">{{ev}}
+                </drawString>
+                <drawString x="27cm" y="20cm">Fecha Emision: {{today}}</drawString>
+
+                <place x="4cm" y="16.6cm" width="30cm" height="2cm">
+                    <blockTable rowHeights="0.8cm, 0.5cm" colWidths="1.5cm, 7.5cm, 1.5cm, 1.5cm, 2cm" style="blocktablestyle1">
+                    <tr>
+                        <td>ITEM</td>
+                        <td>NOMBRE</td>
+                        <td>NIV.</td>
+                        <td>D.T.</td>
+                        <td>TOTAL</td>
+                        <td>TOTAL</td>
+                        <td>TOTAL</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>TOTAL</td>
+                        <td>LIQUIDO</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>HABER.</td>
+                        <td>CATEG.</td>
+                        <td>REIN.</td>
+                        <td>RENTA</td>
+                        <td>A.F.P.</td>
+                        <td>APO-SOL</td>
+                        <td>A.N.SOL.</td>
+                        <td>DCTOS.</td>
+                        <td>PAGABLE</td>
+                    </tr>
+                    </blockTable>
+                </place>
+                <!-- Footer -->
+                <setFont name="Helvetica" size="10"/>
+                <drawString x="30cm" y="2cm"><pageNumber/> de <getName id="lastPage" default="0" /></drawString>
+                <drawString x="4cm" y="2cm">Usuario: {{user}}</drawString>
+            </pageGraphics>
+            <frame showBoundary="0" id="first" x1="4cm" y1="3cm" width="30cm" height="14cm"/>
+        </pageTemplate>
+    </template>
+    <stylesheet>
+        <!-- definicion de estilos -->
+        <blockTableStyle id="blocktablestyle1">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+
+        </blockTableStyle>
+        <blockTableStyle id="blocktablestyleData">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+        <blockTableStyle id="blocktablestyleSum">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="0,0" stop="1,0" />
+        </blockTableStyle>
+
+        <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="center" fontSize="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+    </stylesheet>
+    <story>
+{{for un in root.children}} 
+    {{for pr in un.children}} 
+        {{for spr in pr.children}} 
+            {{for proy in spr.children}} 
+                {{for act in proy.children}} 
+                    {{for ta in act.children}} 
+                        {{for sta in ta.children}} 
+                            {{for ot in sta.children}} 
+                                <para style="textstyle1">
+                                    <u> {{ot.bar[0]['codigoApertura']}} {{ot.bar[0]['aperturaDescripcion']}}</u>
+                                </para>
+                                {{for item in ot.bar}} 
+                                <blockTable
+                                    style="blocktablestyleData"
+                                    rowHeights="0.45cm"
+                                    colWidths="1.5cm, 7.5cm, 1.5cm, 1.5cm, 2cm"
+                                >
+                                    <tr>
+                                        <td>{{item['item']}}</td>  
+                                        <td>{{item['nombreCompleto']}}</td>  
+                                        <td>{{int(item['diasTrabajados'])}}</td>  
+                                        <td>{{int(item['diasTrabajados'])}}</td>  
+                                        <td align="right">{{item['montoThbasico']}}</td>  
+                                        <td align="right">{{item['montoAntiguedad']}}</td>  
+                                        <td align="right">{{item['montoTganado']}}</td>  
+                                        <td align="right">{{item['rentaMonto']}}</td>  
+                                        <td align="right">{{item['riesgoMonto']}}</td>  
+                                        <td align="right">{{item['solidarioMonto']}}</td>  
+                                        <td align="right">{{item['nacionalMonto']}}</td>  
+                                        <td align="right">{{item['montoTaporte']}}</td>  
+                                        <td align="right">{{item['montoTliquido']}}</td>  
+                                    </tr>
+                                </blockTable>
+                                {{endfor}} 
+                                <illustration width="30cm" height="0.2cm">
+                                    <lineMode width="1" dash="3,3" />
+                                    <lines>0 0.1cm 30cm 0.1cm</lines>
+                                </illustration>
+                                <blockTable
+                                style="blocktablestyleSum"
+                                rowHeights="0.5cm"
+                                colWidths="10cm, 2cm"
+                                >
+                                    <tr>
+                                        <td>SECCION</td>
+                                        <td></td>
+                                        <td align="right">{{round(ot.foo['tmontohb'],2)}}</td>
+                                        <td align="right">{{round(ot.foo['tmontoant'],2)}}</td>
+                                        <td align="right">{{round(ot.foo['montoTganado'],2)}}</td>  
+                                        <td align="right">{{round(ot.foo['rentaMonto'],2)}}</td>  
+                                        <td align="right">{{round(ot.foo['riesgoMonto'],2)}}</td>  
+                                        <td align="right">{{round(ot.foo['solidarioMonto'],2)}}</td>  
+                                        <td align="right">{{round(ot.foo['nacionalMonto'],2)}}</td>  
+                                        <td align="right">{{round(ot.foo['montoTaporte'],2)}}</td> 
+                                        <td align="right">{{round(ot.foo['tmontolq'],2)}}</td>
+                                    </tr>
+                                </blockTable>
+                            {{endfor}} 
+                            <blockTable
+                                style="blocktablestyleSum"
+                                rowHeights="0.5cm"
+                                colWidths="10cm, 2cm"
+                            >
+                                <tr>
+                                    <td>DIVISION</td>
+                                    <td></td>
+                                    <td align="right">{{round(sta.foo['tmontohb'],2)}}</td>
+                                    <td align="right">{{round(sta.foo['tmontoant'],2)}}</td>
+                                    <td align="right">{{round(sta.foo['montoTganado'],2)}}</td>  
+                                    <td align="right">{{round(sta.foo['rentaMonto'],2)}}</td>  
+                                    <td align="right">{{round(sta.foo['riesgoMonto'],2)}}</td>  
+                                    <td align="right">{{round(sta.foo['solidarioMonto'],2)}}</td>  
+                                    <td align="right">{{round(sta.foo['nacionalMonto'],2)}}</td>  
+                                    <td align="right">{{round(sta.foo['montoTaporte'],2)}}</td> 
+                                    <td align="right">{{round(sta.foo['tmontolq'],2)}}</td>
+                                </tr>
+                            </blockTable>
+                           
+                        {{endfor}} 
+
+
+                        <blockTable
+                                style="blocktablestyleSum"
+                                rowHeights="0.5cm"
+                                colWidths="10cm, 2cm"
+                        >
+                            <tr>
+                                <td>DEPARTAMENTO</td>
+                                <td></td>
+                                <td align="right">{{round(ta.foo['tmontohb'],2)}}</td>
+                                <td align="right">{{round(ta.foo['tmontoant'],2)}}</td>
+                                <td align="right">{{round(ta.foo['montoTganado'],2)}}</td>  
+                                <td align="right">{{round(ta.foo['rentaMonto'],2)}}</td>  
+                                <td align="right">{{round(ta.foo['riesgoMonto'],2)}}</td>  
+                                <td align="right">{{round(ta.foo['solidarioMonto'],2)}}</td>  
+                                <td align="right">{{round(ta.foo['nacionalMonto'],2)}}</td>  
+                                <td align="right">{{round(ta.foo['montoTaporte'],2)}}</td> 
+                                <td align="right">{{round(ta.foo['tmontolq'],2)}}</td>
+                            </tr>
+                        </blockTable>
+                    {{endfor}} 
+                    <blockTable
+                        style="blocktablestyleSum"
+                        rowHeights="0.5cm"
+                        colWidths="10cm, 2cm"
+                    >
+                        <tr>
+                            <td>ACTIVIDAD</td>
+                            <td></td>
+                            <td align="right">{{round(act.foo['tmontohb'],2)}}</td>
+                            <td align="right">{{round(act.foo['tmontoant'],2)}}</td>
+                            <td align="right">{{round(act.foo['montoTganado'],2)}}</td>  
+                            <td align="right">{{round(act.foo['rentaMonto'],2)}}</td>  
+                            <td align="right">{{round(act.foo['riesgoMonto'],2)}}</td>  
+                            <td align="right">{{round(act.foo['solidarioMonto'],2)}}</td>  
+                            <td align="right">{{round(act.foo['nacionalMonto'],2)}}</td>  
+                            <td align="right">{{round(act.foo['montoTaporte'],2)}}</td> 
+                            <td align="right">{{round(act.foo['tmontolq'],2)}}</td>
+                        </tr>
+                    </blockTable>
+                {{endfor}} 
+
+
+                <blockTable
+                    style="blocktablestyleSum"
+                    rowHeights="0.5cm"
+                    colWidths="10cm, 2cm"
+                >
+                    <tr>
+                        <td>PROYECTO</td>
+                        <td></td>
+                        <td align="right">{{round(proy.foo['tmontohb'],2)}}</td>
+                        <td align="right">{{round(proy.foo['tmontoant'],2)}}</td>
+                        <td align="right">{{round(proy.foo['montoTganado'],2)}}</td>  
+                        <td align="right">{{round(proy.foo['rentaMonto'],2)}}</td>  
+                        <td align="right">{{round(proy.foo['riesgoMonto'],2)}}</td>  
+                        <td align="right">{{round(proy.foo['solidarioMonto'],2)}}</td>  
+                        <td align="right">{{round(proy.foo['nacionalMonto'],2)}}</td>  
+                        <td align="right">{{round(proy.foo['montoTaporte'],2)}}</td> 
+                        <td align="right">{{round(proy.foo['tmontolq'],2)}}</td>
+                    </tr>
+                </blockTable>
+            {{endfor}} 
+            <blockTable
+                style="blocktablestyleSum"
+                rowHeights="0.5cm"
+                colWidths="10cm, 2cm"
+            >
+                <tr>
+                    <td>SUP.PROGRAMA</td>
+                    <td></td>
+                    <td align="right">{{round(spr.foo['tmontohb'],2)}}</td>
+                    <td align="right">{{round(spr.foo['tmontoant'],2)}}</td>
+                    <td align="right">{{round(spr.foo['montoTganado'],2)}}</td>  
+                    <td align="right">{{round(spr.foo['rentaMonto'],2)}}</td>  
+                    <td align="right">{{round(spr.foo['riesgoMonto'],2)}}</td>  
+                    <td align="right">{{round(spr.foo['solidarioMonto'],2)}}</td>  
+                    <td align="right">{{round(spr.foo['nacionalMonto'],2)}}</td>  
+                    <td align="right">{{round(spr.foo['montoTaporte'],2)}}</td> 
+                    <td align="right">{{round(spr.foo['tmontolq'],2)}}</td>
+                </tr>
+            </blockTable>
+        {{endfor}} 
+
+        <blockTable
+            style="blocktablestyleSum"
+            rowHeights="0.5cm"
+            colWidths="10cm, 2cm"
+        >
+            <tr>
+                <td>PROGRAMA</td>
+                <td></td>
+                <td align="right">{{round(pr.foo['tmontohb'],2)}}</td>
+                <td align="right">{{round(pr.foo['tmontoant'],2)}}</td>
+                <td align="right">{{round(pr.foo['montoTganado'],2)}}</td>  
+                <td align="right">{{round(pr.foo['rentaMonto'],2)}}</td>  
+                <td align="right">{{round(pr.foo['riesgoMonto'],2)}}</td>  
+                <td align="right">{{round(pr.foo['solidarioMonto'],2)}}</td>  
+                <td align="right">{{round(pr.foo['nacionalMonto'],2)}}</td>  
+                <td align="right">{{round(pr.foo['montoTaporte'],2)}}</td> 
+                <td align="right">{{round(pr.foo['tmontolq'],2)}}</td>
+            </tr>
+        </blockTable>
+    {{endfor}} 
+    <blockTable
+        style="blocktablestyleSum"
+        rowHeights="0.5cm"
+        colWidths="10cm, 2cm"
+    >
+        <tr>
+            <td>UNIDA.EJEC</td>
+            <td></td>
+            <td align="right">{{round(un.foo['tmontohb'],2)}}</td>
+            <td align="right">{{round(un.foo['tmontoant'],2)}}</td>
+            <td align="right">{{round(un.foo['montoTganado'],2)}}</td>  
+            <td align="right">{{round(un.foo['rentaMonto'],2)}}</td>  
+            <td align="right">{{round(un.foo['riesgoMonto'],2)}}</td>  
+            <td align="right">{{round(un.foo['solidarioMonto'],2)}}</td>  
+            <td align="right">{{round(un.foo['nacionalMonto'],2)}}</td>  
+            <td align="right">{{round(un.foo['montoTaporte'],2)}}</td> 
+            <td align="right">{{round(un.foo['tmontolq'],2)}}</td>
+        </tr>
+    </blockTable>
+
+{{endfor}} 
+
+<illustration width="30cm" height="0.2cm">
+    <lineMode width="1" dash="3,3" />
+    <lines>0 0.1cm 30cm 0.1cm</lines>
+</illustration>
+<blockTable
+    style="blocktablestyleSum"
+    rowHeights="0.5cm"
+    colWidths="10cm, 2cm"
+>
+    <tr>
+        <td>T O T A L</td>
+        <td></td>
+        <td align="right">{{round(total['tmontohb'],2)}}</td>
+        <td align="right">{{round(total['tmontoant'],2)}}</td>
+        <td align="right">{{round(total['montoTganado'],2)}}</td>  
+        <td align="right">{{round(total['rentaMonto'],2)}}</td>  
+        <td align="right">{{round(total['riesgoMonto'],2)}}</td>  
+        <td align="right">{{round(total['solidarioMonto'],2)}}</td>  
+        <td align="right">{{round(total['nacionalMonto'],2)}}</td>  
+        <td align="right">{{round(total['montoTaporte'],2)}}</td> 
+        <td align="right">{{round(total['tmontolq'],2)}}</td>
+    </tr>
+</blockTable>
+<illustration width="30cm" height="0.2cm">
+    <lineMode width="1" dash="3,3" />
+    <lines>0 0.1cm 30cm 0.1cm</lines>
+</illustration>
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>
