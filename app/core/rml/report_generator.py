@@ -69,3 +69,16 @@ class Report():
                 pdf_out = output.getvalue()         
         print(f'enviando archivo rptHaberesAportes - {idMes}')
         return pdf_out
+    
+    def RptTotalesSigma(self, data, user):
+        print("report -----------")
+        print(data)
+        print("--->>>>>>>>")
+        print(PATH)
+        templateTS = preppy.getModule(PATH+'rptTotalesSigma.prep')        
+        with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+            with BytesIO() as output:
+                generatePdf(buffer, output)
+                pdf_out = output.getvalue()
+        print('Enviandos archivo rptTotalSimga')
+        return pdf_out

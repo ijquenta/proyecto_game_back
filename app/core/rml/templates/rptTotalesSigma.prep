@@ -1,0 +1,158 @@
+<!-- Parametros de entrada -->
+{{def(data, user)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ivan Quenta
+    Fecha: 19/09/2023 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="ReporteTotalesSigma.pdf">
+    <!-- 
+        pagesize:
+            oficioH: pagesize="(35.6cm, 21.6cm)",
+            oficioV: pagesize="(21.6cm, 35.6cm)",
+            cartaH: pagesize="(27.9cm, 21.6cm)"
+            cartaV: pagesize="(21.6cm, 27.9cm)"
+    -->
+    <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <!-- Header -->
+                {{script}}
+                    import datetime
+                    from core.rml.util.extras import getFecha
+                    ev = ''
+                    ev = 'P(titulo)'
+                    today=datetime.datetime.today()
+                    today=today.strftime("%d/%m/%y %H:%M")
+                    #se puede hacer lo que sea con la info
+                    total = {
+                        "hb": 0,
+                        "ant": 0,
+                        "tg": 0,
+                        "afp": 0,
+                        "ssu": 0,
+                        "viv": 0,
+                        "soli": 0,
+                        "nacSoli": 0,
+                        "liq": 0
+                    }
+                {{endscript}}
+                <setFont name="Helvetica" size="11"/>
+                <drawCentredString x="18.5cm" y="19.5cm">RESUMEN PLANILLA DE PAGO DE INDEMNIZACIONES CON CONTINUIDAD LABORAL - {{ev}}</drawCentredString>
+                <setFont name="Helvetica" size="9"/>
+                <drawString x="2cm" y="20.5cm">UNIVERSIDAD MAYOR DE SAN ANDRES</drawString>
+                <drawString x="2cm" y="20cm">DEPARTAMENTO DE PERSONAL DOCENTE</drawString>
+                <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
+                <drawRightString x="33cm" y="20.5cm">Fecha Emision: {{today}}</drawRightString>
+
+                <place x="1.5cm" y="16.6cm" width="33cm" height="2cm">
+                    <blockTable rowHeights="0.5cm, 0.5cm" colWidths="1cm, 3cm, 11cm, 2cm" style="blocktablestyle1">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Da</td>
+                            <td>Ue</td>
+                            <td>Pg</td>
+                            <td>Proy</td>
+                            <td>Act</td>
+                            <td align="right">DENOMINACION</td>
+                            <td align="right">TOTAL INDEMNIZACION</td>
+                            <td align="right"></td>
+                            <td align="right"></td>
+                            <td align="right"></td>
+                            <td align="right"></td>
+                        </tr>
+                    </blockTable>
+                </place>
+                <!-- Footer -->
+                <setFont name="Helvetica" size="8"/>
+                <drawRightString x="33cm" y="1cm"> Pag. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
+                <drawString x="2cm" y="1cm">Usuario: {{user}}</drawString>
+            </pageGraphics>
+            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="33cm" height="16cm"/>
+        </pageTemplate>
+    </template>
+    <stylesheet>
+        <!-- definicion de estilos -->
+        <blockTableStyle id="blocktablestyle1">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9"/>
+
+        </blockTableStyle>
+        <blockTableStyle id="blocktablestyleData">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
+        <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+    </stylesheet>
+    <story>
+       <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
+       {{for item in data}}
+            <blockTable
+                style="blocktablestyleData"
+                rowHeights="0.4cm"
+                colWidths="1cm, 1cm, 11cm, 2cm"
+            >
+                <tr>
+                    <td>{{item['id']}}</td>
+                    <td>{{item['username']}}</td>
+                    <td>{{item['pwd']}}</td>
+                    <td>{{item['ema']}}</td>
+                    <td>{{item['ema']}}</td>
+
+                    <td align="right">{{item['ema']}}</td>
+                    <td align="right">{{item['id']}}</td>
+                    <td align="right"></td>
+                </tr>
+            </blockTable>
+            {{script}}
+                total["liq"] = round(total["liq"] + item['id'],2)
+            {{endscript}}
+       {{endfor}}
+       <illustration width="33cm" height="0.2cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>0cm 0.1cm 33cm 0.1cm</lines>
+        </illustration>
+       <blockTable
+            style="blocktablestyleData"
+            rowHeights="0.5cm"
+            colWidths="15cm, 2cm"
+        >
+            <tr>
+                <td align="center">T O T A L</td>
+                <td align="right">{{f"{total['liq']:,}"}}</td>
+            </tr>
+        </blockTable>
+        <illustration width="33cm" height="0.2cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>0cm 0.1cm 33cm 0.1cm</lines>
+        </illustration>
+        <!--Variable para saber cuantas paginas tiene dejar al final para el total-->
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>

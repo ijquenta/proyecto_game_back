@@ -1,8 +1,13 @@
-apiVersion = "/calculobs_api"
+# apiVersion = "/calculobs_api"
 #apiVersion = "/bsocial_api"
+apiVersion = "/academico_api"
 class Routes:
     index = apiVersion + '/'
     protected = apiVersion + '/secure'
+
+    rptTotalesSigma = apiVersion + '/rptTotalesSigma'
+
+    listaUsuarios = apiVersion + '/listaUsuarios'
 
     obtenerDatosDocente = apiVersion + '/obtenerDatosDocente' 
 
