@@ -1,5 +1,23 @@
-from core.database import select, execute
+from core.database import select, execute, execute_function
 from web.wsrrhh_service import *
+    
+
+def catchError():
+    def intermediate(function):
+        def wrapper(*args, **kwargs):
+            try:
+                return function(*args, **kwargs)
+            except Exception as err:
+                return {'code':0, 'message':'No se encuentra habilitado el ws'}, 200
+        return wrapper
+    return intermediate
+
+
+def listarRoles():
+    return select(f'''
+    SELECT rolid, rolnom 
+    FROM public.roles;
+    ''')
 
 def listarUsuarios():
     return select(f'''
@@ -7,14 +25,112 @@ def listarUsuarios():
     FROM public.usuarios;
     ''')
 
+def crearRol(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            select * from f_agregar_rol2({rolNom});
+            ''').format(
+                rolNom=sql.Literal(data['rolNom'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+def modificarRol(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            select * from f_rol_modificar({rolId}, {rolNom});
+            ''').format(
+                rolId=sql.Literal(data['rolId']),
+                rolNom=sql.Literal(data['rolNom'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+@catchError()
+# import sql  # Asegúrate de importar la librería SQL correspondiente.
+
+def eliminarRol2(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        # Verifica la consulta SQL generada imprimiéndola antes de ejecutarla.
+        query = sql.SQL('''
+            select * from f_rol_eliminar({rolId});
+            ''').format(
+                rolId=sql.Literal(data['rolId'])  # Usar data.get() para manejar posibles valores nulos.
+            )
+        print("Consulta SQL:", query, data['rolId'])  # Agrega esta línea para depurar la consulta SQL.
+        # Asegúrate de que 'execute' esté definida y funcione correctamente.
+        result = execute(as_string(query))
+        print(result)
+    except Exception as err:
+        print("Error:", err)  # Imprime el error original para facilitar la depuración.
+        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
+    return result
+
+def eliminarRol(data):
+    return execute_function(f'''
+    select public.f_rol_eliminar({data['rolId']}) as valor;
+''')
+
+# def eliminarRol(rolId):
+#     return select(f'''
+#     select public.f_rol_eliminar({rolId});
+#     ''')
 
 
-
-#Beneficio Social
 
 def obtenerDatosDocente(nroCi, nomCompleto):
     return getDatosDocente(nroCi, nomCompleto)
 
+
+def listarBeneficiosDocente(codDoc):
+    # query = f'select ano, mes, cod_docente, nro_liquidacion, fec_retiro from bd_bsocialdocente.p_bsocial.t_beneficios where cod_docente = \'{codDoc}\' and ano = 2023 and mes = 1'
+    """
+    return select(f'''
+    SELECT b.id_beneficio,b.cod_docente, b.nro_liquidacion, b.nro_dictamen, b.hoja_ruta, b.fec_liquidacion, b.fec_ingrec, b.fec_conclusion,
+        b.fec_retiro,b.observaciones, b.ts_ano, b.ts_mes, b.ts_dia, m.cod_tipo_motivo||'-'||m.des_tipo_motivo as motivo
+    FROM  p_bsocial.t_beneficios b
+    JOIN p_bsocial.t_tipos_motivos m USING(cod_tipo_motivo)
+    WHERE b.cod_docente = \'{codDoc}\'
+    ''')
+    """
+
+    """
+    return select(f'''
+    SELECT b.cod_docente,b.nombre_completo,b.nro_ci,b.ano,b.mes,b.nro_dictamen, b.hoja_ruta, b.fec_liquidacion, b.fec_ingrec, b.fec_conclusion,b.fec_retiro,b.observaciones, b.ts_ano,
+           b.ts_mes, b.ts_dia, m.cod_tipo_motivo||'-'||m.des_tipo_motivo as motivo,b.fec_mod,b.usu_mod
+    FROM  p_bsocial.t_beneficios b
+    JOIN p_bsocial.t_tipos_motivos m USING(cod_tipo_motivo)
+    WHERE b.cod_docente=\'{codDoc}\'
+    and b.estado_pla=1
+    GROUP BY b.cod_docente, b.nombre_completo,b.nro_ci, b.ano,b.mes,b.nro_dictamen, b.hoja_ruta, b.fec_liquidacion, b.fec_ingrec,b.fec_conclusion, b.fec_retiro,b.observaciones, b.ts_ano,
+           b.ts_mes, b.ts_dia, motivo,b.fec_mod,b.usu_mod
+    ''')
+    """
+
+    return select(f'''
+    select b.cod_docente,b.ano,b.mes,b.nombre_completo,b.nro_ci,b.nro_dictamen,b.hoja_ruta, 
+        b.fec_liquidacion, b.fec_ingrec,
+        b.fec_conclusion,b.fec_retiro,b.observaciones, b.ts_ano,
+        b.ts_mes, b.ts_dia, m.cod_tipo_motivo||'-'||m.des_tipo_motivo as motivo,
+        b.fec_mod,b.usu_mod,
+        sum(monto_tindemnizacion) as total_tindemnizacion
+                        FROM  p_bsocial.t_beneficios b
+                        JOIN p_bsocial.t_tipos_motivos m USING(cod_tipo_motivo)
+                        WHERE b.cod_docente=\'{codDoc}\'
+                        and b.estado_pla=1
+                        GROUP BY b.cod_docente, b.nombre_completo,b.nro_ci, b.ano,b.mes,b.nro_dictamen, b.hoja_ruta,
+                        b.fec_liquidacion, b.fec_ingrec,b.fec_conclusion, b.fec_retiro,b.observaciones, b.ts_ano,
+                                b.ts_mes, b.ts_dia, motivo,b.fec_mod,b.usu_mod
+    ''')
 def listarBeneficiosDocenteGrilla2(data):
     return select(f''' 
                 SELECT b.nro_liquidacion,

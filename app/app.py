@@ -15,11 +15,21 @@ import resources.resources as resources
 import resources.BenSocial as BenSocial
 import resources.Persona as Persona
 import resources.Reportes as Report
+import resources.Usuario as Usuario
 
 from core.database import Base, session_db, engine
 from web.wsrrhh_service import *
 
-# importar para JWT
+
+# Librerias para para JWT (Json Web Token)
+# requests: acceder datos enviados del por el cliente en una solicitud http.
+# jsonify: es una función para convertir objetvos de Python en repuestas JSON al cliente.
+# make_responde: se utlizara para crear una respuesta HTTP personalizada.
+# reder_template: se tuliza para renderizar planillas HTML.
+# session: permite almacenar datos del usuario en una sesión persistente entre solicitudes HTTP.
+# jwt. es una biblioteca para trabajnar con tokens JWT, permite crear firmar y verificar tokens JWT, que son utiles para la autenticación y autorización en aplicaciones web.
+# datetime: se utilizan para trabajar con fecha y tiempos.
+# wraps: es un decorador en Python, se utiliza para mantener infomación de metadatos de una función, como su nombre y su documentación.
 from flask import Flask, request, jsonify, make_response, render_template, session
 import jwt
 from datetime import datetime, timedelta
@@ -38,17 +48,23 @@ app = Flask(__name__) # Aplicación Flask
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
 
 
-def token_required(func):
-	@wraps(func)
-	def decorated(*args, **kwargas):
-		token = request.args.get('token')
-		if not token:
-			return ({'Alert!':'Token is missing!'})
-		try:
-			payload = jwt.decode(token, app.config['SECRET_KEY'])
-		except:
-			return jsonify({'Alert':'Invalid Token'})
-	return decorated
+def token_required(func): # Esta es un función decoradora llamada "token_requerid". Toma una función func como argumentos.
+	# decorator factory which invoks update_wrapper() method and passes decorated function as an argument
+	@wraps(func) # Este decarorador sirve para preservar los metadatos de la función original 
+	def decorated(*args, **kwargs): # esta fución anidad toma cualquier número de argumentos y palabras clave (*args y **kwargs)
+		token = request.args.get('token') # se intenta obtener el token JWT de los argumentos de la solicitud HTTP.
+		if not token: # Si no encuentra el token en los argumentso de la solicitud, retorna una alerta.
+			return jsonify({'Alert!':'Token is missing!'}), 401 #Se retorna el http 401 (No autorizando)
+		try: 
+			payload = jwt.decode(token, app.config['SECRET_KEY']) # intenta decodificar el token JWT utlizando una calve sercrea almacenada en la configuración de la aplicación
+															   # Si tien exito, la carga útil (payload) del token se malcenará en la variable payload
+			# You can use the JWT errs in exception
+		# except jwt.InvalidTokenError:
+		# 	return 'Invalid token. Please log in again.'
+		except: # Si ocurre una exception durante la decodifación del token (por ejemplo, si el oten es invalido)
+			return jsonify({'Alert':'Invalid Token'}), 403 # Devuelve una respuesta JSON que idica que el token es invalido con el codigo de estado 403 (Prohibido)
+		return func(*args, **kwargs) # Si el token es valido, la función decorada original (func) se llama conlos mismo argumnetos y palabras clave que recibio
+	return decorated # La función deracdora devuelve la función anidad "decorated", que se encargará de la autenticación antes de llamar a la función original
 
 @app.route('/')
 def home():
@@ -63,23 +79,31 @@ def public():
 
 @app.route('/auth')
 @token_required
-def auth():return 'JWT is verified. Welcome to your dashboard'
+def auth():
+	return 'JWT is verified. Welcome to your dashboard'
 	
 
 
-
+# Login
 @app.route('/login', methods=['POST'])
 def login():
-	if request.form['username'] and request.form['password'] == '123456':
-		session['logged_in'] = True
-		token = jwt.encode({
-			'user':request.form['username'],
-			'expiration': datetime.utcnow() + timedelta(seconds=120)
-	    },
-			app.config['SECRET_KEY'])
-		return jsonify({'token': token.decode('utf-8')})
-	else:
-		return make_response('Unable to verify', 403, {'www-Authenticate': 'Basic realm: "Authentication Failed!'})
+    if request.form['username'] =='ijquenta' and request.form['password'] == '123456':
+        session['logged_in'] = True
+
+        token = jwt.encode({
+            'user': request.form['username'],
+            # don't foget to wrap it in str function, otherwise it won't work [ i struggled with this one! ]
+            'expiration': str(datetime.utcnow() + timedelta(seconds=60))
+        },
+            app.config['SECRET_KEY'])
+        return jsonify({'token': token.decode('utf-8')})
+    else:
+        return make_response('Unable to verify', 403, {'WWW-Authenticate': 'Basic realm: "Authentication Failed "'})
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    pass
 
 CORS(app)
 
@@ -102,9 +126,14 @@ api.add_resource(resources.Protected, routes.protected)
 # API Usuarios
 api.add_resource(Persona.ListarUsuarios, routes.listaUsuarios)
 
-
 # Reporte Prueba
 api.add_resource(Report.rptTotalesSigma, routes.rptTotalesSigma)
+
+# Roles
+api.add_resource(Usuario.ListarRoles, routes.listarRoles)
+api.add_resource(Usuario.CrearRol, routes.crearRol)
+api.add_resource(Usuario.ModificarRol, routes.modificarRol)
+api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
 
 # Ejemplos de API
 # Obtener los datos de un docente

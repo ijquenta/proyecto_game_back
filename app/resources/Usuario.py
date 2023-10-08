@@ -4,23 +4,37 @@ from client.responses import clientResponses as messages
 from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
-from services.persona_service import *
+from services.usuario_service import *
 #import services.beneficio_service as beneficio
 
 
-# parseBeneficios = reqparse.RequestParser()
-# parseBeneficios.add_argument('codDoc', type=str, help = 'Debe elegir el código del docente', required = True)
-class ListarUsuarios(Resource):
+
+class ListarRoles(Resource):
   def get(self):
-      # data = parseBeneficios.parse_args()
-      # return listarBeneficiosDocente(data['codDoc'])
-      return listarUsuarios()
+      print("Rest")
+      return listarRoles()
 
-
-# class ListarRoles(Resource):
-#   def get(self):
-#       return listarRoles()
-
+parseCrearRol = reqparse.RequestParser()
+parseCrearRol.add_argument('rolNom', type=str, help = 'Debe elegir la Descripción del rol', required = True)
+class CrearRol(Resource):
+  def post(self):
+      data = parseCrearRol.parse_args()
+      return crearRol(data)
+  
+parseModificarRol = reqparse.RequestParser()
+parseModificarRol.add_argument('rolId', type=int, help = 'Debe elegir el Id del rol', required = True)
+parseModificarRol.add_argument('rolNom', type=str, help = 'Debe elegir la Descripción del rol', required = True)
+class ModificarRol(Resource):
+  def post(self):
+      data = parseModificarRol.parse_args()
+      return modificarRol(data)
+  
+parseEliminarRol = reqparse.RequestParser()
+parseEliminarRol.add_argument('rolId', type=str, help = 'Debe elegir el Id del rol', required = True)
+class EliminarRol(Resource):
+  def post(self):
+      data = parseEliminarRol.parse_args()
+      return eliminarRol(data)
 
 
 parseDocente = reqparse.RequestParser()
@@ -30,6 +44,8 @@ class ObtenerDatosDocente(Resource):
   def post(self):
       data = parseDocente.parse_args()
       return obtenerDatosDocente(data['nroCi'], data['nomCompleto'])
+  
+  
 
 parseBeneficios = reqparse.RequestParser()
 parseBeneficios.add_argument('codDoc', type=str, help = 'Debe elegir el código del docente', required = True)

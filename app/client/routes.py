@@ -26,6 +26,13 @@ class Routes:
 
     eliminarBeneficio = apiVersion + '/eliminarBeneficio'
 
+
+    listarRoles = apiVersion + '/listarRoles'
+    crearRol = apiVersion + '/crearRol'
+    modificarRol = apiVersion + '/modificarRol'
+    eliminarRol = apiVersion + '/eliminarRol'
+
+
     # actualizarBeneficiosSociales = apiVersion + '/actualizarBeneficiosSociales'
     # Ejemplo Insertar Registro en base de datos
     # regRestaurarMes = apiVersion + '/regRestaurarMes'

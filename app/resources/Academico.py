@@ -4,24 +4,8 @@ from client.responses import clientResponses as messages
 from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
-from services.persona_service import *
+from services.usuario_service import *
 #import services.beneficio_service as beneficio
-
-
-# parseBeneficios = reqparse.RequestParser()
-# parseBeneficios.add_argument('codDoc', type=str, help = 'Debe elegir el código del docente', required = True)
-class ListarUsuarios(Resource):
-  def get(self):
-      # data = parseBeneficios.parse_args()
-      # return listarBeneficiosDocente(data['codDoc'])
-      return listarUsuarios()
-
-
-# class ListarRoles(Resource):
-#   def get(self):
-#       return listarRoles()
-
-
 
 parseDocente = reqparse.RequestParser()
 parseDocente.add_argument('nroCi', type=str, help = 'Debe elegir ci', required = True)
