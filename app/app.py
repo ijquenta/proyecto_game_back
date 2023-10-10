@@ -16,6 +16,7 @@ import resources.BenSocial as BenSocial
 import resources.Persona as Persona
 import resources.Reportes as Report
 import resources.Usuario as Usuario
+import resources.Autenticacion as Autenticacion
 
 from core.database import Base, session_db, engine
 from web.wsrrhh_service import *
@@ -30,10 +31,10 @@ from web.wsrrhh_service import *
 # jwt. es una biblioteca para trabajnar con tokens JWT, permite crear firmar y verificar tokens JWT, que son utiles para la autenticación y autorización en aplicaciones web.
 # datetime: se utilizan para trabajar con fecha y tiempos.
 # wraps: es un decorador en Python, se utiliza para mantener infomación de metadatos de una función, como su nombre y su documentación.
-from flask import Flask, request, jsonify, make_response, render_template, session
-import jwt
-from datetime import datetime, timedelta
-from functools import wraps
+# from flask import Flask, request, jsonify, make_response, render_template, session
+# import jwt
+# from datetime import datetime, timedelta
+# from functools import wraps
 # importar para JWT
 
 LOG_FILENAME = 'aplication.log'
@@ -48,62 +49,62 @@ app = Flask(__name__) # Aplicación Flask
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
 
 
-def token_required(func): # Esta es un función decoradora llamada "token_requerid". Toma una función func como argumentos.
-	# decorator factory which invoks update_wrapper() method and passes decorated function as an argument
-	@wraps(func) # Este decarorador sirve para preservar los metadatos de la función original 
-	def decorated(*args, **kwargs): # esta fución anidad toma cualquier número de argumentos y palabras clave (*args y **kwargs)
-		token = request.args.get('token') # se intenta obtener el token JWT de los argumentos de la solicitud HTTP.
-		if not token: # Si no encuentra el token en los argumentso de la solicitud, retorna una alerta.
-			return jsonify({'Alert!':'Token is missing!'}), 401 #Se retorna el http 401 (No autorizando)
-		try: 
-			payload = jwt.decode(token, app.config['SECRET_KEY']) # intenta decodificar el token JWT utlizando una calve sercrea almacenada en la configuración de la aplicación
-															   # Si tien exito, la carga útil (payload) del token se malcenará en la variable payload
-			# You can use the JWT errs in exception
-		# except jwt.InvalidTokenError:
-		# 	return 'Invalid token. Please log in again.'
-		except: # Si ocurre una exception durante la decodifación del token (por ejemplo, si el oten es invalido)
-			return jsonify({'Alert':'Invalid Token'}), 403 # Devuelve una respuesta JSON que idica que el token es invalido con el codigo de estado 403 (Prohibido)
-		return func(*args, **kwargs) # Si el token es valido, la función decorada original (func) se llama conlos mismo argumnetos y palabras clave que recibio
-	return decorated # La función deracdora devuelve la función anidad "decorated", que se encargará de la autenticación antes de llamar a la función original
+# def token_required(func): # Esta es un función decoradora llamada "token_requerid". Toma una función func como argumentos.
+# 	# decorator factory which invoks update_wrapper() method and passes decorated function as an argument
+# 	@wraps(func) # Este decarorador sirve para preservar los metadatos de la función original 
+# 	def decorated(*args, **kwargs): # esta fución anidad toma cualquier número de argumentos y palabras clave (*args y **kwargs)
+# 		token = request.args.get('token') # se intenta obtener el token JWT de los argumentos de la solicitud HTTP.
+# 		if not token: # Si no encuentra el token en los argumentso de la solicitud, retorna una alerta.
+# 			return jsonify({'Alert!':'Token is missing!'}), 401 #Se retorna el http 401 (No autorizando)
+# 		try: 
+# 			payload = jwt.decode(token, app.config['SECRET_KEY']) # intenta decodificar el token JWT utlizando una calve sercrea almacenada en la configuración de la aplicación
+# 															   # Si tien exito, la carga útil (payload) del token se malcenará en la variable payload
+# 			# You can use the JWT errs in exception
+# 		# except jwt.InvalidTokenError:
+# 		# 	return 'Invalid token. Please log in again.'
+# 		except: # Si ocurre una exception durante la decodifación del token (por ejemplo, si el oten es invalido)
+# 			return jsonify({'Alert':'Invalid Token'}), 403 # Devuelve una respuesta JSON que idica que el token es invalido con el codigo de estado 403 (Prohibido)
+# 		return func(*args, **kwargs) # Si el token es valido, la función decorada original (func) se llama conlos mismo argumnetos y palabras clave que recibio
+# 	return decorated # La función deracdora devuelve la función anidad "decorated", que se encargará de la autenticación antes de llamar a la función original
 
-@app.route('/')
-def home():
-    if not session.get('logged_in'):
-        return render_template('login.html')
-    else:
-    	 return 'Logged in currently'
+# @app.route('/')
+# def home():
+#     if not session.get('logged_in'):
+#         return render_template('login.html')
+#     else:
+#     	 return 'Logged in currently'
 	
-@app.route('/public')
-def public():
-	return 'For Public'
+# @app.route('/public')
+# def public():
+# 	return 'For Public'
 
-@app.route('/auth')
-@token_required
-def auth():
-	return 'JWT is verified. Welcome to your dashboard'
+# @app.route('/auth')
+# @token_required
+# def auth():
+# 	return 'JWT is verified. Welcome to your dashboard'
 	
 
 
 # Login
-@app.route('/login', methods=['POST'])
-def login():
-    if request.form['username'] =='ijquenta' and request.form['password'] == '123456':
-        session['logged_in'] = True
+# @app.route('/login', methods=['POST'])
+# def login():
+#     if request.form['username'] =='ijquenta' and request.form['password'] == '123456':
+#         session['logged_in'] = True
 
-        token = jwt.encode({
-            'user': request.form['username'],
-            # don't foget to wrap it in str function, otherwise it won't work [ i struggled with this one! ]
-            'expiration': str(datetime.utcnow() + timedelta(seconds=60))
-        },
-            app.config['SECRET_KEY'])
-        return jsonify({'token': token.decode('utf-8')})
-    else:
-        return make_response('Unable to verify', 403, {'WWW-Authenticate': 'Basic realm: "Authentication Failed "'})
+#         token = jwt.encode({
+#             'user': request.form['username'],
+#             # don't foget to wrap it in str function, otherwise it won't work [ i struggled with this one! ]
+#             'expiration': str(datetime.utcnow() + timedelta(seconds=60))
+#         },
+#             app.config['SECRET_KEY'])
+#         return jsonify({'token': token.decode('utf-8')})
+#     else:
+#         return make_response('Unable to verify', 403, {'WWW-Authenticate': 'Basic realm: "Authentication Failed "'})
 
 
-@app.route('/logout', methods=['POST'])
-def logout():
-    pass
+# @app.route('/logout', methods=['POST'])
+# def logout():
+#     pass
 
 CORS(app)
 
@@ -121,6 +122,10 @@ app.secret_key = configuration.APP_SECRET_KEY
 
 api.add_resource(resources.Index, routes.index)
 api.add_resource(resources.Protected, routes.protected)
+
+
+api.add_resource(Autenticacion.Login, routes.login)
+api.add_resource(Autenticacion.Verify, routes.verify)
 
 
 # API Usuarios
@@ -148,6 +153,28 @@ api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
 #api.add_resource(BenSocial.RegTresUltMesRemDoc, routes.regTresUltMesRemDoc)
 #api.add_resource(BenSocial.RegistrarBeneficioNuevo, routes.registrarBeneficioNuevo)
 #api.add_resource(BenSocial.EliminarBeneficio, routes.eliminarBeneficio)
+
+
+
+
+# JWT
+# from flask_jwt_extended import create_access_token
+
+# @app.route('/login', methods=['POST'])
+# def login():
+#     username = request.json.get('username')
+#     password = request.json.get('password')
+    
+#     user = User.query.filter_by(username=username).first()
+    
+#     if user and check_password_hash(user.password, password):
+#         access_token = create_access_token(identity=username)
+#         return jsonify(access_token=access_token), 200
+#     else:
+#         return jsonify(message='Credenciales inválidas'), 401
+
+
+
 
 
 if __name__ == '__main__':

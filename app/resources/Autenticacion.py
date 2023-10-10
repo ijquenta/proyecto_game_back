@@ -1,40 +1,40 @@
 from flask_restful import Resource, reqparse
 from flask import session, request
 from client.responses import clientResponses as messages
-from core.auth import *
+from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
 from services.usuario_service import *
-from functools import wraps
-from flask import request
+from core.auth import *
+
 #import services.beneficio_service as beneficio
 
 
 
-
-
-def verify_token_middleware(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        token = request.headers['Authorization'].split(" ")[1]
-        print("token-verify-middleware-->", token)
-        return validate_token(token, output=False)
-    return wrapper
-
-
-
-class ListarRoles(Resource):
-  def get(self):
-      print("Rest")
-      return listarRoles()
-
-parseCrearRol = reqparse.RequestParser()
-parseCrearRol.add_argument('rolNom', type=str, help = 'Debe elegir la Descripción del rol', required = True)
-class CrearRol(Resource):
+parseLogin = reqparse.RequestParser()
+parseLogin.add_argument('usuario', type=str, help = 'Debe elegir un usuario', required = True)
+parseLogin.add_argument('contrasenia', type=str, help = 'Debe elegir una contraseña', required = True)
+class Login(Resource):
   def post(self):
-      data = parseCrearRol.parse_args()
-      return crearRol(data)
+      data = parseLogin.parse_args()
+      print("data->",data)
+      if data.usuario == "ijquenta" and data.contrasenia == "123456":
+         return write_token(data)
+      else:
+         response =jsonify({"message": "Usuario no encontrado"})
+         response.status_code = 404
+         return response
+
   
+class Verify(Resource):
+  def get(self):
+    token = request.headers['Authorization'].split(" ")[1]
+    print("token-verify-->", token)
+    return validate_token(token, output=True)
+
+
+
+
 parseModificarRol = reqparse.RequestParser()
 parseModificarRol.add_argument('rolId', type=int, help = 'Debe elegir el Id del rol', required = True)
 parseModificarRol.add_argument('rolNom', type=str, help = 'Debe elegir la Descripción del rol', required = True)

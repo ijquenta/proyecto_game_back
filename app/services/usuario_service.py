@@ -19,6 +19,20 @@ def listarRoles():
     FROM public.roles;
     ''')
 
+
+# def listarRoles():
+#     # Realiza la consulta SQL y obtén los resultados
+#     results = select(f'''
+#         SELECT rolid, rolnom 
+#         FROM public.roles;
+#     ''')
+
+#     # Convierte los resultados en una lista de diccionarios
+#     roles = [{"rolid": row[0], "rolnom": row[1]} for row in results]
+
+#     return roles  # Devuelve la lista de roles en formato JSON
+
+
 def listarUsuarios():
     return select(f'''
     SELECT id, nombre_usuario, contrasena, nombre_completo, rol

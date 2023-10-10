@@ -33,6 +33,10 @@ class Routes:
     eliminarRol = apiVersion + '/eliminarRol'
 
 
+    login = apiVersion + '/login'
+    verify = apiVersion + '/verify/token'
+
+
     # actualizarBeneficiosSociales = apiVersion + '/actualizarBeneficiosSociales'
     # Ejemplo Insertar Registro en base de datos
     # regRestaurarMes = apiVersion + '/regRestaurarMes'
