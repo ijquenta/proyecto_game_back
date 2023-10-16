@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from flask import session, request
 from client.responses import clientResponses as messages
-from core.auth import require_token
+# from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
 from services.usuario_service import *
@@ -11,26 +11,26 @@ from core.auth import *
 
 
 
-parseLogin = reqparse.RequestParser()
-parseLogin.add_argument('usuario', type=str, help = 'Debe elegir un usuario', required = True)
-parseLogin.add_argument('contrasenia', type=str, help = 'Debe elegir una contraseña', required = True)
-class Login(Resource):
-  def post(self):
-      data = parseLogin.parse_args()
-      print("data->",data)
-      if data.usuario == "ijquenta" and data.contrasenia == "123456":
-         return write_token(data)
-      else:
-         response =jsonify({"message": "Usuario no encontrado"})
-         response.status_code = 404
-         return response
+# parseLogin = reqparse.RequestParser()
+# parseLogin.add_argument('usuario', type=str, help = 'Debe elegir un usuario', required = True)
+# parseLogin.add_argument('contrasenia', type=str, help = 'Debe elegir una contraseña', required = True)
+# class Login(Resource):
+#   def post(self):
+#       data = parseLogin.parse_args()
+#       print("data->",data)
+#       if data.usuario == "ijquenta" and data.contrasenia == "123456":
+#          return write_token(data)
+#       else:
+#          response =jsonify({"message": "Usuario no encontrado"})
+#          response.status_code = 404
+#          return response
 
   
-class Verify(Resource):
-  def get(self):
-    token = request.headers['Authorization'].split(" ")[1]
-    print("token-verify-->", token)
-    return validate_token(token, output=True)
+# class Verify(Resource):
+#   def get(self):
+#     token = request.headers['Authorization'].split(" ")[1]
+#     print("token-verify-->", token)
+#     return validate_token(token, output=True)
 
 
 

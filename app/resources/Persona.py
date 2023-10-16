@@ -1,7 +1,7 @@
 from flask_restful import Resource, reqparse
 from flask import session, request
 from client.responses import clientResponses as messages
-from core.auth import require_token
+# from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
 from services.persona_service import *

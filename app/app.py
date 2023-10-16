@@ -11,8 +11,8 @@ import os
 from client.responses import clientResponses as messages
 from client.routes import Routes as routes
 
-import resources.resources as resources
-import resources.BenSocial as BenSocial
+# import resources.resources as resources
+# import resources.BenSocial as BenSocial
 import resources.Persona as Persona
 import resources.Reportes as Report
 import resources.Usuario as Usuario
@@ -120,12 +120,12 @@ api = Api(app)
 
 app.secret_key = configuration.APP_SECRET_KEY
 
-api.add_resource(resources.Index, routes.index)
-api.add_resource(resources.Protected, routes.protected)
+# api.add_resource(resources.Index, routes.index)
+# api.add_resource(resources.Protected, routes.protected)
 
 
-api.add_resource(Autenticacion.Login, routes.login)
-api.add_resource(Autenticacion.Verify, routes.verify)
+# api.add_resource(Autenticacion.Login, routes.login)
+# api.add_resource(Autenticacion.Verify, routes.verify)
 
 
 # API Usuarios
@@ -173,9 +173,138 @@ api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
 #     else:
 #         return jsonify(message='Credenciales inválidas'), 401
 
+from datetime import datetime, timedelta
+from flask import Flask, request, jsonify, make_response
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+import jwt
+from flask_sqlalchemy import SQLAlchemy
+
+# Configuración de la base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key = True, autoincrement= True)
+    email = db.Column(db.String(150), unique = True, nullable = False)
+    password = db.Column(db.String(150), nullable = False)
+    date_registered = db.Column(db.DateTime, default = datetime.utcnow())
+    
 
+def encode_token(user_id):
+    payload = {
+        'exp': datetime.utcnow() + timedelta(days=0,seconds=30),
+        'iat': datetime.utcnow(),
+        'sub': user_id
+    }
+    token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
+    return token.decode('utf-8')
+
+
+from flask import Flask,request,jsonify,make_response
+from werkzeug.security import generate_password_hash
+
+@app.route('/register', methods=['POST'])
+def register_user():
+    user_data = request.get_json()
+    user = User.query.filter_by(email = user_data['email']).first()
+    if not user:
+        try: 
+
+            hashed_password = generate_password_hash(user_data['password'])
+            user = User(email = user_data['email'], password = hashed_password)
+            db.session.add(user)
+            db.session.commit()
+            resp = {
+                "status":"success",
+                "message":"User successfully registered",
+            }
+            return make_response(jsonify(resp)),201
+
+        except Exception as e:
+            print(e)
+            resp = {
+                "status" :"Error",
+                "message" :" Error occured, user registration failed"
+            }
+            return make_response(jsonify(resp)),401
+    else:
+        resp = {
+            "status":"error",
+            "message":"User already exists"
+        }
+        return make_response(jsonify(resp)),202
+
+@app.route('/login',methods = ['POST'])
+def post():
+    user_data = request.get_json()
+    try:
+
+        user = User.query.filter_by(email = user_data['email']).first()
+
+        if user and check_password_hash(user.password,user_data['password'])==True:
+            auth_token = encode_token(user.id)
+            resp = {
+
+                "status":"succes",
+                "message" :"Successfully logged in",
+                'auth_token':auth_token
+            }
+            return make_response(jsonify(resp)),200
+        else:
+            resp ={
+                "status":"Error",
+                "message":"User does not exist"
+            }
+            return make_response(jsonify(resp)), 404
+
+    except Exception as e:
+        print(e)
+        resp = {
+            "Status":"error",
+                "Message":"User login failed"
+        }
+        return make_response(jsonify(resp)), 404
+    
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split(" ")[1]
+            print(token)
+        if not token:
+            return {
+                "message": "Authentication Token is missing",
+                "error": "Unauthorized"
+            }, 401
+        try:
+            data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+            current_user=User().get_by_id(data["user_id"])
+            if current_user is None:
+                return {
+                "message": "Invalid Authentication token",
+                "error": "Unauthorized"
+            }, 401
+        except Exception as e:
+            return {
+                "message": "An error Occured",
+                "error": str(e)
+            }, 500
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+
+@app.route('/protected', methods=['GET'])
+@token_required 
+def protected():  
+   resp = {"message":"This is a protected view"}   
+   return make_response(jsonify(resp)), 404
 
 if __name__ == '__main__':
 	Base.metadata.create_all(engine)

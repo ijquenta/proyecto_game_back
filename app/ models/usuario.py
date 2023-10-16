@@ -1,3 +1,4 @@
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 # Importa otras bibliotecas que puedas necesitar, como por ejemplo:
@@ -6,8 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_usuario = db.Column(db.String(80), unique=True, nullable=False)
-    contrasenia = db.Column(db.String(120), nullable=False)
-    nombre_completo = db.Column(db.String(120), nullable=False)
-    roles = db.Column(db.String(120), nullable=False)
+    __table_name = 'users'
+    id = db.Column(db.Integer, primary_key = True, autoincrement= True)
+    email = db.Column(db.String(150), unique = True, nullable = False)
+    password = db.Column(db.String(150), nullable = False)
+    date_registered = db.Column(db.DateTime, default = datetime.utcnow())
+    

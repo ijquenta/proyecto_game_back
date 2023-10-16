@@ -15,10 +15,73 @@ def catchError():
 
 def listarRoles():
     return select(f'''
-    SELECT rolid, rolnom 
-    FROM public.roles;
+    SELECT rolid, rolnombre, roldescripcion, rolusureg, rolfecreg, rolusumod, rolfecmod, rolestado
+    FROM academico.roles
+    where rolestado = 1
+    order by rolid;        
     ''')
 
+# def crearRol(data):
+#     return execute_function('''
+    
+#     ''')
+
+def crearRol(data):
+    print("Datos->",data)
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT * from academico.agregarrol({rolNombre}, {rolDescripcion}, {rolUsuReg});
+            ''').format(
+                rolNombre=sql.Literal(data['rolNombre']),
+                rolDescripcion=sql.Literal(data['rolDescripcion']),
+                rolUsuReg=sql.Literal(data['rolUsuReg'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+def modificarRol(data):
+    print("Datos->",data)
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.modificarrol2({rolId}, {rolNombre}, {rolDescripcion}, {rolUsuMod});
+            ''').format(
+                rolId=sql.Literal(data['rolId']),
+                rolNombre=sql.Literal(data['rolNombre']),
+                rolDescripcion=sql.Literal(data['rolDescripcion']),
+                rolUsuMod=sql.Literal(data['rolUsuMod'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+def eliminarRol(data):
+    print("Datos eliminar->",data)
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.eliminarRol2({rolid}, {rolusumod});
+            ''').format(
+                rolid=sql.Literal(data['rolid']),
+                rolusumod=sql.Literal(data['rolusumod'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+# def modificarRol(data):
+#     print("Datos Recibidos Mod---->",data)
+#     return execute_function(f'''
+#     SELECT * from academico.modificarrol2({data['rolId']}, \'{data['rolNombre']}\', \'{data['rolDescripcion']}\', \'{data['rolUsuMod']}\');           
+#     ''')
 
 # def listarRoles():
 #     # Realiza la consulta SQL y obtén los resultados
@@ -39,34 +102,34 @@ def listarUsuarios():
     FROM public.usuarios;
     ''')
 
-def crearRol(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            select * from f_agregar_rol2({rolNom});
-            ''').format(
-                rolNom=sql.Literal(data['rolNom'])
-            )
-        result = execute(as_string(query))
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
-    return result
+# def crearRol(data):
+#     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+#     try:
+#         query = sql.SQL('''
+#             select * from f_agregar_rol2({rolNom});
+#             ''').format(
+#                 rolNom=sql.Literal(data['rolNom'])
+#             )
+#         result = execute(as_string(query))
+#     except Exception as err:
+#         print(err)
+#         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+#     return result
 
-def modificarRol(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            select * from f_rol_modificar({rolId}, {rolNom});
-            ''').format(
-                rolId=sql.Literal(data['rolId']),
-                rolNom=sql.Literal(data['rolNom'])
-            )
-        result = execute(as_string(query))
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
-    return result
+# def modificarRol(data):
+#     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+#     try:
+#         query = sql.SQL('''
+#             select * from f_rol_modificar({rolId}, {rolNom});
+#             ''').format(
+#                 rolId=sql.Literal(data['rolId']),
+#                 rolNom=sql.Literal(data['rolNom'])
+#             )
+#         result = execute(as_string(query))
+#     except Exception as err:
+#         print(err)
+#         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+#     return result
 
 @catchError()
 # import sql  # Asegúrate de importar la librería SQL correspondiente.
@@ -89,10 +152,10 @@ def eliminarRol2(data):
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
 
-def eliminarRol(data):
-    return execute_function(f'''
-    select public.f_rol_eliminar({data['rolId']}) as valor;
-''')
+# def eliminarRol(data):
+#     return execute_function(f'''
+#     select public.f_rol_eliminar({data['rolId']}) as valor;
+# ''')
 
 # def eliminarRol(rolId):
 #     return select(f'''
