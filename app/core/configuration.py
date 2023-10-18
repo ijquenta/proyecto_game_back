@@ -8,7 +8,7 @@ APP_SECRET_KEY = os.getenv("APP_SECRET_KEY", "secret")
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "confidential")
 TOKEN_MINUTES_LIFE_ADMIN=os.getenv("DBUSER", 60)
 
-API_SECRET_KEY = os.getenv("API_SECRET_KEY", "f")
+# API_SECRET_KEY = os.getenv("API_SECRET_KEY", "f")
 API_URL = os.getenv("API_URL", "f")
 
 SERVER_HOST = os.environ.get("SERVER_HOST", '0.0.0.0') 

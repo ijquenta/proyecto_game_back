@@ -31,9 +31,13 @@ class Routes:
     crearRol = apiVersion + '/crearRol'
     modificarRol = apiVersion + '/modificarRol'
     eliminarRol = apiVersion + '/eliminarRol'
+    
+    
+    listarPersona = apiVersion + '/listarPersona'
 
 
     login = apiVersion + '/login'
+    register = apiVersion + 'register'
     verify = apiVersion + '/verify/token'
 
 

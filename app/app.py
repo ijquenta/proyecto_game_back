@@ -137,22 +137,12 @@ api.add_resource(Report.rptTotalesSigma, routes.rptTotalesSigma)
 # Roles
 api.add_resource(Usuario.ListarRoles, routes.listarRoles)
 api.add_resource(Usuario.CrearRol, routes.crearRol)
+# api.add_resource(Usuario.Login, routes.login)
 api.add_resource(Usuario.ModificarRol, routes.modificarRol)
 api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
 
-# Ejemplos de API
-# Obtener los datos de un docente
-#api.add_resource(BenSocial.ObtenerDatosDocente, routes.obtenerDatosDocente)
-# Listar beneficios sociales por CodDocente
-#api.add_resource(BenSocial.ListarBeneficiosDocente, routes.listarBeneficiosDocente)
-#api.add_resource(BenSocial.ListarTipoMotivo, routes.listarTipoMotivo)
-# Obtener los datos para modificar
-#api.add_resource(BenSocial.ObtenerDatosModificar, routes.obtenerDatosModificar)
-#Listar los ultimos tres meses remunerados de un docente
-#api.add_resource(BenSocial.ListarTresUltimosMesesRemuneraadosDocente, routes.listarTresUltimosMesesRemuneraadosDocente)
-#api.add_resource(BenSocial.RegTresUltMesRemDoc, routes.regTresUltMesRemDoc)
-#api.add_resource(BenSocial.RegistrarBeneficioNuevo, routes.registrarBeneficioNuevo)
-#api.add_resource(BenSocial.EliminarBeneficio, routes.eliminarBeneficio)
+#Persona
+api.add_resource(Usuario.ListarPersona, routes.listarPersona)
 
 
 
@@ -192,7 +182,7 @@ class User(db.Model):
     email = db.Column(db.String(150), unique = True, nullable = False)
     password = db.Column(db.String(150), nullable = False)
     date_registered = db.Column(db.DateTime, default = datetime.utcnow())
-    
+
 
 def encode_token(user_id):
     payload = {
@@ -207,13 +197,18 @@ def encode_token(user_id):
 from flask import Flask,request,jsonify,make_response
 from werkzeug.security import generate_password_hash
 
-@app.route('/register', methods=['POST'])
+@app.route('/academico_api/register', methods=['POST'])
 def register_user():
     user_data = request.get_json()
+    print("USER_DATA->", user_data)
+    
     user = User.query.filter_by(email = user_data['email']).first()
+    
+
+    
+    print("BUSCA AL USUARIO REGISTER-> ",user)
     if not user:
         try: 
-
             hashed_password = generate_password_hash(user_data['password'])
             user = User(email = user_data['email'], password = hashed_password)
             db.session.add(user)
@@ -237,8 +232,9 @@ def register_user():
             "message":"User already exists"
         }
         return make_response(jsonify(resp)),202
+        
 
-@app.route('/login',methods = ['POST'])
+@app.route('/academico_api/login',methods = ['POST'])
 def post():
     user_data = request.get_json()
     try:

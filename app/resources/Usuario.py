@@ -11,17 +11,31 @@ from flask import request
 
 
 
+# @app.route('/register', methods=['POST'])
 
 
-def verify_token_middleware(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        token = request.headers['Authorization'].split(" ")[1]
-        print("token-verify-middleware-->", token)
-        return validate_token(token, output=False)
-    return wrapper
+# parseLogin = reqparse.RequestParser()
+# parseLogin.add_argument('email', type=str, help = 'Debe elegir el email', required = True)
+# parseLogin.add_argument('password', type=str, help = 'Debe elegir la password', required = True)
+# class Login(Resource):
+#   print("login -->", parseLogin)
+#   def post(self):
+#       data = parseLogin.parse_args()
+#       return login(data)
 
 
+# def verify_token_middleware(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         token = request.headers['Authorization'].split(" ")[1]
+#         print("token-verify-middleware-->", token)
+#         return validate_token(token, output=False)
+#     return wrapper
+
+class ListarPersona(Resource):
+  def get(self):
+      print("ListarPersona")
+      return listarPersona()
 
 class ListarRoles(Resource):
   def get(self):
