@@ -16,6 +16,7 @@ from client.routes import Routes as routes
 import resources.Persona as Persona
 import resources.Reportes as Report
 import resources.Usuario as Usuario
+import resources.Materia as Materia
 import resources.Autenticacion as Autenticacion
 
 from core.database import Base, session_db, engine
@@ -144,7 +145,8 @@ api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
 #Persona
 api.add_resource(Usuario.ListarPersona, routes.listarPersona)
 
-
+# Materia
+api.add_resource(Materia.ListarMaterias, routes.listarMaterias)
 
 
 # JWT

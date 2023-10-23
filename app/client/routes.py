@@ -9,23 +9,6 @@ class Routes:
 
     listaUsuarios = apiVersion + '/listaUsuarios'
 
-    obtenerDatosDocente = apiVersion + '/obtenerDatosDocente' 
-
-    listarBeneficiosDocente = apiVersion + '/listarBeneficiosDocente'
-
-    listarTipoMotivo = apiVersion + '/listarTipoMotivo'
-
-    obtenerDatosModificar = apiVersion + '/obtenerDatosModificar'
-
-
-    listarTresUltimosMesesRemuneraadosDocente = apiVersion + '/listarTresUltimosMesesRemuneraadosDocente'
-
-    regTresUltMesRemDoc = apiVersion + '/regTresUltMesRemDoc'
-
-    registrarBeneficioNuevo = apiVersion + '/registrarBeneficioNuevo'
-
-    eliminarBeneficio = apiVersion + '/eliminarBeneficio'
-
 
     listarRoles = apiVersion + '/listarRoles'
     crearRol = apiVersion + '/crearRol'
@@ -34,6 +17,8 @@ class Routes:
     
     
     listarPersona = apiVersion + '/listarPersona'
+    
+    listarMaterias = apiVersion + '/listarMaterias'
 
 
     login = apiVersion + '/login'
@@ -41,7 +26,4 @@ class Routes:
     verify = apiVersion + '/verify/token'
 
 
-    # actualizarBeneficiosSociales = apiVersion + '/actualizarBeneficiosSociales'
-    # Ejemplo Insertar Registro en base de datos
-    # regRestaurarMes = apiVersion + '/regRestaurarMes'
     
