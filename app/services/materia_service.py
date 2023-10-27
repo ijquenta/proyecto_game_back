@@ -8,6 +8,14 @@ def listarMaterias():
     where matestado = 1
     order by matnombre;        
     ''')
+    
+def listaMateriaCombo(data):
+    return select(f'''
+        SELECT m.matid, m.matnombre, m.matestado, m.matnivel, c.curnombre 
+        FROM academico.materia m
+        inner join academico.curso c on c.curnivel = m.matnivel
+        where m.matnivel = {data['curnivel']}         
+        ''')
 
 def crearRol(data):
     print("Datos->",data)

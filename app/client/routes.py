@@ -18,8 +18,23 @@ class Routes:
     
     listarPersona = apiVersion + '/listarPersona'
     
+    # Materia
     listarMaterias = apiVersion + '/listarMaterias'
-
+    
+    
+    #Curso - Materia
+    listarCursoMateria = apiVersion + '/listarCursoMateria'
+    
+    # Combo
+    listaCursoCombo = apiVersion + '/listaCursoCombo'
+    listaMateriaCombo = apiVersion + '/listaMateriaCombo'
+    listaPersonaDocenteCombo = apiVersion + '/listaPersonaDocenteCombo'
+    
+    #Nivel
+    listarNivel = apiVersion + '/listarNivel'
+    insertarNivel = apiVersion + '/insertarNivel'
+    
+    
 
     login = apiVersion + '/login'
     register = apiVersion + 'register'

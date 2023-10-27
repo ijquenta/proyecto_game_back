@@ -47,7 +47,7 @@ parseCrearRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nombre 
 parseCrearRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
 parseCrearRol.add_argument('rolUsuReg', type=str, help = 'Debe elegir el usuario de registro')
 class CrearRol(Resource):
-  print("CrearRol -->", parseCrearRol)
+  # print("CrearRol -->", parseCrearRol)
   def post(self):
       data = parseCrearRol.parse_args()
       return crearRol(data)
@@ -58,7 +58,7 @@ parseModificarRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nom
 parseModificarRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
 parseModificarRol.add_argument('rolUsuMod', type=str, help = 'Debe elegir el usuario de registro', required = True)
 class ModificarRol(Resource):
-  print("Modificar Rol -->", parseModificarRol)
+  # print("Modificar Rol -->", parseModificarRol)
   def post(self):
       data = parseModificarRol.parse_args()
       return modificarRol(data)

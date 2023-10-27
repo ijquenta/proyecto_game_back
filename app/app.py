@@ -17,6 +17,8 @@ import resources.Persona as Persona
 import resources.Reportes as Report
 import resources.Usuario as Usuario
 import resources.Materia as Materia
+import resources.Curso as Curso
+import resources.Nivel as Nivel
 import resources.Autenticacion as Autenticacion
 
 from core.database import Base, session_db, engine
@@ -149,6 +151,19 @@ api.add_resource(Usuario.ListarPersona, routes.listarPersona)
 api.add_resource(Materia.ListarMaterias, routes.listarMaterias)
 
 
+# Curso - Materia
+api.add_resource(Curso.ListarCursoMateria, routes.listarCursoMateria)
+
+
+# Combo
+api.add_resource(Curso.ListaCursoCombo, routes.listaCursoCombo)
+api.add_resource(Materia.ListaMateriaCombo, routes.listaMateriaCombo)
+api.add_resource(Curso.ListaPersonaDocenteCombo, routes.listaPersonaDocenteCombo)
+
+
+# Nivel
+api.add_resource(Nivel.ListarNivel, routes.listarNivel)
+api.add_resource(Nivel.InsertarNivel, routes.insertarNivel)
 # JWT
 # from flask_jwt_extended import create_access_token
 
@@ -305,7 +320,7 @@ def protected():
    return make_response(jsonify(resp)), 404
 
 if __name__ == '__main__':
-	Base.metadata.create_all(engine)
+	# Base.metadata.create_all(engine)
 	HOST = configuration.SERVER_HOST
 	PORT = configuration.SERVER_PORT
 	DEBUG = configuration.DEBUG
