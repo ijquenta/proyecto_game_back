@@ -7,7 +7,52 @@ class ListarCursoMateria(Resource):
   def get(self):
       print("Listar Cursos")
       return listarCursoMateria()
+
+parseEliminarCursoMateria = reqparse.RequestParser()
+parseEliminarCursoMateria.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)
+class EliminarCursoMateria(Resource):
+  def post(self):
+      data = parseEliminarCursoMateria.parse_args()
+      print("Eliminar Curso Materia")
+      return eliminarCursoMateria(data)
+
+parseInsertarCursoMateria = reqparse.RequestParser()
+parseInsertarCursoMateria.add_argument('curid', type=int, help='Debe ingresar curid', required = True)
+parseInsertarCursoMateria.add_argument('matid', type=int, help='Debe ingresar matid', required = True)
+parseInsertarCursoMateria.add_argument('periddocente', type=int, help='Debe ingresar periddocente', required = True)
+parseInsertarCursoMateria.add_argument('curmatfecini', type=str, help='Debe insersar curmatfecini', required = True)
+parseInsertarCursoMateria.add_argument('curmatfecfin', type=str, help='Debe insersar curmatfecfin', required = True)
+parseInsertarCursoMateria.add_argument('curmatestado', type=str, help='Debe insersar curmatestado', required = True)
+parseInsertarCursoMateria.add_argument('curmatestadodescripcion', type=str, help='Debe insersar curmatestadodescripcion', required = True)
+parseInsertarCursoMateria.add_argument('curmatusureg', type=str, help='Debe insersar curmatusureg', required = True)
+parseInsertarCursoMateria.add_argument('curmatidrol', type=int, help='Debe insersar curmatidrol', required = True)
+parseInsertarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe insersar curmatidroldes', required = True)
+class InsertarCursoMateria(Resource):
+  def post(self):
+      data = parseInsertarCursoMateria.parse_args()
+      print("Insertar Curso Materia", data)
+      return insertarCursoMateria(data)
     
+    
+    
+parseModificarCursoMateria = reqparse.RequestParser()
+parseModificarCursoMateria.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)
+parseModificarCursoMateria.add_argument('curid', type=int, help='Debe ingresar curid', required = True)
+parseModificarCursoMateria.add_argument('matid', type=int, help='Debe ingresar matid', required = True)
+parseModificarCursoMateria.add_argument('periddocente', type=int, help='Debe ingresar periddocente', required = True)
+parseModificarCursoMateria.add_argument('curmatfecini', type=str, help='Debe insersar curmatfecini', required = True)
+parseModificarCursoMateria.add_argument('curmatfecfin', type=str, help='Debe insersar curmatfecfin', required = True)
+parseModificarCursoMateria.add_argument('curmatestado', type=str, help='Debe insersar curmatestado', required = True)
+parseModificarCursoMateria.add_argument('curmatestadodescripcion', type=str, help='Debe insersar curmatestadodescripcion', required = True)
+parseModificarCursoMateria.add_argument('curmatusumod', type=str, help='Debe insersar curmatusumod', required = True)
+parseModificarCursoMateria.add_argument('curmatidrol', type=int, help='Debe insersar curmatidrol', required = True)
+parseModificarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe insersar curmatidroldes', required = True)
+class ModificarCursoMateria(Resource):
+  def post(self):
+      data = parseModificarCursoMateria.parse_args()
+      print("Modificar Curso Materia", data)
+      return modificarCursoMateria(data)
+
 class ListaCursoCombo(Resource):
   def get(self):
       print("Lista Curso Combo")
@@ -19,3 +64,8 @@ class ListaPersonaDocenteCombo(Resource):
   def post(self):
     data = parseListaPersonaDocenteCombo.parse_args()
     return listaPersonaDocenteCombo(data)
+  
+class TipoRol(Resource):
+  def get(self):
+    print("TipoRol")
+    return tipoRol()

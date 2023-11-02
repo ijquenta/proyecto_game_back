@@ -19,11 +19,18 @@ class Routes:
     listarPersona = apiVersion + '/listarPersona'
     
     # Materia
-    listarMaterias = apiVersion + '/listarMaterias'
+    listarMateria = apiVersion + '/listarMateria'
+    eliminarMateria = apiVersion + '/eliminarMateria'
+    insertarMateria = apiVersion + '/insertarMateria'
+    modificarMateria = apiVersion + '/modificarMateria'
     
     
     #Curso - Materia
     listarCursoMateria = apiVersion + '/listarCursoMateria'
+    eliminarCursoMateria = apiVersion + '/eliminarCursoMateria'
+    insertarCursoMateria = apiVersion + '/insertarCursoMateria'
+    modificarCursoMateria = apiVersion + '/modificarCursoMateria'
+    tipoRol = apiVersion + '/tipoRol'
     
     # Combo
     listaCursoCombo = apiVersion + '/listaCursoCombo'
@@ -33,6 +40,8 @@ class Routes:
     #Nivel
     listarNivel = apiVersion + '/listarNivel'
     insertarNivel = apiVersion + '/insertarNivel'
+    modificarNivel = apiVersion + '/modificarNivel'
+    eliminarNivel = apiVersion + '/eliminarNivel'
     
     
 

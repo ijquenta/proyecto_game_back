@@ -35,3 +35,7 @@ Levantar con gunicorn
 `pip install gunicorn`
 `cd app`
 `gunicorn -w 2 --bind 0.0.0.0:5001 --timeout 1200 --access-logfile aplication.log --error-logfile error.log wsgi:app`
+
+
+`gunicorn -w 2 --bind 0.0.0.0:5001 --timeout 1200 --access-logfile - --error-logfile error.log wsgi:app`
+

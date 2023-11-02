@@ -1,10 +1,10 @@
 from flask_restful import Resource, reqparse
 from services.materia_service import *
 
-class ListarMaterias(Resource):
+class ListarMateria(Resource):
   def get(self):
       print("Listar Materias")
-      return listarMaterias()
+      return listarMateria()
 
 class ListarPersona(Resource):
   def get(self):
@@ -53,3 +53,38 @@ class EliminarRol(Resource):
       data = parseEliminarRol.parse_args()
       return eliminarRol(data)
 
+parseEliminarMateria = reqparse.RequestParser()
+parseEliminarMateria.add_argument('matid', type=int, help = 'Debe elegir matid', required = True)
+class EliminarMateria(Resource):
+  def post(self):
+    data = parseEliminarMateria.parse_args()
+    return eliminarMateria(data)
+  
+  
+parseInsertarMateria = reqparse.RequestParser()
+parseInsertarMateria.add_argument('matnombre', type=str, help='Debe elegir matnombre', required=True)
+parseInsertarMateria.add_argument('matdescripcion', type=str, help='Debe elegir matdescripcion', required=True)
+parseInsertarMateria.add_argument('matnivel', type=int, help='Debe elegir matnivel', required=True)
+parseInsertarMateria.add_argument('matdesnivel', type=str, help='Debe elegir matdesnivel', required=True)
+parseInsertarMateria.add_argument('matestado', type=int, help='Debe elegir matestado', required=True)
+parseInsertarMateria.add_argument('matestadodescripcion', type=str, help='Debe elegir matestadodescripcion', required=True)
+parseInsertarMateria.add_argument('matusureg', type=str, help='Debe elegir matusureg', required=True)
+class InsertarMateria(Resource):
+    def post(self):
+        data = parseInsertarMateria.parse_args()
+        return insertarMateria(data)
+      
+      
+parseModificarMateria = reqparse.RequestParser()
+parseModificarMateria.add_argument('matid', type=int, help='Debe elegir matid', required=True)
+parseModificarMateria.add_argument('matnombre', type=str, help='Debe elegir matnombre', required=True)
+parseModificarMateria.add_argument('matdescripcion', type=str, help='Debe elegir matdescripcion', required=True)
+parseModificarMateria.add_argument('matnivel', type=int, help='Debe elegir matnivel', required=True)
+parseModificarMateria.add_argument('matdesnivel', type=str, help='Debe elegir matdesnivel', required=True)
+parseModificarMateria.add_argument('matestado', type=int, help='Debe elegir matestado', required=True)
+parseModificarMateria.add_argument('matestadodescripcion', type=str, help='Debe elegir matestadodescripcion', required=True)
+parseModificarMateria.add_argument('matusumod', type=str, help='Debe elegir matusumod', required=True)
+class ModificarMateria(Resource):
+    def post(self):
+        data = parseModificarMateria.parse_args()
+        return modificarMateria(data)

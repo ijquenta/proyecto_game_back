@@ -91,10 +91,10 @@ def listarPersona():
     return select(f'''
     SELECT
     p.perid, p.perusuario, p.percontrasena, p.percontrasenaconfirmar,
-    p.pernombres, p.perapepat, p.perapemat, p.perfecnac, p.perdomicilio,
+    p.pernombres, p.perapepat, p.perapemat, p.pernombrecompleto, p.perfecnac, p.perdomicilio,
     p.peridpais, p.perpais, p.peridgenero, p.pergenero, p.percorreoelectronico,
     p.percelular, p.pertelefono, p.perfoto, p.perusureg, p.perfecreg,
-    p.perusumod, p.perfecmod, p.perestado,r.rolid, r.rolnombre
+    p.perusumod, p.perfecmod, p.perestado,r.rolid, r.rolnombre 
     FROM academico.persona p
     LEFT JOIN academico.roles r ON p.peridrol = r.rolid
     WHERE p.perestado = 1;

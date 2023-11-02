@@ -1,5 +1,6 @@
 from flask_cors import CORS
 from flask import Flask, session, jsonify, request
+# from flask_restx import Api, Resource
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from logging.handlers import RotatingFileHandler
@@ -20,6 +21,7 @@ import resources.Materia as Materia
 import resources.Curso as Curso
 import resources.Nivel as Nivel
 import resources.Autenticacion as Autenticacion
+import services.nivel_service as NivelService
 
 from core.database import Base, session_db, engine
 from web.wsrrhh_service import *
@@ -131,6 +133,37 @@ app.secret_key = configuration.APP_SECRET_KEY
 # api.add_resource(Autenticacion.Verify, routes.verify)
 
 
+
+# @api.route('/academico_api/listarNivel', endpoint='listaN')
+# class ListarNivel(Resource):
+#     def get(self):
+#         print("Listar Nivel")
+#         return NivelService.listarNivel()
+
+# @api.route('/academico_api/InsertarNivel')
+# parseInsertarNivel = api.parser()
+# parseInsertarNivel.add_argument('curnombre', type=str, required=True, help='Debe elegir curnombre')
+# parseInsertarNivel.add_argument('curestado', type=str, required=True, help='Debe elegir curestado')
+# parseInsertarNivel.add_argument('curestadodescripcion', type=str, required=True, help='Debe elegir curestadodescripcion')
+# parseInsertarNivel.add_argument('curnivel', type=int, required=True, help='Debe elegir curnivel')
+# parseInsertarNivel.add_argument('curfchini', type=str, required=True, help='Debe elegir curfchini')
+# parseInsertarNivel.add_argument('curfchfin', type=str, required=True, help='Debe elegir curfchfin')
+# parseInsertarNivel.add_argument('curusureg', type=str, required=True, help='Debe elegir curusureg')
+# parseInsertarNivel.add_argument('curusumod', type=str, required=True, help='Debe elegir curusumod')
+# parseInsertarNivel.add_argument('curdesnivel', type=str, required=True, help='Debe elegir curdesnivel')
+# parseInsertarNivel.add_argument('curdescripcion', type=str, required=True, help='Debe elegir curdescripcion')
+
+# class InsertarNivel(Resource):
+#     @api.expect(parseInsertarNivel)
+#     def post(self):
+#         data = api.payload  # Utiliza api.payload para obtener los datos del cuerpo de la solicitud
+#         return Nivel.insertarNivel(data)
+
+
+# api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
+
+
+
 # API Usuarios
 api.add_resource(Persona.ListarUsuarios, routes.listaUsuarios)
 
@@ -148,11 +181,18 @@ api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
 api.add_resource(Usuario.ListarPersona, routes.listarPersona)
 
 # Materia
-api.add_resource(Materia.ListarMaterias, routes.listarMaterias)
+api.add_resource(Materia.ListarMateria, routes.listarMateria)
+api.add_resource(Materia.EliminarMateria, routes.eliminarMateria)
+api.add_resource(Materia.InsertarMateria, routes.insertarMateria)
+api.add_resource(Materia.ModificarMateria, routes.modificarMateria)
 
 
 # Curso - Materia
 api.add_resource(Curso.ListarCursoMateria, routes.listarCursoMateria)
+api.add_resource(Curso.EliminarCursoMateria, routes.eliminarCursoMateria)
+api.add_resource(Curso.InsertarCursoMateria, routes.insertarCursoMateria)
+api.add_resource(Curso.ModificarCursoMateria, routes.modificarCursoMateria)
+api.add_resource(Curso.TipoRol, routes.tipoRol)
 
 
 # Combo
@@ -164,6 +204,17 @@ api.add_resource(Curso.ListaPersonaDocenteCombo, routes.listaPersonaDocenteCombo
 # Nivel
 api.add_resource(Nivel.ListarNivel, routes.listarNivel)
 api.add_resource(Nivel.InsertarNivel, routes.insertarNivel)
+api.add_resource(Nivel.ModificarNivel, routes.modificarNivel)
+api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
+
+if __name__ == '__main__':
+	#Base.metadata.create_all(engine)
+	HOST = configuration.SERVER_HOST
+	PORT = configuration.SERVER_PORT
+	DEBUG = configuration.DEBUG
+	print (HOST,PORT, ':3')
+	app.run(host=HOST,port=PORT,debug=True)
+ 
 # JWT
 # from flask_jwt_extended import create_access_token
 
@@ -319,10 +370,3 @@ def protected():
    resp = {"message":"This is a protected view"}   
    return make_response(jsonify(resp)), 404
 
-if __name__ == '__main__':
-	# Base.metadata.create_all(engine)
-	HOST = configuration.SERVER_HOST
-	PORT = configuration.SERVER_PORT
-	DEBUG = configuration.DEBUG
-	print (HOST,PORT, ':3')
-	app.run(host=HOST,port=PORT,debug=True)
