@@ -22,6 +22,8 @@ import resources.Curso as Curso
 import resources.Nivel as Nivel
 import resources.Autenticacion as Autenticacion
 import services.nivel_service as NivelService
+import resources.Inscripcion as Inscripcion
+import resources.Matricula as Matricula
 
 from core.database import Base, session_db, engine
 from web.wsrrhh_service import *
@@ -206,6 +208,17 @@ api.add_resource(Nivel.ListarNivel, routes.listarNivel)
 api.add_resource(Nivel.InsertarNivel, routes.insertarNivel)
 api.add_resource(Nivel.ModificarNivel, routes.modificarNivel)
 api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
+
+
+# Inscripción
+api.add_resource(Inscripcion.ListarInscripcion, routes.listarInscripcion)
+
+
+# Matricula
+api.add_resource(Matricula.ListarMatricula, routes.listarMatricula)
+api.add_resource(Matricula.InsertarMatricula, routes.insertarMatricula)
+api.add_resource(Matricula.ModificarMatricula, routes.modificarMatricula)
+api.add_resource(Matricula.EliminarMatricula, routes.eliminarMatricula)
 
 if __name__ == '__main__':
 	#Base.metadata.create_all(engine)

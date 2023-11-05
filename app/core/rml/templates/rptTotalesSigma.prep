@@ -100,7 +100,7 @@
                 </tr>
             </blockTable>
             {{script}}
-                total["liq"] = round(total["liq"] + item['id'],2)
+                total["liq"] = round(total["liq"] + item['id'], 2)
             {{endscript}}
        {{endfor}}
        <illustration width="27cm" height="0cm">

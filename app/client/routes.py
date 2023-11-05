@@ -43,7 +43,15 @@ class Routes:
     modificarNivel = apiVersion + '/modificarNivel'
     eliminarNivel = apiVersion + '/eliminarNivel'
     
-    
+    #Incripcion
+    listarInscripcion = apiVersion + '/listarInscripcion'
+
+
+    #Matricula
+    listarMatricula = apiVersion + '/listarMatricula'
+    insertarMatricula = apiVersion + '/insertarMatricula'
+    modificarMatricula = apiVersion + '/modificarMatricula'
+    eliminarMatricula = apiVersion + '/eliminarMatricula'
 
     login = apiVersion + '/login'
     register = apiVersion + 'register'

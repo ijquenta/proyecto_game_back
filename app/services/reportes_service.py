@@ -62,7 +62,7 @@ def rptTotalesSigma():
     print("sql")
     params = select(f'''
         SELECT id, nombre_usuario, contrasena, nombre_completo, rol
-        FROM usuarios;
+        FROM public.usuarios;
     ''')
     print("params", params)
     return make(Report().RptTotalesSigma(params, 1))
