@@ -55,7 +55,6 @@ logger.addHandler(handler)
 app = Flask(__name__) # Aplicación Flask
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
 
-
 # def token_required(func): # Esta es un función decoradora llamada "token_requerid". Toma una función func como argumentos.
 # 	# decorator factory which invoks update_wrapper() method and passes decorated function as an argument
 # 	@wraps(func) # Este decarorador sirve para preservar los metadatos de la función original 
@@ -130,40 +129,13 @@ app.secret_key = configuration.APP_SECRET_KEY
 # api.add_resource(resources.Index, routes.index)
 # api.add_resource(resources.Protected, routes.protected)
 
-
 # api.add_resource(Autenticacion.Login, routes.login)
 # api.add_resource(Autenticacion.Verify, routes.verify)
 
 
-
-# @api.route('/academico_api/listarNivel', endpoint='listaN')
-# class ListarNivel(Resource):
-#     def get(self):
-#         print("Listar Nivel")
-#         return NivelService.listarNivel()
-
-# @api.route('/academico_api/InsertarNivel')
-# parseInsertarNivel = api.parser()
-# parseInsertarNivel.add_argument('curnombre', type=str, required=True, help='Debe elegir curnombre')
-# parseInsertarNivel.add_argument('curestado', type=str, required=True, help='Debe elegir curestado')
-# parseInsertarNivel.add_argument('curestadodescripcion', type=str, required=True, help='Debe elegir curestadodescripcion')
-# parseInsertarNivel.add_argument('curnivel', type=int, required=True, help='Debe elegir curnivel')
-# parseInsertarNivel.add_argument('curfchini', type=str, required=True, help='Debe elegir curfchini')
-# parseInsertarNivel.add_argument('curfchfin', type=str, required=True, help='Debe elegir curfchfin')
-# parseInsertarNivel.add_argument('curusureg', type=str, required=True, help='Debe elegir curusureg')
-# parseInsertarNivel.add_argument('curusumod', type=str, required=True, help='Debe elegir curusumod')
-# parseInsertarNivel.add_argument('curdesnivel', type=str, required=True, help='Debe elegir curdesnivel')
-# parseInsertarNivel.add_argument('curdescripcion', type=str, required=True, help='Debe elegir curdescripcion')
-
-# class InsertarNivel(Resource):
-#     @api.expect(parseInsertarNivel)
-#     def post(self):
-#         data = api.payload  # Utiliza api.payload para obtener los datos del cuerpo de la solicitud
-#         return Nivel.insertarNivel(data)
-
-
-# api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
-
+# Autenticacion
+api.add_resource(Autenticacion.UserLogin, routes.login2)
+api.add_resource(Autenticacion.RegisterUser, routes.register2)
 
 
 # API Usuarios
@@ -212,6 +184,12 @@ api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
 
 # Inscripción
 api.add_resource(Inscripcion.ListarInscripcion, routes.listarInscripcion)
+api.add_resource(Inscripcion.InsertarInscripcion, routes.insertarInscripcion)
+api.add_resource(Inscripcion.ModificarInscripcion, routes.modificarInscripcion)
+api.add_resource(Inscripcion.EliminarInscripcion, routes.eliminarInscripcion)
+api.add_resource(Inscripcion.ObtenerCursoMateria, routes.obtenerCursoMateria)
+api.add_resource(Inscripcion.ListarComboCursoMateria, routes.listarComboCursoMateria)
+api.add_resource(Inscripcion.ListarComboMatricula, routes.listarComboMatricula)
 
 
 # Matricula
@@ -220,13 +198,11 @@ api.add_resource(Matricula.InsertarMatricula, routes.insertarMatricula)
 api.add_resource(Matricula.ModificarMatricula, routes.modificarMatricula)
 api.add_resource(Matricula.EliminarMatricula, routes.eliminarMatricula)
 
-if __name__ == '__main__':
-	#Base.metadata.create_all(engine)
-	HOST = configuration.SERVER_HOST
-	PORT = configuration.SERVER_PORT
-	DEBUG = configuration.DEBUG
-	print (HOST,PORT, ':3')
-	app.run(host=HOST,port=PORT,debug=True)
+
+
+
+
+
  
 # JWT
 # from flask_jwt_extended import create_access_token
@@ -253,7 +229,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 # Configuración de la base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
 
@@ -265,13 +241,17 @@ class User(db.Model):
     date_registered = db.Column(db.DateTime, default = datetime.utcnow())
 
 
-def encode_token(user_id):
+def encode_token(user_id, user_email):
+    print("encode_token: Datos recibidos: ", user_id, user_email)
     payload = {
         'exp': datetime.utcnow() + timedelta(days=0,seconds=30),
         'iat': datetime.utcnow(),
-        'sub': user_id
+        'sub': user_id,
+        'email': user_email 
     }
+    print("Payload: ", payload)
     token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
+    print("Token Generado: ", token.decode('utf-8'))
     return token.decode('utf-8')
 
 
@@ -281,18 +261,17 @@ from werkzeug.security import generate_password_hash
 @app.route('/academico_api/register', methods=['POST'])
 def register_user():
     user_data = request.get_json()
-    print("USER_DATA->", user_data)
+    print("Datos recuperados:", user_data)
     
     user = User.query.filter_by(email = user_data['email']).first()
-    
-
-    
-    print("BUSCA AL USUARIO REGISTER-> ",user)
+    print("Busqueda de usuario: ",user)
     if not user:
         try: 
             hashed_password = generate_password_hash(user_data['password'])
-            user = User(email = user_data['email'], password = hashed_password)
-            db.session.add(user)
+            print("Se resguarda el password: ", hashed_password)
+            user_new = User(email = user_data['email'], password = hashed_password)
+            print("Se crea el usuario para adicionar en la BD: ", user_new.email, user_new.password)
+            db.session.add(user_new)
             db.session.commit()
             resp = {
                 "status":"success",
@@ -314,21 +293,23 @@ def register_user():
         }
         return make_response(jsonify(resp)),202
         
-
 @app.route('/academico_api/login',methods = ['POST'])
 def post():
     user_data = request.get_json()
+    print("Se reciben los datos: ", user_data)
     try:
-
         user = User.query.filter_by(email = user_data['email']).first()
-
+        print("Obtenermos los datos del usuario: ", user)
         if user and check_password_hash(user.password,user_data['password'])==True:
-            auth_token = encode_token(user.id)
+            print("Usuario verificado")
+            auth_token = encode_token(user.id, user.email)
+            print("Auth_Token: ", auth_token)
             resp = {
-
                 "status":"succes",
                 "message" :"Successfully logged in",
-                'auth_token':auth_token
+                'auth_token':auth_token,
+                "usuario": user.id,
+                "email": user.email,
             }
             return make_response(jsonify(resp)),200
         else:
@@ -350,16 +331,20 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
+        print("request.headers: ", request.headers)
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split(" ")[1]
-            print(token)
+            print("Este es el token: ", token)
         if not token:
             return {
                 "message": "Authentication Token is missing",
                 "error": "Unauthorized"
             }, 401
         try:
+            print("SECRET_KEY_1: ", app.secret_key)
+            print("SECRET_KEY_2: ", app.config["SECRET_KEY"])
             data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+            print("data decode token: ", data)
             current_user=User().get_by_id(data["user_id"])
             if current_user is None:
                 return {
@@ -376,10 +361,19 @@ def token_required(f):
 
     return decorated
 
-
 @app.route('/protected', methods=['GET'])
 @token_required 
-def protected():  
-   resp = {"message":"This is a protected view"}   
+def protected():
+   print("Proteccion")  
+   resp = {"message":"Tienes acceso a esta API"}   
    return make_response(jsonify(resp)), 404
 
+
+
+if __name__ == '__main__':
+	#Base.metadata.create_all(engine)
+	HOST = configuration.SERVER_HOST
+	PORT = configuration.SERVER_PORT
+	DEBUG = configuration.DEBUG
+	print (HOST,PORT, ':3')
+	app.run(host=HOST,port=PORT,debug=True)

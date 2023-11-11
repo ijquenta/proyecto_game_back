@@ -45,6 +45,12 @@ class Routes:
     
     #Incripcion
     listarInscripcion = apiVersion + '/listarInscripcion'
+    insertarInscripcion = apiVersion + '/insertarInscripcion'
+    modificarInscripcion = apiVersion + '/modificarInscripcion'
+    eliminarInscripcion = apiVersion + '/eliminarInscripcion'
+    obtenerCursoMateria = apiVersion + '/obtenerCursoMateria'
+    listarComboCursoMateria = apiVersion + '/listarComboCursoMateria'
+    listarComboMatricula = apiVersion + '/listarComboMatricula'
 
 
     #Matricula
@@ -56,6 +62,11 @@ class Routes:
     login = apiVersion + '/login'
     register = apiVersion + 'register'
     verify = apiVersion + '/verify/token'
+    
+    
+    login2 = apiVersion + '/login2'
+    register2 = apiVersion + '/register2'
+    
 
 
     

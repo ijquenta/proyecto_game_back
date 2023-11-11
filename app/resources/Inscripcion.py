@@ -5,42 +5,59 @@ class ListarInscripcion(Resource):
   def get(self):
       print("Listar Inscripcion")
       return listarInscripcion()
+    
+class ListarComboCursoMateria(Resource):
+  def get(self):
+      print("Listar listarComboCursoMateria")
+      return listarComboCursoMateria()
+    
+class ListarComboMatricula(Resource):
+  def get(self):
+      print("Listar listar Combo Matricula")
+      return listarComboMatricula()
 
-parseInsertarNivel = reqparse.RequestParser()
-parseInsertarNivel.add_argument('curnombre', type=str, help = 'Debe elegir curnombre', required = True)
-parseInsertarNivel.add_argument('curestado', type=str, help = 'Debe elegir curnombre', required = True)
-parseInsertarNivel.add_argument('curestadodescripcion', type=str, help = 'Debe elegir curestadodescripcion', required = True)
-parseInsertarNivel.add_argument('curnivel', type=int, help = 'Debe elegir curnivel', required = True)
-parseInsertarNivel.add_argument('curfchini', type=str, help = 'Debe elegir numero curfchini', required = True)
-parseInsertarNivel.add_argument('curfchfin', type=str, help = 'Debe elegir curfchfin', required = True)
-parseInsertarNivel.add_argument('curusureg', type=str, help = 'Debe elegir curusureg', required = True)
-parseInsertarNivel.add_argument('curusumod', type=str, help = 'Debe elegir curusumod', required = True)
-parseInsertarNivel.add_argument('curdesnivel', type=str, help = 'Debe elegir curdesnivel', required = True)
-parseInsertarNivel.add_argument('curdescripcion', type=str, help = 'Debe elegir curdescripcion', required = True)
-class InsertarNivel(Resource):
+parseInsertarInscripcion = reqparse.RequestParser()
+parseInsertarInscripcion.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
+parseInsertarInscripcion.add_argument('peridestudiante', type=int, help = 'Debe elegir peridestudiante', required = True)
+parseInsertarInscripcion.add_argument('pagid', type=int, help = 'Debe elegir pagid', required = True)
+parseInsertarInscripcion.add_argument('insusureg', type=str, help = 'Debe elegir insusureg', required = True)
+parseInsertarInscripcion.add_argument('curmatid', type=int, help = 'Debe elegir numero curmatid', required = True)
+parseInsertarInscripcion.add_argument('insestado', type=int, help = 'Debe elegir insestado', required = True)
+parseInsertarInscripcion.add_argument('insestadodescripcion', type=str, help = 'Debe elegir insestadodescripcion', required = True)
+class InsertarInscripcion(Resource):
   def post(self):
-    data = parseInsertarNivel.parse_args()
-    return insertarNivel(data)
+    data = parseInsertarInscripcion.parse_args()
+    return insertarInscripcion(data)
   
-parseEliminarNivel = reqparse.RequestParser()
-parseEliminarNivel.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
-class EliminarNivel(Resource):
+parseModificarInscripcion = reqparse.RequestParser()
+parseModificarInscripcion.add_argument('insid', type=int, help = 'Debe elegir insid', required = True)
+parseModificarInscripcion.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
+parseModificarInscripcion.add_argument('peridestudiante', type=int, help = 'Debe elegir peridestudiante', required = True)
+parseModificarInscripcion.add_argument('pagid', type=int, help = 'Debe elegir pagid', required = True)
+parseModificarInscripcion.add_argument('insusumod', type=str, help = 'Debe elegir insusureg', required = True)
+parseModificarInscripcion.add_argument('curmatid', type=int, help = 'Debe elegir numero curmatid', required = True)
+parseModificarInscripcion.add_argument('insestado', type=int, help = 'Debe elegir insestado', required = True)
+parseModificarInscripcion.add_argument('insestadodescripcion', type=str, help = 'Debe elegir insestadodescripcion', required = True)
+class ModificarInscripcion(Resource):
   def post(self):
-    data = parseEliminarNivel.parse_args()
-    return eliminarNivel(data)
+    data = parseModificarInscripcion.parse_args()
+    return modificarInscripcion(data)
   
-parseModificarNivel = reqparse.RequestParser()
-parseModificarNivel.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
-parseModificarNivel.add_argument('curnombre', type=str, help = 'Debe elegir curnombre', required = True)
-parseModificarNivel.add_argument('curestado', type=str, help = 'Debe elegir curestado', required = True)
-parseModificarNivel.add_argument('curestadodescripcion', type=str, help = 'Debe elegir curestadodescripcion', required = True)
-parseModificarNivel.add_argument('curnivel', type=int, help = 'Debe elegir curnivel', required = True)
-parseModificarNivel.add_argument('curfchini', type=str, help = 'Debe elegir curfchini', required = True)
-parseModificarNivel.add_argument('curfchfin', type=str, help = 'Debe elegir curfchfin', required = True)
-parseModificarNivel.add_argument('curusumod', type=str, help = 'Debe elegir curusumod', required = True)
-parseModificarNivel.add_argument('curdesnivel', type=str, help = 'Debe elegir curdesnivel', required = True)
-parseModificarNivel.add_argument('curdescripcion', type=str, help = 'Debe elegir curdescripcion', required = True)
-class ModificarNivel(Resource):
+
+parseObtenerCursoMateria = reqparse.RequestParser()
+parseObtenerCursoMateria.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
+parseObtenerCursoMateria.add_argument('matid', type=int, help = 'Debe elegir matid', required = True)
+class ObtenerCursoMateria(Resource):
   def post(self):
-    data = parseModificarNivel.parse_args()
-    return modificarNivel(data)
+    data = parseObtenerCursoMateria.parse_args()
+    return obtenerCursoMateria(data)
+  
+parseEliminarInscripcion = reqparse.RequestParser()
+parseEliminarInscripcion.add_argument('insid', type=int, help = 'Debe elegir insid', required = True)
+class EliminarInscripcion(Resource):
+  def post(self):
+    data = parseEliminarInscripcion.parse_args()
+    return eliminarInscripcion(data)
+  
+  
+  
