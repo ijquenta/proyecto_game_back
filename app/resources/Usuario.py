@@ -32,6 +32,38 @@ from flask import request
 #         return validate_token(token, output=False)
 #     return wrapper
 
+
+
+
+parseGestionarUsuario = reqparse.RequestParser()
+parseGestionarUsuario.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
+parseGestionarUsuario.add_argument('usuid', type=int, help='Debe elegir usuId')
+parseGestionarUsuario.add_argument('perid', type=int, help='Debe elegir perId', required=True)
+parseGestionarUsuario.add_argument('rolid', type=int, help='Debe elegir rolId', required=True)
+parseGestionarUsuario.add_argument('usuname', type=str, help='Debe elegir usuName', required=True)
+parseGestionarUsuario.add_argument('usupassword', type=str, help='Debe elegir usuPassword', required=True)
+parseGestionarUsuario.add_argument('usupasswordhash', type=str, help='Debe elegir usuPasswordHash', required=True)
+parseGestionarUsuario.add_argument('usuemail', type=str, help='Debe elegir usuEmail', required=True)
+parseGestionarUsuario.add_argument('usuimagen', type=str, help='Debe elegir usuImagen', required=True)
+parseGestionarUsuario.add_argument('usudescripcion', type=str, help='Debe elegir usuDescripcion', required=True)
+parseGestionarUsuario.add_argument('usuestado', type=int, help='Debe elegir estado', required=True)
+parseGestionarUsuario.add_argument('usuusureg', type=str, help='Debe elegir usuRe', required=True)
+class GestionarUsuario(Resource):
+  def post(self):
+    data = parseGestionarUsuario.parse_args()
+    print("datos Usuario: ",data)
+    return gestionarUsuario(data)
+
+class ListaUsuario(Resource):
+  def get(self):
+    print("ListaUsuario")
+    return listaUsuario()
+  
+class TipoPersona(Resource):
+  def get(self):
+    print("TipoPersona")
+    return tipoPersona()
+
 class ListarPersona(Resource):
   def get(self):
       print("ListarPersona")

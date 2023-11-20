@@ -44,3 +44,5 @@ class ModificarNivel(Resource):
   def post(self):
     data = parseModificarNivel.parse_args()
     return modificarNivel(data)
+  
+  

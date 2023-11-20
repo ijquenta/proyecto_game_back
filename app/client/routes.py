@@ -1,9 +1,20 @@
-# apiVersion = "/calculobs_api"
-#apiVersion = "/bsocial_api"
 apiVersion = "/academico_api"
 class Routes:
     index = apiVersion + '/'
     protected = apiVersion + '/secure'
+
+    # Persona 
+    gestionarPersona = apiVersion + '/gestionarPersona'
+    tipoDocumento = apiVersion + '/tipoDocumento'
+    tipoEstadoCivil = apiVersion + '/tipoEstadoCivil'
+    tipoGenero = apiVersion + '/tipoGenero'
+    tipoPais = apiVersion + '/tipoPais'
+    tipoCiudad = apiVersion + '/tipoCiudad'
+
+    # Usuario
+    gestionarUsuario = apiVersion + '/gestionarUsuario'
+    listaUsuario = apiVersion + '/listaUsuario'
+    tipoPersona = apiVersion +'/tipoPersona'
 
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
 
@@ -60,12 +71,16 @@ class Routes:
     eliminarMatricula = apiVersion + '/eliminarMatricula'
 
     login = apiVersion + '/login'
-    register = apiVersion + 'register'
+    register = apiVersion + '/register'
     verify = apiVersion + '/verify/token'
     
     
     login2 = apiVersion + '/login2'
     register2 = apiVersion + '/register2'
+    
+    # Rol
+    gestionarRol = apiVersion + '/gestionarRol'
+    
     
 
 

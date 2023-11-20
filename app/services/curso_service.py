@@ -101,7 +101,7 @@ def listaPersonaDocenteCombo(data):
 def tipoRol():
     return select(f'''
     SELECT rolid, rolnombre
-	FROM academico.roles
-	where rolid != 1
+	FROM academico.rol
+	-- where rolid != 1
 	order by rolnombre;                
     ''')

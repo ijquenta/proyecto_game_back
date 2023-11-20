@@ -3,52 +3,25 @@ from core.database import execute, as_string
 from psycopg2 import sql
 
 
-def gestionarUsuario(data):
-    print("--------------------------->Datos para gestionar usuario: ", data)
+def gestionarRol(data):
+    print("--------------------------->Datos para gestionar rol: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
-            SELECT academico.f_gestionar_usuario({tipo}, {usuid}, {perid}, {rolid}, {usuname}, {usupassword}, {usupasswordhash}, {usuemail}, {usuimagen}, {usudescripcion}, {usuestado}, {usuusureg});
+            SELECT academico.f_gestionar_rol({tipo}, {rolid}, {rolnombre}, {roldescripcion}, {rolestado}, {rolusureg});
             ''').format(
                 tipo=sql.Literal(data['tipo']),
-                usuid=sql.Literal(data['usuid']),
-                perid=sql.Literal(data['perid']),
                 rolid=sql.Literal(data['rolid']),
-                usuname=sql.Literal(data['usuname']),
-                usupassword=sql.Literal(data['usupassword']),
-                usupasswordhash=sql.Literal(data['usupasswordhash']),
-                usuemail=sql.Literal(data['usuemail']),
-                usuimagen=sql.Literal(data['usuimagen']),
-                usudescripcion=sql.Literal(data['usudescripcion']),
-                usuestado=sql.Literal(data['usuestado']),
-                usuusureg=sql.Literal(data['usuusureg'])
+                rolnombre=sql.Literal(data['rolnombre']),
+                roldescripcion=sql.Literal(data['roldescripcion']),
+                rolestado=sql.Literal(data['rolestado']),
+                rolusureg=sql.Literal(data['rolusureg'])
             )
         result = execute(as_string(query))
     except Exception as err:
-        print("Error en Gestionar Usuario: ",err)
+        print("Error en Gestionar Rol: ",err)
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
-
-def listaUsuario():
-    return select(f'''
-        SELECT 
-        u.usuid, u.perid, p.pernomcompleto, p.pernrodoc, u.rolid, r.rolnombre, u.usuname, u.usupassword, 
-        u.usupasswordhash, u.usuemail, u.usuimagen, u.usudescripcion, 
-        u.usuestado, u.usuusureg, u.usufecreg, u.usuusumod, u.usufecmod
-        FROM academico.usuario u
-        inner join academico.persona p on p.perid = u.perid
-        inner join academico.rol r on r.rolid = u.rolid 
-    ''')
-    
-def tipoPersona():
-    return select(f''' 
-    select perid, pernomcompleto, pernrodoc from academico.persona p 
-    order by pernomcompleto 
-    ''')
-
-
-
-
 
 
 def listarRoles():
@@ -150,19 +123,7 @@ def listarPersona():
 """
 def listarPersona():
     return select(f'''
-     SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
-        p.pertipodoc, td.tipodocnombre, 
-        p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, 
-        p.perpais, tp.paisnombre, 
-        p.perciudad, tc.ciudadnombre,
-        p.pergenero, tg.generonombre,
-        p.perestcivil, te.estadocivilnombre,
-        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod 
-        FROM academico.persona p
-        left join academico.tipo_documento td on td.tipodocid = p.pertipodoc
-        left join academico.tipo_pais tp on tp.paisid = p.perpais
-        left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
-        left join academico.tipo_genero tg on tg.generoid = p.pergenero
-        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
-        ORDER BY p.perid desc; 
+    SELECT perid, pernomcompleto, pernombres, perapepat, perapemat, pertipodoc, pernrodoc, perfecnac, perdirec, peremail, percelular, pertelefono, perpais, perciudad, pergenero, perestcivil, perfoto, perestado, perobservacion, perusureg, perfecreg, perusumod, perfecmod 
+    FROM academico.persona
+    ORDER BY perid desc;
     ''')
