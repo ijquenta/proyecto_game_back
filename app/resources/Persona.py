@@ -7,8 +7,27 @@ from services.beneficio_service import *
 from services.persona_service import *
 #import services.beneficio_service as beneficio
 
+from resources.Autenticacion import token_required
 
-
+class ListarUsuarios(Resource):
+    # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
+    @token_required
+    def get(self):
+        return listarUsuarios()
+        # return make_response(jsonify(listarUsuarios())), 200
+      
+parseRegistrarPersona = reqparse.RequestParser()
+parseRegistrarPersona.add_argument('pernombres', type=str, help='Nombres de la persona', required=True)
+parseRegistrarPersona.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
+parseRegistrarPersona.add_argument('perapemat', type=str, help='Apellido materno de la persona', required=True)
+parseRegistrarPersona.add_argument('pertipodoc', type=int, help='Tipo de documento de la persona', required=True)
+parseRegistrarPersona.add_argument('pernrodoc', type=int, help='Número de documento de la persona', required=True)
+parseRegistrarPersona.add_argument('perusureg', type=str, help='Usuario que registró la persona', required=True)
+class RegistrarPersona(Resource):
+    @token_required
+    def post(self):
+        data = parseRegistrarPersona.parse_args()
+        return registrarPersona(data)
 
 
 parsePersona = reqparse.RequestParser()
@@ -63,9 +82,6 @@ class TipoEstadoCivil(Resource):
   
 
 
-class ListarUsuarios(Resource):
-  def get(self):
-      return listarUsuarios()
 
 
 # class ListarRoles(Resource):
@@ -73,7 +89,7 @@ class ListarUsuarios(Resource):
 #       return listarRoles()
 
 
-
+"""
 parseDocente = reqparse.RequestParser()
 parseDocente.add_argument('nroCi', type=str, help = 'Debe elegir ci', required = True)
 parseDocente.add_argument('nomCompleto', type=str, help = 'Debe elegir nombre completo', required = True)
@@ -167,7 +183,7 @@ class EliminarBeneficio(Resource):
     data = parseEliminarBeneficio.parse_args()
     return eliminarBeneficio(data)
 
-
+"""
 
 
 
@@ -197,7 +213,7 @@ class RegRestaurarMes(Resource):
 
 
 
-
+"""
 parseDatoMensual = reqparse.RequestParser()
 parseDatoMensual.add_argument('apertura2', type=str, help = 'Tiene que tener este campo', required = True)
 parseDatoMensual.add_argument('aperturaDescripcion', type=str, help = 'Tiene que tener este campo', required = True)
@@ -279,8 +295,6 @@ class RegModificarMesPersona(Resource):
     usuario = 1
     return eliminarMes(data, usuario)
 
-
-"""
 parseDatosCalculoBS = reqparse.RequestParser()
 parseDatosCalculoBS.add_argument('')
 class ActualizarBeneficiosSociales(Resource):

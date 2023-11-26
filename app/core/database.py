@@ -155,6 +155,19 @@ def execute(query):
         session_db.rollback()
         print(err)
         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
+    
+def execute_response(query):
+    try:
+        result = session_db.execute(text(query))
+        session_db.commit()
+        row = result.fetchone()
+        print("execute_response: ", row)
+        return {"valor": row[0]}, HTTPStatus.OK
+    except SQLAlchemyError as err:
+        # Maneja errores específicos de SQLAlchemy
+        session_db.rollback()
+        print(err)
+        return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
 
 
 def execute_function(query):

@@ -7,6 +7,7 @@ from services.beneficio_service import *
 from services.usuario_service import *
 from functools import wraps
 from flask import request
+from resources.Autenticacion import token_required
 #import services.beneficio_service as beneficio
 
 
@@ -65,6 +66,7 @@ class TipoPersona(Resource):
     return tipoPersona()
 
 class ListarPersona(Resource):
+  @token_required
   def get(self):
       print("ListarPersona")
       return listarPersona()
@@ -73,6 +75,14 @@ class ListarRoles(Resource):
   def get(self):
       print("Rest")
       return listarRoles()
+    
+parsePerfil = reqparse.RequestParser()
+parsePerfil.add_argument('usuid', type=int, help = 'Debe elegir el usuid', required = True)
+class Perfil(Resource):
+  @token_required
+  def post(self):
+      data = parsePerfil.parse_args()
+      return perfil(data)
 
 parseCrearRol = reqparse.RequestParser()
 parseCrearRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nombre del rol', required = True)

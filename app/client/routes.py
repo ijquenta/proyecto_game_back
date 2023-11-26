@@ -1,4 +1,5 @@
 apiVersion = "/academico_api"
+auth = "/auth"
 class Routes:
     index = apiVersion + '/'
     protected = apiVersion + '/secure'
@@ -10,11 +11,13 @@ class Routes:
     tipoGenero = apiVersion + '/tipoGenero'
     tipoPais = apiVersion + '/tipoPais'
     tipoCiudad = apiVersion + '/tipoCiudad'
+    registrarPersona = apiVersion + '/registrarPersona'
 
     # Usuario
     gestionarUsuario = apiVersion + '/gestionarUsuario'
     listaUsuario = apiVersion + '/listaUsuario'
     tipoPersona = apiVersion +'/tipoPersona'
+    perfil = apiVersion + auth + '/perfil'
 
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
 

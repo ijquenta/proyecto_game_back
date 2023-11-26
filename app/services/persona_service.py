@@ -1,7 +1,40 @@
-from core.database import select, execute, execute_function
+from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
+from flask import Flask, request, jsonify, make_response
 
+# SELECT * FROM academico.registrar_persona(
+#     'Prueba fin',
+#     'Quiroz',
+#     'Quintanilla',
+#     2,
+#     1,
+#     'ijquenta'
+# );
 
+def registrarPersona(data):
+    print("----------------->Datos para gestionar Persona: ", data)
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT * FROM academico.registrar_persona
+                ({pernombres}, {perapepat}, {perapemat}, 
+                 {pertipodoc}, {pernrodoc},  {perusureg} 
+                )
+        ''').format(
+            pernombres=sql.Literal(data['pernombres']),
+            perapepat=sql.Literal(data['perapepat']),
+            perapemat=sql.Literal(data['perapemat']),
+            pertipodoc=sql.Literal(data['pertipodoc']),
+            pernrodoc=sql.Literal(data['pernrodoc']),
+            perusureg=sql.Literal(data['perusureg'])
+        )
+        result = execute_response(as_string(query)) 
+        # print("Resultado: ", make_response(jsonify(result)))
+        print("Resultado: ", result)
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
+    return result
 
 def gestionarPersona(data):
     print("----------------->Datos para gestionar Persona: ", data)

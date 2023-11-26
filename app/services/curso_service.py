@@ -102,6 +102,6 @@ def tipoRol():
     return select(f'''
     SELECT rolid, rolnombre
 	FROM academico.rol
-	-- where rolid != 1
+	--listarPersona where rolid != 1
 	order by rolnombre;                
     ''')
