@@ -4,16 +4,16 @@ from client.responses import clientResponses as messages
 # from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
-from services.persona_service import *
+from services.nota_service import *
 #import services.beneficio_service as beneficio
 
 from resources.Autenticacion import token_required
 
-class ListarUsuarios(Resource):
+class ListarNota(Resource):
     # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
     # @token_required
     def get(self):
-        return listarUsuarios()
+        return listarNota()
         # return make_response(jsonify(listarUsuarios())), 200
       
 parseRegistrarPersona = reqparse.RequestParser()
@@ -21,7 +21,7 @@ parseRegistrarPersona.add_argument('pernombres', type=str, help='Nombres de la p
 parseRegistrarPersona.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
 parseRegistrarPersona.add_argument('perapemat', type=str, help='Apellido materno de la persona', required=True)
 parseRegistrarPersona.add_argument('pertipodoc', type=int, help='Tipo de documento de la persona', required=True)
-parseRegistrarPersona.add_argument('pernrodoc', type=str, help='Número de documento de la persona', required=True)
+parseRegistrarPersona.add_argument('pernrodoc', type=int, help='Número de documento de la persona', required=True)
 parseRegistrarPersona.add_argument('perusureg', type=str, help='Usuario que registró la persona', required=True)
 class RegistrarPersona(Resource):
     # @token_required

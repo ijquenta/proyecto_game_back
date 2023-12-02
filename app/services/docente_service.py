@@ -2,14 +2,31 @@ from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
 from flask import Flask, request, jsonify, make_response
 
-# SELECT * FROM academico.registrar_persona(
-#     'Prueba fin',
-#     'Quiroz',
-#     'Quintanilla',
-#     2,
-#     1,
-#     'ijquenta'
-# );
+
+
+def listarDocente():
+    return select('''
+        SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
+        p.pertipodoc, td.tipodocnombre, 
+        p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, 
+        p.perpais, tp.paisnombre, 
+        p.perciudad, tc.ciudadnombre,
+        p.pergenero, tg.generonombre,
+        p.perestcivil, te.estadocivilnombre,
+        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod,
+        u.usuid, u.usuname, u.usuemail, u.usuimagen  
+        FROM academico.persona p
+        left join academico.usuario u on u.perid = p.perid
+        left join academico.rol r on r.rolid = u.rolid
+        left join academico.tipo_documento td on td.tipodocid = p.pertipodoc
+        left join academico.tipo_pais tp on tp.paisid = p.perpais
+        left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
+        left join academico.tipo_genero tg on tg.generoid = p.pergenero
+        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
+        where r.rolnombre = 'Docente'
+        order by p.pernomcompleto
+    ''')
+
 
 def registrarPersona(data):
     print("----------------->Datos para gestionar Persona: ", data)

@@ -145,16 +145,26 @@ def select(query):
         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
 
 
+# def execute(query):
+#     try:
+#         session_db.execute(text(query))
+#         session_db.commit()
+#         return messages.success, HTTPStatus.OK
+#     except SQLAlchemyError as err:
+#         # Maneja errores específicos de SQLAlchemy
+#         session_db.rollback()
+#         print(err)
+#         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
+
 def execute(query):
     try:
         session_db.execute(text(query))
         session_db.commit()
-        return messages.success, HTTPStatus.OK
+        return {"code": 1, "message": "Operación exitosa"}, HTTPStatus.OK
     except SQLAlchemyError as err:
-        # Maneja errores específicos de SQLAlchemy
         session_db.rollback()
         print(err)
-        return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
+        return {"code": 0, "message": f"Error en la base de datos: {err}"}, HTTPStatus.INTERNAL_SERVER_ERROR
     
 def execute_response(query):
     try:

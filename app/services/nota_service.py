@@ -2,14 +2,13 @@ from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
 from flask import Flask, request, jsonify, make_response
 
-# SELECT * FROM academico.registrar_persona(
-#     'Prueba fin',
-#     'Quiroz',
-#     'Quintanilla',
-#     2,
-#     1,
-#     'ijquenta'
-# );
+
+
+def listarNota():
+    return select('''
+        SELECT notid, insid, not1, not2, not3, notfinal, notusureg, notfecreg, notusumod, notfecmod, notestado FROM academico.nota;
+    ''')
+
 
 def registrarPersona(data):
     print("----------------->Datos para gestionar Persona: ", data)

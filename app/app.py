@@ -14,7 +14,7 @@ from client.responses import clientResponses as messages
 from client.routes import Routes as routes
 
 # Resources
-import resources.Persona as Persona
+import resources.Persona as Person
 import resources.Reportes as Report
 import resources.Usuario as Usuario
 import resources.Materia as Materia
@@ -25,6 +25,12 @@ import services.nivel_service as NivelService
 import resources.Inscripcion as Inscripcion
 import resources.Matricula as Matricula
 import resources.Rol as Rol
+import resources.Estudiante as Estudiante
+import resources.Docente as Docente
+import resources.Nota as Nota
+import resources.Pago as Pago
+import resources.Asistencia as Asistencia
+import resources.Material as Material
 
 # 
 from core.database import Base, session_db, engine
@@ -65,7 +71,7 @@ app.secret_key = configuration.APP_SECRET_KEY
 # api.add_resource(resources.Protected, routes.protected)
 
 # API Usuarios
-api.add_resource(Persona.ListarUsuarios, routes.listaUsuarios)
+api.add_resource(Person.ListarUsuarios, routes.listaUsuarios)
 api.add_resource(Usuario.GestionarUsuario, routes.gestionarUsuario)
 api.add_resource(Usuario.ListaUsuario, routes.listaUsuario)
 api.add_resource(Usuario.TipoPersona, routes.tipoPersona)
@@ -84,13 +90,13 @@ api.add_resource(Rol.GestionarRol, routes.gestionarRol)
 
 #Persona
 api.add_resource(Usuario.ListarPersona, routes.listarPersona)
-api.add_resource(Persona.GestionarPersona, routes.gestionarPersona)
-api.add_resource(Persona.TipoDocumento, routes.tipoDocumento)
-api.add_resource(Persona.TipoEstadoCivil, routes.tipoEstadoCivil)
-api.add_resource(Persona.TipoGenero, routes.tipoGenero)
-api.add_resource(Persona.TipoPais, routes.tipoPais)
-api.add_resource(Persona.TipoCiudad, routes.tipoCiudad)
-api.add_resource(Persona.RegistrarPersona, routes.registrarPersona)
+api.add_resource(Person.GestionarPersona, routes.gestionarPersona)
+api.add_resource(Person.TipoDocumento, routes.tipoDocumento)
+api.add_resource(Person.TipoEstadoCivil, routes.tipoEstadoCivil)
+api.add_resource(Person.TipoGenero, routes.tipoGenero)
+api.add_resource(Person.TipoPais, routes.tipoPais)
+api.add_resource(Person.TipoCiudad, routes.tipoCiudad)
+api.add_resource(Person.RegistrarPersona, routes.registrarPersona)
 
 
 # Materia
@@ -137,8 +143,24 @@ api.add_resource(Matricula.InsertarMatricula, routes.insertarMatricula)
 api.add_resource(Matricula.ModificarMatricula, routes.modificarMatricula)
 api.add_resource(Matricula.EliminarMatricula, routes.eliminarMatricula)
 
+# Estudiante
+api.add_resource(Estudiante.ListarEstudiante, routes.listarEstudiante)
 
 
+# Docente
+api.add_resource(Docente.ListarDocente, routes.listarDocente)
+
+# Nota
+api.add_resource(Nota.ListarNota, routes.listarNota)
+
+# Pago
+api.add_resource(Pago.ListarPago, routes.listarPago)
+
+# Asistencia
+api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
+
+# Material
+api.add_resource(Material.ListarMaterial, routes.listarMaterial)
 
 import jwt
 
@@ -219,17 +241,17 @@ class Usuario(db.Model):
         return cls.query.get(user_id)
     
 def encode_token(user_id, user_rol):
-    print("encode_token: Datos recibidos: ", user_id, user_rol)
+    # print("encode_token: Datos recibidos: ", user_id, user_rol)
     payload = {
-        'exp': datetime.utcnow() + timedelta(days=0,minutes=60,seconds=0), # Expiración del token
+        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0), # Expiración del token
         'iat': datetime.utcnow(),
         'sub': user_id,
         'rol': user_rol 
     }
-    print("Payload: ", payload)
+    # print("Payload: ", payload)
     token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
-    print("Token: ", token)
-    print("Token Generado: ", token.decode('utf-8'))
+    # print("Token: ", token)
+    # print("Token Generado: ", token.decode('utf-8'))
     return token.decode('utf-8')
 
 def token_required(f):
@@ -251,7 +273,7 @@ def token_required(f):
             data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
             # print("data decode token: ", data)
             current_user=Usuario().get_by_id(data["sub"])
-            print("usuario_actual", current_user)
+            # print("usuario_actual", current_user)
             if current_user is None:
                 return {
                 "message": "Invalid Authentication token",
@@ -276,7 +298,7 @@ def register_user():
         try: 
             hashed_password = generate_password_hash(user_data['usupassword'])
             user_new = Usuario(usuname = user_data['usuname'], usupassword = hashed_password, perid = user_data['perid'], rolid = user_data['rolid'])
-            print("user_new: ", user_new.usuname, user_new.usupassword, user_new.perid, user_new.rolid)
+            # print("user_new: ", user_new.usuname, user_new.usupassword, user_new.perid, user_new.rolid)
             db.session.add(user_new)
             db.session.commit()
             resp = {
@@ -285,7 +307,7 @@ def register_user():
             }
             return make_response(jsonify(resp)),201
         except Exception as e:
-            print(e)
+            # print(e)
             resp = {
                 "status" :"Error",
                 "message" :" Error occured, user registration failed"
@@ -301,16 +323,16 @@ def register_user():
 @app.route('/academico_api/login', methods = ['POST'])
 def post():
     user_data = request.get_json()
-    print("Se reciben los datos: ", user_data)
+    # print("Se reciben los datos: ", user_data)
     try:
         user = Usuario.query.filter_by(usuname = user_data['usuname']).first()
-        print("Obtenermos los datos del usuario: ", user)
-        print("aqui")
+        # print("Obtenermos los datos del usuario: ", user)
+        # print("aqui")
         if user and check_password_hash(user.usupassword, user_data['usupassword']) == True:
-            print("Usuario verificado")
+            # print("Usuario verificado")
             rol = Rol.query.get(user.rolid)
             auth_token = encode_token(user.usuid, rol.rolnombre)
-            print("Auth_Token: ", auth_token)
+            # print("Auth_Token: ", auth_token)
             resp = {
                 "status":"succes",
                 "message" :"Successfully logged in",
@@ -336,7 +358,7 @@ def post():
 @app.route('/protected', methods=['GET'])
 @token_required 
 def protected():
-   print("Proteccion")
+#    print("Proteccion")
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
 

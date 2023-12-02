@@ -104,17 +104,17 @@ class Usuario(db.Model):
         return cls.query.get(user_id)
     
 def encode_token(user_id, user_rol):
-    print("encode_token: Datos recibidos: ", user_id, user_rol)
+    # print("encode_token: Datos recibidos: ", user_id, user_rol)
     payload = {
-        'exp': datetime.utcnow() + timedelta(days=0,minutes=60,seconds=0), # Expiración del token
+        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0), # Expiración del token
         'iat': datetime.utcnow(),
         'sub': user_id,
         'rol': user_rol 
     }
-    print("Payload: ", payload)
+    # print("Payload: ", payload)
     token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
-    print("Token: ", token)
-    print("Token Generado: ", token.decode('utf-8'))
+    # print("Token: ", token)
+    # print("Token Generado: ", token.decode('utf-8'))
     return token.decode('utf-8')
 
 def token_required(f):
@@ -136,7 +136,7 @@ def token_required(f):
             data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
             # print("data decode token: ", data)
             current_user=Usuario().get_by_id(data["sub"])
-            print("usuario_actual", current_user)
+            # print("usuario_actual", current_user)
             if current_user is None:
                 return {
                 "message": "Invalid Authentication token",

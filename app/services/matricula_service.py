@@ -19,7 +19,7 @@ def insertarMatricula(data):
     print("Insertar Matricula: ", data)
     return execute_function(f'''
     SELECT academico.insertar_matricula(
-          {data['matrgestion']}, 
+        \'{data['matrgestion']}\', 
         \'{data['matrestadodescripcion']}\', 
         \'{data['matrfchini']}\', 
         \'{data['matrfchfin']}\',
@@ -32,7 +32,7 @@ def modificarMatricula(data):
     return execute_function(f'''
     SELECT academico.modificar_matricula(
           {data['matrid']}, 
-          {data['matrgestion']}, 
+        \'{data['matrgestion']}\', 
         \'{data['matrestadodescripcion']}\', 
         \'{data['matrfchini']}\', 
         \'{data['matrfchfin']}\',

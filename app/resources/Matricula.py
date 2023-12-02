@@ -7,13 +7,13 @@ class ListarMatricula(Resource):
       return listarMatricula()
     
 parseInsertarMatricula = reqparse.RequestParser()
-parseInsertarMatricula.add_argument('matrgestion', type=int, help = 'Debe elegir matrgestion', required = True)
+parseInsertarMatricula.add_argument('matrgestion', type=str, help = 'Debe elegir matrgestion', required = True)
 parseInsertarMatricula.add_argument('matrestadodescripcion', type=str, help = 'Debe elegir matrestadodescripcion', required = True)
 parseInsertarMatricula.add_argument('matrfchini', type=str, help = 'Debe elegir matrfchini', required = True)
 parseInsertarMatricula.add_argument('matrfchfin', type=str, help = 'Debe elegir matrfchfin', required = True)
 parseInsertarMatricula.add_argument('matrcos', type=int, help = 'Debe elegir matrcos', required = True)
 parseInsertarMatricula.add_argument('matrusureg', type=str, help = 'Debe elegir matrusureg', required = True)
-parseInsertarMatricula.add_argument('matrestado', type=int, help = 'Debe elegir matrestado', required = True)
+parseInsertarMatricula.add_argument('matrestado', type=int, help = 'Debe elegir matrestado')
 class InsertarMatricula(Resource):
   def post(self):
     data = parseInsertarMatricula.parse_args()
@@ -21,7 +21,7 @@ class InsertarMatricula(Resource):
   
 parseModificarMatricula = reqparse.RequestParser()
 parseModificarMatricula.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
-parseModificarMatricula.add_argument('matrgestion', type=int, help = 'Debe elegir matrgestion', required = True)
+parseModificarMatricula.add_argument('matrgestion', type=str, help = 'Debe elegir matrgestion', required = True)
 parseModificarMatricula.add_argument('matrestadodescripcion', type=str, help = 'Debe elegir matrestadodescripcion', required = True)
 parseModificarMatricula.add_argument('matrfchini', type=str, help = 'Debe elegir matrfchini', required = True)
 parseModificarMatricula.add_argument('matrfchfin', type=str, help = 'Debe elegir matrfchfin', required = True)

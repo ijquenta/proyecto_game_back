@@ -1,7 +1,7 @@
 from core.database import select, execute, execute_function
 from core.database import execute, as_string
 from psycopg2 import sql
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def gestionarUsuario(data):
     print("--------------------------->Datos para gestionar usuario: ", data)
@@ -15,8 +15,9 @@ def gestionarUsuario(data):
                 perid=sql.Literal(data['perid']),
                 rolid=sql.Literal(data['rolid']),
                 usuname=sql.Literal(data['usuname']),
-                usupassword=sql.Literal(data['usupassword']),
-                usupasswordhash=sql.Literal(data['usupasswordhash']),
+                # usupassword=sql.Literal(data['usupassword']),
+                usupassword = sql.Literal(generate_password_hash(data['usupassword'])),
+                usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])),
                 usuemail=sql.Literal(data['usuemail']),
                 usuimagen=sql.Literal(data['usuimagen']),
                 usudescripcion=sql.Literal(data['usudescripcion']),
@@ -39,7 +40,6 @@ def listaUsuario():
         inner join academico.persona p on p.perid = u.perid
         inner join academico.rol r on r.rolid = u.rolid 
     ''')
-    
 def tipoPersona():
     return select(f''' 
     select perid, pernomcompleto, pernrodoc from academico.persona p 
@@ -48,7 +48,7 @@ def tipoPersona():
 
 
 def perfil(data):
-    print("Datos para Perfil: ", data)
+    # print("Datos para Perfil: ", data)
     return select(f'''
     SELECT u.usuid, u.perid, p.pernomcompleto, u.rolid, r.rolnombre , u.usuname, u.usuemail, u.usuimagen 
     FROM academico.usuario u

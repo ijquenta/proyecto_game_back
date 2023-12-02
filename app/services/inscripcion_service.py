@@ -2,21 +2,43 @@ from core.database import select, as_string, execute, execute_function
 from psycopg2 import sql
 from flask import jsonify, make_response
 
+# def listarInscripcion():
+#     return select(f'''
+#    	SELECT 
+# 	i.insid, 
+# 	i.matrid, m.matrgestion, m.matrestado, m.matrestadodescripcion, 
+# 	i.peridestudiante, p.pernombrecompleto as pernombrecompletoestudiante, p.peridrol, r.rolnombre,
+# 	i.pagid, p2.pagdescripcion,  p2.pagestado, p2.pagestadodescripcion, p2.pagmonto, 
+#     i.curmatid, cm.curid, cm.curmatdescripcion, c.curnombre, cm.matid, m2.matnombre,
+#     cm.periddocente, p3.pernombrecompleto as pernombrecompletodocente,
+#     i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, 
+#     i.insestado, i.insestadodescripcion
+#     FROM academico.inscripcion i
+#     left join academico.matricula m on i.matrid = m.matrid
+#     left join academico.persona p on i.peridestudiante = p.perid 
+#     left join academico.roles r on p.peridrol = r.rolid
+#     left join academico.pago p2 on i.pagid = p2.pagid
+#     left join academico.curso_materia cm on i.curmatid = cm.curmatid   
+#     left join academico.curso c on cm.curid = c.curid
+#     left join academico.materia m2 on cm.matid = m2.matid
+#     left join academico.persona p3 on cm.periddocente = p3.perid
+#     order by i.insid desc;
+#     ''')
+
 def listarInscripcion():
     return select(f'''
    	SELECT 
-	i.insid, 
-	i.matrid, m.matrgestion, m.matrestado, m.matrestadodescripcion, 
-	i.peridestudiante, p.pernombrecompleto as pernombrecompletoestudiante, p.peridrol, r.rolnombre,
-	i.pagid, p2.pagdescripcion,  p2.pagestado, p2.pagestadodescripcion, p2.pagmonto, 
+    i.insid, 
+    i.matrid, m.matrgestion, m.matrestado, m.matrestadodescripcion, 
+    i.peridestudiante, p.pernomcompleto as pernombrecompletoestudiante, 
+    i.pagid, p2.pagdescripcion,  p2.pagestado, p2.pagestadodescripcion, p2.pagmonto, 
     i.curmatid, cm.curid, cm.curmatdescripcion, c.curnombre, cm.matid, m2.matnombre,
-    cm.periddocente, p3.pernombrecompleto as pernombrecompletodocente,
+    cm.periddocente, p3.pernomcompleto as pernombrecompletodocente,
     i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, 
     i.insestado, i.insestadodescripcion
     FROM academico.inscripcion i
     left join academico.matricula m on i.matrid = m.matrid
     left join academico.persona p on i.peridestudiante = p.perid 
-    left join academico.roles r on p.peridrol = r.rolid
     left join academico.pago p2 on i.pagid = p2.pagid
     left join academico.curso_materia cm on i.curmatid = cm.curmatid   
     left join academico.curso c on cm.curid = c.curid
@@ -24,13 +46,23 @@ def listarInscripcion():
     left join academico.persona p3 on cm.periddocente = p3.perid
     order by i.insid desc;
     ''')
+       
+# def listarComboCursoMateria():
+#     return select(f'''
+#     select cm.curmatid, cm.curmatdescripcion 
+#     FROM academico.curso_materia cm
+#     ''')
     
 def listarComboCursoMateria():
     return select(f'''
-    select cm.curmatid, cm.curmatdescripcion 
-    FROM academico.curso_materia cm
-    where cm.curmatestado = 1
+        SELECT 
+        cm.curmatid,
+        c.curnombre || ' - ' || m.matnombre AS curmatdescripcion
+        FROM academico.curso_materia cm
+        LEFT JOIN academico.curso c ON c.curid = cm.curid 
+        LEFT JOIN academico.materia m ON m.matid = cm.matid;
     ''')
+
 
 def listarComboMatricula():
     return select(f'''

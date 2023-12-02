@@ -4,7 +4,7 @@ from flask import jsonify, make_response
 
 def listarCursoMateria():
     return select(f'''
-    SELECT curmatid, c.curnombre , cm.curid, m.matnombre, cm.matid, m.matnivel, p.pernombrecompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, curmatfecini, curmatfecfin, curmatestado, curmatestadodescripcion, curmatusureg, curmatfecreg, curmatusumod, curmatfecmod, curmatidrol, curmatidroldes
+    SELECT curmatid, c.curnombre , cm.curid, m.matnombre, cm.matid, m.matnivel, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, curmatfecini, curmatfecfin, curmatestado, curmatestadodescripcion, curmatusureg, curmatfecreg, curmatusumod, curmatfecmod, curmatidrol, curmatidroldes
     FROM academico.curso_materia cm
     inner join academico.curso c on c.curid  = cm.curid 
     inner join academico.materia m on m.matid = cm.matid 
@@ -92,9 +92,10 @@ def listaCursoCombo():
 
 def listaPersonaDocenteCombo(data):
     return select(f'''
-    select pe.perid, pe.pernombrecompleto
-    from academico.persona pe 
-    inner join academico.roles r ON r.rolid = pe.peridrol
+    select distinct p.perid, p.pernomcompleto
+    from academico.persona p 
+    inner join academico.usuario u on u.perid = p.perid
+    inner join academico.rol r ON r.rolid = u.rolid
     where r.rolnombre = \'{data['rolnombre']}\'  
     ''')
     
