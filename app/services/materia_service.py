@@ -77,18 +77,16 @@ def listarUsuarios():
 def eliminarRol2(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
-        # Verifica la consulta SQL generada imprimiéndola antes de ejecutarla.
         query = sql.SQL('''
             select * from f_rol_eliminar({rolId});
             ''').format(
-                rolId=sql.Literal(data['rolId'])  # Usar data.get() para manejar posibles valores nulos.
+                rolId=sql.Literal(data['rolId'])  
             )
-        print("Consulta SQL:", query, data['rolId'])  # Agrega esta línea para depurar la consulta SQL.
-        # Asegúrate de que 'execute' esté definida y funcione correctamente.
+        print("Consulta SQL:", query, data['rolId'])  
         result = execute(as_string(query))
         print(result)
     except Exception as err:
-        print("Error:", err)  # Imprime el error original para facilitar la depuración.
+        print("Error:", err)  
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
 

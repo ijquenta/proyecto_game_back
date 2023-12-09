@@ -3,25 +3,17 @@ from services.materia_service import *
 
 class ListarMateria(Resource):
   def get(self):
-      print("Listar Materias")
       return listarMateria()
 
 class ListarPersona(Resource):
   def get(self):
-      print("ListarPersona")
       return listarPersona()
 
-class ListarRoles(Resource):
-  def get(self):
-      print("Rest")
-      # return listarRoles()
-      
 parseListaMateriaCombo = reqparse.RequestParser()
 parseListaMateriaCombo.add_argument('curnivel', type=int, help='Debe ingresar el id nivel', required = True)
 class ListaMateriaCombo(Resource):
   def post(self):
     data = parseListaMateriaCombo.parse_args()
-    # print("ListaMateriaCombo: ", data)
     return listaMateriaCombo(data)
 
 parseCrearRol = reqparse.RequestParser()
@@ -31,7 +23,6 @@ parseCrearRol.add_argument('rolUsuReg', type=str, help = 'Debe elegir el usuario
 class CrearRol(Resource):
   def post(self):
       data = parseCrearRol.parse_args()
-      # print("CrearRol -->", data)
       return crearRol(data)
   
 parseModificarRol = reqparse.RequestParser()
@@ -42,7 +33,6 @@ parseModificarRol.add_argument('rolUsuMod', type=str, help = 'Debe elegir el usu
 class ModificarRol(Resource):
   def post(self):
       data = parseModificarRol.parse_args()
-      print("Modificar Rol -->", data)
       return modificarRol(data)
   
 parseEliminarRol = reqparse.RequestParser()
@@ -60,7 +50,6 @@ class EliminarMateria(Resource):
     data = parseEliminarMateria.parse_args()
     return eliminarMateria(data)
   
-  
 parseInsertarMateria = reqparse.RequestParser()
 parseInsertarMateria.add_argument('matnombre', type=str, help='Debe elegir matnombre', required=True)
 parseInsertarMateria.add_argument('matdescripcion', type=str, help='Debe elegir matdescripcion', required=True)
@@ -73,7 +62,6 @@ class InsertarMateria(Resource):
     def post(self):
         data = parseInsertarMateria.parse_args()
         return insertarMateria(data)
-      
       
 parseModificarMateria = reqparse.RequestParser()
 parseModificarMateria.add_argument('matid', type=int, help='Debe elegir matid', required=True)

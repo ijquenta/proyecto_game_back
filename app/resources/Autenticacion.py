@@ -15,7 +15,6 @@ from model.user import User, db
 app = Flask(__name__) # Aplicación Flask
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
 jwt = JWTManager(app)
-
 from flask import Flask,request,jsonify,make_response
 from werkzeug.security import generate_password_hash
 # from resources.Autenticacion import User, db,check_password_hash, encode_token, token_required
@@ -30,14 +29,9 @@ from flask_sqlalchemy import SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
-
 CORS(app)
-
-    
 api = Api(app)
-
 app.secret_key = configuration.APP_SECRET_KEY
-# Configuración de la base de datos
 
 class Persona(db.Model):
     __tablename__ = 'persona'
@@ -104,39 +98,29 @@ class Usuario(db.Model):
         return cls.query.get(user_id)
     
 def encode_token(user_id, user_rol):
-    # print("encode_token: Datos recibidos: ", user_id, user_rol)
     payload = {
-        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0), # Expiración del token
+        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0),
         'iat': datetime.utcnow(),
         'sub': user_id,
         'rol': user_rol 
     }
-    # print("Payload: ", payload)
     token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
-    # print("Token: ", token)
-    # print("Token Generado: ", token.decode('utf-8'))
     return token.decode('utf-8')
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        # print("request.headers: ", request.headers)
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split(" ")[1]
-            # print("Este es el token: ", token)
         if not token:
             return {
                 "message": "Authentication Token is missing",
                 "error": "Unauthorized"
             }, 401
         try:
-            # print("SECRET_KEY_1: ", app.secret_key)
-            # print("SECRET_KEY_2: ", app.config["SECRET_KEY"])
             data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
-            # print("data decode token: ", data)
             current_user=Usuario().get_by_id(data["sub"])
-            # print("usuario_actual", current_user)
             if current_user is None:
                 return {
                 "message": "Invalid Authentication token",

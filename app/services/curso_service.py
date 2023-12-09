@@ -1,4 +1,4 @@
-from core.database import select, as_string, execute, execute_function
+from core.database import select, as_string, execute, execute_function, execute_response
 from psycopg2 import sql
 from flask import jsonify, make_response
 
@@ -22,7 +22,6 @@ def eliminarCursoMateria(data):
     SELECT academico.eliminar_curso_materia({data['curmatid']}) as valor;
     ''')
     result = resultado[0]['valor']
-    print("Resultado: ", result)
     if result == 1:
         response_data = {'message': 'Curso Materia eliminado correctamente'}
         status_code = 200
@@ -33,12 +32,10 @@ def eliminarCursoMateria(data):
         else:
             response_data = {'message': 'No se puede eliminar la curso materia debido a que tiene registros relacionados'}
             status_code = 500
-        print("response_data: ",response_data)    
 
     return make_response(jsonify(response_data), status_code)
 
 def insertarCursoMateria(data):
-    print("Datos para insertar a CursoMateria", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -62,7 +59,6 @@ def insertarCursoMateria(data):
     return result
 
 def modificarCursoMateria(data):
-    print("Datos para modificar de CursoMateria: ", data)
     resultado = execute_function(f'''
                                 SELECT academico.modificar_curso_materia(
                                       {data['curmatid']},
@@ -78,7 +74,6 @@ def modificarCursoMateria(data):
                                     \'{data['curmatidroldes']}\'
                                 ) as valor;
                                  ''')
-    print("Resuldato modificarCursoMateria: ", resultado)
     return resultado
 
 
@@ -103,6 +98,5 @@ def tipoRol():
     return select(f'''
     SELECT rolid, rolnombre
 	FROM academico.rol
-	--listarPersona where rolid != 1
 	order by rolnombre;                
     ''')

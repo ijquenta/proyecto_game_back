@@ -20,14 +20,8 @@ class GestionarRol(Resource):
     data = parseGestionarRol.parse_args()
     return gestionarRol(data)
 
-
-
-
-
-
 class ListarRoles(Resource):
   def get(self):
-      print("ListarRoles")
       return listarRoles()
 
 parseCrearRol = reqparse.RequestParser()
@@ -45,7 +39,6 @@ parseModificarRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nom
 parseModificarRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
 parseModificarRol.add_argument('rolUsuMod', type=str, help = 'Debe elegir el usuario de registro', required = True)
 class ModificarRol(Resource):
-  # print("Modificar Rol -->", parseModificarRol)
   def post(self):
       data = parseModificarRol.parse_args()
       return modificarRol(data)

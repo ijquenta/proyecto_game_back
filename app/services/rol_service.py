@@ -4,7 +4,6 @@ from psycopg2 import sql
 
 
 def gestionarRol(data):
-    print("--------------------------->Datos para gestionar rol: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -23,7 +22,6 @@ def gestionarRol(data):
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
 
-
 def listarRoles():
     return select(f'''
     SELECT rolid, rolnombre, roldescripcion, rolusureg, rolfecreg, rolusumod, rolfecmod, rolestado
@@ -32,9 +30,7 @@ def listarRoles():
     order by rolid;        
     ''')
     
-    
 def crearRol(data):
-    print("Datos->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -51,7 +47,6 @@ def crearRol(data):
     return result
 
 def modificarRol(data):
-    print("Datos->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -69,7 +64,6 @@ def modificarRol(data):
     return result
 
 def eliminarRol(data):
-    print("Datos eliminar->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -93,34 +87,17 @@ def listarUsuarios():
 def eliminarRol2(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
-        # Verifica la consulta SQL generada imprimiéndola antes de ejecutarla.
         query = sql.SQL('''
             select * from f_rol_eliminar({rolId});
             ''').format(
-                rolId=sql.Literal(data['rolId'])  # Usar data.get() para manejar posibles valores nulos.
+                rolId=sql.Literal(data['rolId'])
             )
-        print("Consulta SQL:", query, data['rolId'])  # Agrega esta línea para depurar la consulta SQL.
-        # Asegúrate de que 'execute' esté definida y funcione correctamente.
         result = execute(as_string(query))
-        print(result)
     except Exception as err:
-        print("Error:", err)  # Imprime el error original para facilitar la depuración.
+        print("Error:", err)  
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
-"""
-def listarPersona():
-    return select(f'''
-    SELECT
-    p.perid, p.perusuario, p.percontrasena, p.percontrasenaconfirmar,
-    p.pernombres, p.perapepat, p.perapemat, p.pernombrecompleto, p.perfecnac, p.perdomicilio,
-    p.peridpais, p.perpais, p.peridgenero, p.pergenero, p.percorreoelectronico,
-    p.percelular, p.pertelefono, p.perfoto, p.perusureg, p.perfecreg,
-    p.perusumod, p.perfecmod, p.perestado,r.rolid, r.rolnombre 
-    FROM academico.persona p
-    LEFT JOIN academico.roles r ON p.peridrol = r.rolid
-    WHERE p.perestado = 1;
-    ''')
-"""
+
 def listarPersona():
     return select(f'''
     SELECT perid, pernomcompleto, pernombres, perapepat, perapemat, pertipodoc, pernrodoc, perfecnac, perdirec, peremail, percelular, pertelefono, perpais, perciudad, pergenero, perestcivil, perfoto, perestado, perobservacion, perusureg, perfecreg, perusumod, perfecmod 

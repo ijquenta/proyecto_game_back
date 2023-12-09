@@ -5,7 +5,6 @@ from core.auth import require_token
 from http import HTTPStatus
 from services.beneficio_service import *
 from services.usuario_service import *
-#import services.beneficio_service as beneficio
 
 parseDocente = reqparse.RequestParser()
 parseDocente.add_argument('nroCi', type=str, help = 'Debe elegir ci', required = True)
@@ -46,7 +45,6 @@ parseRTUM.add_argument('mes', type = int, help = 'Debe elegir un mes', required 
 class RegTresUltMesRemDoc(Resource):
   def post(self):
     data = parseRTUM.parse_args()
-    #usuario = 1;
     return registrarTresMesesDoc(data)
 
 parseTipoMotivo = reqparse.RequestParser()
@@ -64,9 +62,6 @@ class ObtenerDatosModificar(Resource):
   def post(self):
       data = parseObtenerDatosModificar.parse_args()
       return obtenerDatosModificar(data)
-
-
-
 
 parseRegistrarBeneficioNuevo = reqparse.RequestParser()
 parseRegistrarBeneficioNuevo.add_argument('ano', type=int, help='Debe elegir el año de liquidación', required = True)
@@ -99,37 +94,6 @@ class EliminarBeneficio(Resource):
   def post(self):
     data = parseEliminarBeneficio.parse_args()
     return eliminarBeneficio(data)
-
-
-
-
-
-
-
-
-
-
-#Ejemplo insertar registro en base de datos
-"""
-parseREsP = reqparse.RequestParser()
-parseREsP.add_argument('idGestion', type=int, help = 'Tiene que tener este campo', required = True)
-parseREsP.add_argument('idMes', type=int, help = 'Tiene que tener este campo')
-parseREsP.add_argument('idPersona', type=int, help = 'Tiene que tener este campo', required = True)
-class RegRestaurarMes(Resource):
-  def put(self):
-    data = parseREsP.parse_args()
-    return listarMesesRestaurables(data['idGestion'], data['idPersona'])
-  def post(self):
-    data = parseREsP.parse_args()
-    usuario = 1;
-    return restaurarMes(data, usuario)
-"""
-
-
-
-
-
-
 
 parseDatoMensual = reqparse.RequestParser()
 parseDatoMensual.add_argument('apertura2', type=str, help = 'Tiene que tener este campo', required = True)
@@ -195,29 +159,4 @@ parseDatoMensual.add_argument('idMesProcesado', type=int, help = 'Tiene que tene
 parseDatoMensual.add_argument('correlativoLiquidacion', type=int, help = 'Tiene que tener este campo', required = True)
 parseDatoMensual.add_argument('gestionLiquidacion', type=int, help = 'Tiene que tener este campo', required = True)
 parseDatoMensual.add_argument('idUsuario', type=int, help = 'Tiene que tener este campo', required = True)
-parsePRD = reqparse.RequestParser()
-parsePRD.add_argument('idPlanillaRegular', type=int, help = 'Tiene que tener este campo', required = True)
-parsePRD.add_argument('tipoModificacion', type=int, help = 'Tiene que tener este campo', required = True)
-parsePRD.add_argument('correlativoLiquidacion', type=int, help = 'Tiene que tener este campo', required = True)
-parsePRD.add_argument('gestionLiquidacion', type=int, help = 'Tiene que tener este campo', required = True)
-parsePRD.add_argument('gestionProceso', type=int, help = 'Tiene que tener este campo', required = True)
-parsePRD.add_argument('mesProceso', type=int, help = 'Tiene que tener este campo', required = True)
-class RegModificarMesPersona(Resource):
-  def post(self):
-    data = parseDatoMensual.parse_args()
-    # data['idUsuario'] = '1'
-    return modificarMes(data)
-  def put(self):
-    data = parsePRD.parse_args()
-    usuario = 1
-    return eliminarMes(data, usuario)
 
-
-"""
-parseDatosCalculoBS = reqparse.RequestParser()
-parseDatosCalculoBS.add_argument('')
-class ActualizarBeneficiosSociales(Resource):
-  def post(self):
-    data = parseDatosCalculoBS.parse_args()
-    return modificarCalculoBS(data)
-"""

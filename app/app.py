@@ -1,13 +1,16 @@
-#
+from flask import Flask, request, jsonify, make_response, session
 from flask_cors import CORS
-from flask import session
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
+from flask_sqlalchemy import SQLAlchemy
 from logging.handlers import RotatingFileHandler
+
 from core import configuration
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+import jwt
 import logging
-import traceback
-import os
 
 # Client
 from client.responses import clientResponses as messages
@@ -32,24 +35,12 @@ import resources.Pago as Pago
 import resources.Asistencia as Asistencia
 import resources.Material as Material
 
-# 
-from core.database import Base, session_db, engine
-from web.wsrrhh_service import *
-from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, make_response
-from werkzeug.security import generate_password_hash, check_password_hash
-from functools import wraps
-import jwt
-from flask_sqlalchemy import SQLAlchemy
-
-
 LOG_FILENAME = 'aplication.log'
-#logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 handler = RotatingFileHandler(LOG_FILENAME, maxBytes=40000000, backupCount=40)
 logger.addHandler(handler)
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
@@ -98,13 +89,11 @@ api.add_resource(Person.TipoPais, routes.tipoPais)
 api.add_resource(Person.TipoCiudad, routes.tipoCiudad)
 api.add_resource(Person.RegistrarPersona, routes.registrarPersona)
 
-
 # Materia
 api.add_resource(Materia.ListarMateria, routes.listarMateria)
 api.add_resource(Materia.EliminarMateria, routes.eliminarMateria)
 api.add_resource(Materia.InsertarMateria, routes.insertarMateria)
 api.add_resource(Materia.ModificarMateria, routes.modificarMateria)
-
 
 # Curso - Materia
 api.add_resource(Curso.ListarCursoMateria, routes.listarCursoMateria)
@@ -113,19 +102,16 @@ api.add_resource(Curso.InsertarCursoMateria, routes.insertarCursoMateria)
 api.add_resource(Curso.ModificarCursoMateria, routes.modificarCursoMateria)
 api.add_resource(Curso.TipoRol, routes.tipoRol)
 
-
 # Combo
 api.add_resource(Curso.ListaCursoCombo, routes.listaCursoCombo)
 api.add_resource(Materia.ListaMateriaCombo, routes.listaMateriaCombo)
 api.add_resource(Curso.ListaPersonaDocenteCombo, routes.listaPersonaDocenteCombo)
-
 
 # Nivel
 api.add_resource(Nivel.ListarNivel, routes.listarNivel)
 api.add_resource(Nivel.InsertarNivel, routes.insertarNivel)
 api.add_resource(Nivel.ModificarNivel, routes.modificarNivel)
 api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
-
 
 # Inscripción
 api.add_resource(Inscripcion.ListarInscripcion, routes.listarInscripcion)
@@ -136,7 +122,6 @@ api.add_resource(Inscripcion.ObtenerCursoMateria, routes.obtenerCursoMateria)
 api.add_resource(Inscripcion.ListarComboCursoMateria, routes.listarComboCursoMateria)
 api.add_resource(Inscripcion.ListarComboMatricula, routes.listarComboMatricula)
 
-
 # Matricula
 api.add_resource(Matricula.ListarMatricula, routes.listarMatricula)
 api.add_resource(Matricula.InsertarMatricula, routes.insertarMatricula)
@@ -146,7 +131,6 @@ api.add_resource(Matricula.EliminarMatricula, routes.eliminarMatricula)
 # Estudiante
 api.add_resource(Estudiante.ListarEstudiante, routes.listarEstudiante)
 api.add_resource(Estudiante.ObtenerMateriasInscritas, routes.obtenerMateriasInscritas)
-
 
 # Docente
 api.add_resource(Docente.ListarDocente, routes.listarDocente)
@@ -164,19 +148,11 @@ api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
 # Material
 api.add_resource(Material.ListarMaterial, routes.listarMaterial)
 
+
 import jwt
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
-
-# class User(db.Model):
-#     __tablename__ = 'users'
-#     id = db.Column(db.Integer, primary_key = True, autoincrement= True)
-#     email = db.Column(db.String(150), unique = True, nullable = False)
-#     password = db.Column(db.String(150), nullable = False)
-#     date_registered = db.Column(db.DateTime, default = datetime.utcnow())
 
 class Persona(db.Model):
     __tablename__ = 'persona'
@@ -243,39 +219,29 @@ class Usuario(db.Model):
         return cls.query.get(user_id)
     
 def encode_token(user_id, user_rol):
-    # print("encode_token: Datos recibidos: ", user_id, user_rol)
     payload = {
-        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0), # Expiración del token
+        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0),
         'iat': datetime.utcnow(),
         'sub': user_id,
         'rol': user_rol 
     }
-    # print("Payload: ", payload)
     token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
-    # print("Token: ", token)
-    # print("Token Generado: ", token.decode('utf-8'))
     return token.decode('utf-8')
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        # print("request.headers: ", request.headers)
         if "Authorization" in request.headers:
             token = request.headers["Authorization"].split(" ")[1]
-            # print("Este es el token: ", token)
         if not token:
             return {
                 "message": "Authentication Token is missing",
                 "error": "Unauthorized"
             }, 401
         try:
-            # print("SECRET_KEY_1: ", app.secret_key)
-            # print("SECRET_KEY_2: ", app.config["SECRET_KEY"])
             data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
-            # print("data decode token: ", data)
             current_user=Usuario().get_by_id(data["sub"])
-            # print("usuario_actual", current_user)
             if current_user is None:
                 return {
                 "message": "Invalid Authentication token",
@@ -289,18 +255,14 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-
 @app.route('/academico_api/register', methods=['POST'])
 def register_user():
     user_data = request.get_json()
-    # print("Datos recuperados:", user_data)
     user = Usuario.query.filter_by(usuname = user_data['usuname']).first()
-    # print("Busqueda de nombre usuario: ", user)
     if not user:
         try: 
             hashed_password = generate_password_hash(user_data['usupassword'])
             user_new = Usuario(usuname = user_data['usuname'], usupassword = hashed_password, perid = user_data['perid'], rolid = user_data['rolid'])
-            # print("user_new: ", user_new.usuname, user_new.usupassword, user_new.perid, user_new.rolid)
             db.session.add(user_new)
             db.session.commit()
             resp = {
@@ -325,16 +287,11 @@ def register_user():
 @app.route('/academico_api/login', methods = ['POST'])
 def post():
     user_data = request.get_json()
-    # print("Se reciben los datos: ", user_data)
     try:
         user = Usuario.query.filter_by(usuname = user_data['usuname']).first()
-        # print("Obtenermos los datos del usuario: ", user)
-        # print("aqui")
         if user and check_password_hash(user.usupassword, user_data['usupassword']) == True:
-            # print("Usuario verificado")
             rol = Rol.query.get(user.rolid)
             auth_token = encode_token(user.usuid, rol.rolnombre)
-            # print("Auth_Token: ", auth_token)
             resp = {
                 "status":"succes",
                 "message" :"Successfully logged in",
@@ -360,121 +317,11 @@ def post():
 @app.route('/protected', methods=['GET'])
 @token_required 
 def protected():
-#    print("Proteccion")
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
 
 
-
-
-
-
-
-    
-    
-# @app.route('/personas', methods=['GET'])
-# def obtener_personas():
-#     personas = Persona.query.all()
-
-#     # Crear una lista para almacenar las respuestas de cada persona
-#     respuestas_personas = []
-
-#     for persona in personas:
-#         # Crear un diccionario para cada persona
-#         respuesta_persona = {
-#             'perid': persona.perid,
-#             'pernombres': persona.pernombres,
-#             'perapemat': persona.perapemat
-#             # Agrega más campos según sea necesario
-#         }
-
-#         # Agregar la respuesta de la persona a la lista
-#         respuestas_personas.append(respuesta_persona)
-
-#     # Retornar la lista de respuestas en formato JSON
-#     return jsonify(respuestas_personas), 200
-
-# from flask import jsonify
-
-# @app.route('/usuarios', methods=['GET'])
-# def obtener_usuarios():
-#     usuarios = Usuario.query.all()
-
-#     # Crear una lista para almacenar las respuestas de cada usuario
-#     respuestas_usuarios = []
-
-#     for usuario in usuarios:
-#         # Crear un diccionario para cada usuario
-#         respuesta_usuario = {
-#             'usuid': usuario.usuid,
-#             'usuname': usuario.usuname,
-#             'perid': usuario.perid,
-#             'rolid': usuario.rolid,
-#             'usuemail': usuario.usuemail
-#             # Agrega más campos según sea necesario
-#         }
-
-#         # Agregar la respuesta del usuario a la lista
-#         respuestas_usuarios.append(respuesta_usuario)
-
-#     # Retornar la lista de respuestas en formato JSON
-#     return jsonify(respuestas_usuarios), 200
-
-# @app.route('/roles', methods=['GET'])
-# def obtener_roles():
-#     roles = Rol.query.all()
-
-#     # Crear una lista para almacenar las respuestas de cada rol
-#     respuestas_roles = []
-
-#     for rol in roles:
-#         # Crear un diccionario para cada rol
-#         respuesta_rol = {
-#             'rolid': rol.rolid,
-#             'rolnombre': rol.rolnombre,
-#             'roldescripcion': rol.roldescripcion
-#             # Agrega más campos según sea necesario
-#         }
-
-#         # Agregar la respuesta del rol a la lista
-#         respuestas_roles.append(respuesta_rol)
-
-#     # Retornar la lista de respuestas en formato JSON
-#     return jsonify(respuestas_roles), 200
-
-# @app.route('/usuario/<int:usuario_id>', methods=['GET'])
-# def obtener_datos_usuario(usuario_id):
-#     usuario = Usuario.query.get(usuario_id)
-
-#     if usuario is None:
-#         return jsonify({'error': 'Usuario no encontrado'}), 404
-
-#     # Accede al rol y la persona a través de las relaciones definidas en el modelo
-#     # rol_usuario = usuario.rol
-    
-    
-#     rol_usuario = Rol.query.get(usuario.rolid)
-#     persona_usuario = Persona.query.get(usuario.perid)
-#     # Puedes formatear la respuesta según tus necesidades
-#     respuesta = {
-#         'usuario': {
-#              'usuid': usuario.usuid,
-#              'usuname': usuario.usuname,
-#         },
-#          'rol': {
-#              'rolnombre': rol_usuario.rolnombre,
-#          },
-#         'persona': {
-#             'perid': persona_usuario.perid,
-#             'nomcompleto': persona_usuario.perapepat + ' ' + persona_usuario.perapemat + ' ' +persona_usuario.pernombres,
-#             # Agrega más campos según sea necesario
-#         }
-#     }
-
-#     return jsonify(respuesta), 200
-
 if __name__ == '__main__':
-	#Base.metadata.create_all(engine)
 	HOST = configuration.SERVER_HOST
 	PORT = configuration.SERVER_PORT
 	DEBUG = configuration.DEBUG

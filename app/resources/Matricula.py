@@ -3,7 +3,6 @@ from services.matricula_service import *
 
 class ListarMatricula(Resource):
   def get(self):
-      print("Listar Inscripcion")
       return listarMatricula()
     
 parseInsertarMatricula = reqparse.RequestParser()
@@ -39,19 +38,3 @@ class EliminarMatricula(Resource):
   def post(self):
     data = parseEliminarMatricula.parse_args()
     return eliminarMatricula(data)
-  
-parseModificarNivel = reqparse.RequestParser()
-parseModificarNivel.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
-parseModificarNivel.add_argument('curnombre', type=str, help = 'Debe elegir curnombre', required = True)
-parseModificarNivel.add_argument('curestado', type=str, help = 'Debe elegir curestado', required = True)
-parseModificarNivel.add_argument('curestadodescripcion', type=str, help = 'Debe elegir curestadodescripcion', required = True)
-parseModificarNivel.add_argument('curnivel', type=int, help = 'Debe elegir curnivel', required = True)
-parseModificarNivel.add_argument('curfchini', type=str, help = 'Debe elegir curfchini', required = True)
-parseModificarNivel.add_argument('curfchfin', type=str, help = 'Debe elegir curfchfin', required = True)
-parseModificarNivel.add_argument('curusumod', type=str, help = 'Debe elegir curusumod', required = True)
-parseModificarNivel.add_argument('curdesnivel', type=str, help = 'Debe elegir curdesnivel', required = True)
-parseModificarNivel.add_argument('curdescripcion', type=str, help = 'Debe elegir curdescripcion', required = True)
-class ModificarNivel(Resource):
-  def post(self):
-    data = parseModificarNivel.parse_args()
-    return modificarNivel(data)

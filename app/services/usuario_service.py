@@ -1,29 +1,13 @@
-from core.database import select, execute, execute_function
-from core.database import execute, as_string
+from core.database import select, execute, execute_function, as_string
 from psycopg2 import sql
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def gestionarUsuario(data):
-    print("--------------------------->Datos para gestionar usuario: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
             SELECT academico.f_gestionar_usuario({tipo}, {usuid}, {perid}, {rolid}, {usuname}, {usupassword}, {usupasswordhash}, {usuemail}, {usuimagen}, {usudescripcion}, {usuestado}, {usuusureg});
-            ''').format(
-                tipo=sql.Literal(data['tipo']),
-                usuid=sql.Literal(data['usuid']),
-                perid=sql.Literal(data['perid']),
-                rolid=sql.Literal(data['rolid']),
-                usuname=sql.Literal(data['usuname']),
-                # usupassword=sql.Literal(data['usupassword']),
-                usupassword = sql.Literal(generate_password_hash(data['usupassword'])),
-                usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])),
-                usuemail=sql.Literal(data['usuemail']),
-                usuimagen=sql.Literal(data['usuimagen']),
-                usudescripcion=sql.Literal(data['usudescripcion']),
-                usuestado=sql.Literal(data['usuestado']),
-                usuusureg=sql.Literal(data['usuusureg'])
-            )
+            ''').format( tipo=sql.Literal(data['tipo']), usuid=sql.Literal(data['usuid']), perid=sql.Literal(data['perid']), rolid=sql.Literal(data['rolid']), usuname=sql.Literal(data['usuname']), usupassword = sql.Literal(generate_password_hash(data['usupassword'])), usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])), usuemail=sql.Literal(data['usuemail']), usuimagen=sql.Literal(data['usuimagen']), usudescripcion=sql.Literal(data['usudescripcion']), usuestado=sql.Literal(data['usuestado']), usuusureg=sql.Literal(data['usuusureg']))
         result = execute(as_string(query))
     except Exception as err:
         print("Error en Gestionar Usuario: ",err)
@@ -40,15 +24,14 @@ def listaUsuario():
         inner join academico.persona p on p.perid = u.perid
         inner join academico.rol r on r.rolid = u.rolid 
     ''')
+    
 def tipoPersona():
     return select(f''' 
     select perid, pernomcompleto, pernrodoc from academico.persona p 
     order by pernomcompleto 
     ''')
 
-
 def perfil(data):
-    # print("Datos para Perfil: ", data)
     return select(f'''
     SELECT u.usuid, u.perid, p.pernomcompleto, u.rolid, r.rolnombre , u.usuname, u.usuemail, u.usuimagen 
     FROM academico.usuario u
@@ -56,7 +39,6 @@ def perfil(data):
     left join academico.rol r on r.rolid = u.rolid 
     where u.usuid ={data['usuid']};
     ''')
-
 
 def listarRoles():
     return select(f'''
@@ -66,18 +48,12 @@ def listarRoles():
     order by rolid;        
     ''')
     
-    
 def crearRol(data):
-    print("Datos->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
             SELECT * from academico.agregarrol({rolNombre}, {rolDescripcion}, {rolUsuReg});
-            ''').format(
-                rolNombre=sql.Literal(data['rolNombre']),
-                rolDescripcion=sql.Literal(data['rolDescripcion']),
-                rolUsuReg=sql.Literal(data['rolUsuReg'])
-            )
+            ''').format( rolNombre=sql.Literal(data['rolNombre']), rolDescripcion=sql.Literal(data['rolDescripcion']), rolUsuReg=sql.Literal(data['rolUsuReg']))
         result = execute(as_string(query))
     except Exception as err:
         print(err)
@@ -85,17 +61,11 @@ def crearRol(data):
     return result
 
 def modificarRol(data):
-    print("Datos->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
             SELECT academico.modificarrol2({rolId}, {rolNombre}, {rolDescripcion}, {rolUsuMod});
-            ''').format(
-                rolId=sql.Literal(data['rolId']),
-                rolNombre=sql.Literal(data['rolNombre']),
-                rolDescripcion=sql.Literal(data['rolDescripcion']),
-                rolUsuMod=sql.Literal(data['rolUsuMod'])
-            )
+            ''').format( rolId=sql.Literal(data['rolId']), rolNombre=sql.Literal(data['rolNombre']), rolDescripcion=sql.Literal(data['rolDescripcion']), rolUsuMod=sql.Literal(data['rolUsuMod']))
         result = execute(as_string(query))
     except Exception as err:
         print(err)
@@ -108,10 +78,7 @@ def eliminarRol(data):
     try:
         query = sql.SQL('''
             SELECT academico.eliminarRol2({rolid}, {rolusumod});
-            ''').format(
-                rolid=sql.Literal(data['rolid']),
-                rolusumod=sql.Literal(data['rolusumod'])
-            )
+            ''').format(rolid=sql.Literal(data['rolid']),rolusumod=sql.Literal(data['rolusumod']))
         result = execute(as_string(query))
     except Exception as err:
         print(err)
@@ -127,34 +94,19 @@ def listarUsuarios():
 def eliminarRol2(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
-        # Verifica la consulta SQL generada imprimiéndola antes de ejecutarla.
         query = sql.SQL('''
             select * from f_rol_eliminar({rolId});
             ''').format(
-                rolId=sql.Literal(data['rolId'])  # Usar data.get() para manejar posibles valores nulos.
+                rolId=sql.Literal(data['rolId'])
             )
-        print("Consulta SQL:", query, data['rolId'])  # Agrega esta línea para depurar la consulta SQL.
-        # Asegúrate de que 'execute' esté definida y funcione correctamente.
+        print("Consulta SQL:", query, data['rolId'])
         result = execute(as_string(query))
         print(result)
     except Exception as err:
-        print("Error:", err)  # Imprime el error original para facilitar la depuración.
+        print("Error:", err)
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
-"""
-def listarPersona():
-    return select(f'''
-    SELECT
-    p.perid, p.perusuario, p.percontrasena, p.percontrasenaconfirmar,
-    p.pernombres, p.perapepat, p.perapemat, p.pernombrecompleto, p.perfecnac, p.perdomicilio,
-    p.peridpais, p.perpais, p.peridgenero, p.pergenero, p.percorreoelectronico,
-    p.percelular, p.pertelefono, p.perfoto, p.perusureg, p.perfecreg,
-    p.perusumod, p.perfecmod, p.perestado,r.rolid, r.rolnombre 
-    FROM academico.persona p
-    LEFT JOIN academico.roles r ON p.peridrol = r.rolid
-    WHERE p.perestado = 1;
-    ''')
-"""
+
 def listarPersona():
     return select(f'''
      SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 

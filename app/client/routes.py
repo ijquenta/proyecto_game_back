@@ -4,6 +4,13 @@ class Routes:
     index = apiVersion + '/'
     protected = apiVersion + '/secure'
 
+    # Login y Register
+    login = apiVersion + '/login'
+    register = apiVersion + '/register'
+    verify = apiVersion + '/verify/token'
+    login2 = apiVersion + '/login2'
+    register2 = apiVersion + '/register2'
+
     # Persona 
     gestionarPersona = apiVersion + '/gestionarPersona'
     tipoDocumento = apiVersion + '/tipoDocumento'
@@ -12,32 +19,26 @@ class Routes:
     tipoPais = apiVersion + '/tipoPais'
     tipoCiudad = apiVersion + '/tipoCiudad'
     registrarPersona = apiVersion + '/registrarPersona'
+    listarPersona = apiVersion + '/listarPersona'
 
     # Usuario
     gestionarUsuario = apiVersion + '/gestionarUsuario'
     listaUsuario = apiVersion + '/listaUsuario'
     tipoPersona = apiVersion +'/tipoPersona'
     perfil = apiVersion + auth + '/perfil'
-
-    rptTotalesSigma = apiVersion + '/rptTotalesSigma'
-
     listaUsuarios = apiVersion + '/listaUsuarios'
 
-
+    # Roles
     listarRoles = apiVersion + '/listarRoles'
     crearRol = apiVersion + '/crearRol'
     modificarRol = apiVersion + '/modificarRol'
     eliminarRol = apiVersion + '/eliminarRol'
-    
-    
-    listarPersona = apiVersion + '/listarPersona'
     
     # Materia
     listarMateria = apiVersion + '/listarMateria'
     eliminarMateria = apiVersion + '/eliminarMateria'
     insertarMateria = apiVersion + '/insertarMateria'
     modificarMateria = apiVersion + '/modificarMateria'
-    
     
     #Curso - Materia
     listarCursoMateria = apiVersion + '/listarCursoMateria'
@@ -66,42 +67,34 @@ class Routes:
     listarComboCursoMateria = apiVersion + '/listarComboCursoMateria'
     listarComboMatricula = apiVersion + '/listarComboMatricula'
 
-
     #Matricula
     listarMatricula = apiVersion + '/listarMatricula'
     insertarMatricula = apiVersion + '/insertarMatricula'
     modificarMatricula = apiVersion + '/modificarMatricula'
     eliminarMatricula = apiVersion + '/eliminarMatricula'
-
-    login = apiVersion + '/login'
-    register = apiVersion + '/register'
-    verify = apiVersion + '/verify/token'
-    
-    
-    login2 = apiVersion + '/login2'
-    register2 = apiVersion + '/register2'
-    
+   
     # Rol
     gestionarRol = apiVersion + '/gestionarRol'
     
-    
-    
-    #Estudiante
+    # Estudiante
     listarEstudiante = apiVersion + '/listarEstudiante'
     obtenerMateriasInscritas = apiVersion + '/obtenerMateriasInscritas'
     
-    #Docente
+    # Docente
     listarDocente = apiVersion + '/listarDocente'
     obtenerMateriasAsignadas = apiVersion + '/obtenerMateriasAsignadas'
 
-    #Nota
+    # Nota
     listarNota = apiVersion + '/listarNota'
     
-    #Pago
+    # Pago
     listarPago = apiVersion + '/listarPago'
     
-    #Asistencia
+    # Asistencia
     listarAsistencia = apiVersion + '/listarAsistencia'
     
-    #Material
+    # Material de Apoyo
     listarMaterial = apiVersion + '/listarMaterial'
+    
+    # Reportes
+    rptTotalesSigma = apiVersion + '/rptTotalesSigma'

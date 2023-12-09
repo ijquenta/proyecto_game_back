@@ -3,7 +3,6 @@ from services.nivel_service import *
 
 class ListarNivel(Resource):
   def get(self):
-      print("Listar Nivel")
       return listarNivel()
 
 parseInsertarNivel = reqparse.RequestParser()

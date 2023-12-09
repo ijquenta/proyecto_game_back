@@ -2,10 +2,8 @@ from flask_restful import Resource, reqparse
 from services.curso_service import *
 
 
-
 class ListarCursoMateria(Resource):
   def get(self):
-      print("Listar Cursos")
       return listarCursoMateria()
 
 parseEliminarCursoMateria = reqparse.RequestParser()
@@ -13,7 +11,6 @@ parseEliminarCursoMateria.add_argument('curmatid', type=int, help='Debe ingresar
 class EliminarCursoMateria(Resource):
   def post(self):
       data = parseEliminarCursoMateria.parse_args()
-      print("Eliminar Curso Materia")
       return eliminarCursoMateria(data)
 
 parseInsertarCursoMateria = reqparse.RequestParser()
@@ -30,10 +27,7 @@ parseInsertarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe in
 class InsertarCursoMateria(Resource):
   def post(self):
       data = parseInsertarCursoMateria.parse_args()
-      print("Insertar Curso Materia", data)
       return insertarCursoMateria(data)
-    
-    
     
 parseModificarCursoMateria = reqparse.RequestParser()
 parseModificarCursoMateria.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)
@@ -50,12 +44,10 @@ parseModificarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe i
 class ModificarCursoMateria(Resource):
   def post(self):
       data = parseModificarCursoMateria.parse_args()
-      print("Modificar Curso Materia", data)
       return modificarCursoMateria(data)
 
 class ListaCursoCombo(Resource):
   def get(self):
-      print("Lista Curso Combo")
       return listaCursoCombo()
        
 parseListaPersonaDocenteCombo = reqparse.RequestParser()
@@ -67,5 +59,4 @@ class ListaPersonaDocenteCombo(Resource):
   
 class TipoRol(Resource):
   def get(self):
-    print("TipoRol")
     return tipoRol()

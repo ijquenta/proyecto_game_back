@@ -1,6 +1,5 @@
 from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
-from flask import Flask, request, jsonify, make_response
 
 
 def obtenerMateriasAsignadas(data):
@@ -41,7 +40,6 @@ def listarDocente():
 
 
 def registrarPersona(data):
-    print("----------------->Datos para gestionar Persona: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -58,15 +56,12 @@ def registrarPersona(data):
             perusureg=sql.Literal(data['perusureg'])
         )
         result = execute_response(as_string(query)) 
-        # print("Resultado: ", make_response(jsonify(result)))
-        print("Resultado: ", result)
     except Exception as err:
         print(err)
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
 
 def gestionarPersona(data):
-    # print("----------------->Datos para gestionar Persona: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -100,7 +95,6 @@ def gestionarPersona(data):
             perusumod=sql.Literal(data['perusumod']),
         )
         result = execute(as_string(query)) 
-        print(result)
     except Exception as err:
         print(err)
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
@@ -138,8 +132,6 @@ def listarUsuarios():
     FROM public.usuarios;
     ''')
 
-#Beneficio Social
-
 def obtenerDatosDocente(nroCi, nomCompleto):
     return getDatosDocente(nroCi, nomCompleto)
 
@@ -163,9 +155,6 @@ def listarBeneficiosDocenteGrilla2(data):
     ''')
 
 def listarTipoMotivo():
-    #print(idPersona, " es La persona")
-    #if idPersona is not None:
-    #    return select(f'''select * from public.planilla_regular where id_mes = {idMes} and id_gestion = {idGestion} and id_persona = {idPersona} and estado = 1''')
     return select(f'''select cod_tipo_motivo, des_tipo_motivo  from bd_bsocialdocente.p_bsocial.t_tipos_motivos order by cod_tipo_motivo ''')
 
 def listarTresUltimosMesesRemuneraadosDocente(cod_docente, ano, mes):
@@ -186,30 +175,7 @@ def obtenerDatosModificar(data):
       b.ts_mes, b.ts_dia, motivo
     ''')
 
-#Ejemplo
-"""
-def listarMesesRestaurables(idGestion, idPersona):
-    # return select(f'''select pa.id_mes, pa.des_mes as descripcion_mes from pkg_adm_mensual.planilla_administrativa pa 
-    #     inner join public.adm_fase_mensual afm on afm.id_mes = pa.id_mes and afm.id_gestion = pa.id_gestion
-    #     where pa.id_gestion = {idGestion} and pa.id_persona = {idPersona} and pa.estado_recuperado = 1 order by pa.id_mes''')
-    return getMesesRestaurables(idGestion, idPersona) 
-"""
-
-"""
-def restaurarMes(data,idUsuario):
-    return getPlanillaAdministrativaPersona(data['idGestion'], data['idMes'], data['idPersona'], idUsuario) 
-    # execute(f'''call public.pla_reg_edit_restaurar_designacion({data['idMes']}, {data['idGestion']}, {data['idPersona']}, {idUsuario})''')
-
-"""
-"""
-def modificarCalculoBS(data):
-    return select(f''' 
-    
-    ''')
-"""
 def registrarBeneficioNuevo(data):
-    #select * from p_bsocial.bs08_aplicar_beneficios_docente_nuevo({data['ano']},{data['mes']},\'{data['codDocente']}\',\'{data['usuarioReg']}\')
-    #select * from p_bsocial.bs08_aplicar_beneficios_docente_form({data['ano']}, {data['mes']},\'{data['codDocente']}\', {data['codTipoMotivo']}, \'{data['nroDictamen']}\', \'{data['hojaRuta']}\', \'{data['fecLiquidacion']}\', \'{data['fecIngrec']}\', \'{data['fecConclusion']}\', \'{data['fecRetiro']}\', {data['tsAno']}, {data['tsMes']}, {data['tsDia']}, \'{data['observaciones']}\', \'{data['usuarioReg']}\')
     return select(f'''
     select * from p_bsocial.bs08_aplicar_beneficios_docente_form2({data['ano']}, {data['mes']},\'{data['codDocente']}\', {data['codTipoMotivo']}, \'{data['nroDictamen']}\', \'{data['hojaRuta']}\', \'{data['fecLiquidacion']}\', \'{data['fecIngrec']}\', \'{data['fecConclusion']}\', \'{data['fecRetiro']}\', {data['tsAno']}, {data['tsMes']}, {data['tsDia']}, \'{data['observaciones']}\', \'{data['usuarioReg']}\')
     ''')

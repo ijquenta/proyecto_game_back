@@ -16,7 +16,6 @@ def listarMatricula():
 
 
 def insertarMatricula(data):
-    print("Insertar Matricula: ", data)
     return execute_function(f'''
     SELECT academico.insertar_matricula(
         \'{data['matrgestion']}\', 
@@ -28,7 +27,6 @@ def insertarMatricula(data):
         \'{data['matrusureg']}\')  as valor;                      
     ''')
 def modificarMatricula(data):
-    print("Modificar Matricula: ", data)
     return execute_function(f'''
     SELECT academico.modificar_matricula(
           {data['matrid']}, 
@@ -42,7 +40,6 @@ def modificarMatricula(data):
     ''')  
 
 def eliminarMatricula(data):
-    print("Eliminar Matricula: ", data)
     return execute_function(f'''
     SELECT academico.eliminar_matricula(
         \'{data['matrid']}\')  as valor;                      

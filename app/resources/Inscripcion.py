@@ -3,17 +3,14 @@ from services.inscripcion_service import *
 
 class ListarInscripcion(Resource):
   def get(self):
-      print("Listar Inscripcion")
       return listarInscripcion()
     
 class ListarComboCursoMateria(Resource):
   def get(self):
-      print("Listar listarComboCursoMateria")
       return listarComboCursoMateria()
     
 class ListarComboMatricula(Resource):
   def get(self):
-      print("Listar listar Combo Matricula")
       return listarComboMatricula()
 
 parseInsertarInscripcion = reqparse.RequestParser()

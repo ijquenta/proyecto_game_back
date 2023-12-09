@@ -10,7 +10,6 @@ def listarNivel():
     ''')
 
 def insertarNivel(data):
-    print("Insertar Nivel: ", data)
     return execute_function(f'''
     SELECT academico.insertar_curso(
         \'{data['curnombre']}\', 
@@ -27,7 +26,6 @@ def insertarNivel(data):
     
     
 def modificarNivel(data):
-    print("Modificar Nivel ->", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -56,8 +54,6 @@ def eliminarNivel(data):
     SELECT academico.eliminar_curso({data['curid']}) as valor;
     ''')
     result = resultado[0]['valor']
-    print("resultado: ", resultado)
-    print("resultado2: ", resultado[0]['valor'])
     if result == 1:
         response_data = {'message': 'Nivel eliminado correctamente'}
         status_code = 200

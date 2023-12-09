@@ -4,13 +4,13 @@ from client.responses import clientResponses as messages
 # from core.auth import require_token
 from http import HTTPStatus
 
-# class Index(Resource):
-#   def get(self):
-#     print (session)
-#     return messages.index
+class Index(Resource):
+  def get(self):
+    print (session)
+    return messages.index
 
-# class Protected(Resource):
+class Protected(Resource):
 #   @require_token()
-#   def get(self):
-#     print (session)
-#     return messages.protected
+  def get(self):
+    print (session)
+    return messages.protected
