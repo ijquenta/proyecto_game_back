@@ -28,6 +28,22 @@ def listarEstudiante():
     ''')
 
 
+
+
+def obtenerMateriasInscritas(data):
+    return select(f'''
+        SELECT distinct i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre, m2.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, 
+        i.insusumod, i.insfecmod, i.insestado, i.insestadodescripcion 
+        FROM academico.inscripcion i
+        left join academico.matricula m on m.matrid = i.matrid 
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid 
+        left join academico.materia m2 on m2.matid = cm.matid 
+        left join academico.curso c on c.curid = cm.curid 
+        where i.peridestudiante = {data['perid']}
+    ''')
+
+
+
 def registrarPersona(data):
     print("----------------->Datos para gestionar Persona: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404

@@ -9,6 +9,17 @@ from services.docente_service import *
 
 from resources.Autenticacion import token_required
 
+
+parseObtenerMateriasAsignadas = reqparse.RequestParser()
+parseObtenerMateriasAsignadas.add_argument('perid', type=int, help='Ingresar perid', required=True)
+class ObtenerMateriasAsignadas(Resource):
+    # @token_required
+    def post(self):
+        data = parseObtenerMateriasAsignadas.parse_args()
+        return obtenerMateriasAsignadas(data)
+
+
+
 class ListarDocente(Resource):
     # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
     # @token_required

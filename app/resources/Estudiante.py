@@ -30,6 +30,16 @@ class RegistrarPersona(Resource):
         return registrarPersona(data)
 
 
+parseObtenerMateriasInscritas = reqparse.RequestParser()
+parseObtenerMateriasInscritas.add_argument('perid', type=int, help='Ingresar perid', required=True)
+class ObtenerMateriasInscritas(Resource):
+    # @token_required
+    def post(self):
+        data = parseObtenerMateriasInscritas.parse_args()
+        return obtenerMateriasInscritas(data)
+
+
+
 parsePersona = reqparse.RequestParser()
 parsePersona.add_argument('tipo', type=int, help='Tipo de operación (1: Crear, 2: Modificar, 3: Eliminar)', required=True)
 parsePersona.add_argument('perid', type=int, help='ID de la persona', required=True)

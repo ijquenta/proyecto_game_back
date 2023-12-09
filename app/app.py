@@ -145,10 +145,12 @@ api.add_resource(Matricula.EliminarMatricula, routes.eliminarMatricula)
 
 # Estudiante
 api.add_resource(Estudiante.ListarEstudiante, routes.listarEstudiante)
+api.add_resource(Estudiante.ObtenerMateriasInscritas, routes.obtenerMateriasInscritas)
 
 
 # Docente
 api.add_resource(Docente.ListarDocente, routes.listarDocente)
+api.add_resource(Docente.ObtenerMateriasAsignadas, routes.obtenerMateriasAsignadas)
 
 # Nota
 api.add_resource(Nota.ListarNota, routes.listarNota)

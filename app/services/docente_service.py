@@ -3,7 +3,19 @@ from web.wsrrhh_service import *
 from flask import Flask, request, jsonify, make_response
 
 
-
+def obtenerMateriasAsignadas(data):
+    return select(f'''
+        SELECT cm.curmatid, cm.curid, c.curnombre, cm.matid, m2.matnombre, cm.periddocente, p.pernomcompleto,
+        cm.curmatfecini, 
+        cm.curmatfecfin, cm.curmatestado, cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, 
+        cm.curmatestadodescripcion, cm.curmatidrol, cm.curmatidroldes, cm.curmatdescripcion 
+        FROM academico.curso_materia cm
+        inner join academico.persona p on p.perid = cm.periddocente
+        left join academico.materia m2 on m2.matid = cm.matid 
+        left join academico.curso c on c.curid = cm.curid 
+        where cm.periddocente = {data['perid']}
+    ''')
+    
 def listarDocente():
     return select('''
         SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
