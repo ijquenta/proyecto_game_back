@@ -70,3 +70,5 @@ def rptTotalesSigma():
     #     SELECT da, ue, pg, proy, act, denominacion, total_indemnizacion FROM p_bsocial.bs_reporte_totales_sigma2(\'{fechaInicio}\', \'{fechaFin}\') AS 
     #     (da varchar, ue varchar, pg varchar, proy varchar, act varchar, denominacion varchar, total_indemnizacion numeric)
     # ''')
+
+

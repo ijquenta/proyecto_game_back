@@ -1,0 +1,133 @@
+<!-- Parametros de entrada -->
+{{def(data, user)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ivan Quenta
+    Fecha: 09/12/2023 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="ReporteTotalesSigma.pdf">
+    <!-- 
+        pagesize:
+            oficioH: pagesize="(35.6cm, 21.6cm)",
+            oficioV: pagesize="(21.6cm, 35.6cm)",
+            cartaH: pagesize="(27.9cm, 21.6cm)"
+            cartaV: pagesize="(21.6cm, 27.9cm)"
+    -->
+    <!-- <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social"> -->
+    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <!-- Header -->
+                {{script}}
+                import datetime
+                from core.rml.util.extras import getFecha
+                ev = ''
+                ev = 'P(titulo)'
+                today=datetime.datetime.today()
+                today=today.strftime("%d/%m/%y %H:%M")
+                nomcompleto = data[0]['pernomcompleto']
+                #se puede hacer lo que sea con la info
+                total = {
+                    "liq": 0
+                }
+                {{endscript}}
+                <setFont name="Helvetica" size="11"/>
+                <drawCentredString x="10.5cm" y="25.5cm">NOTAS</drawCentredString>
+                <setFont name="Helvetica" size="9"/>
+                <drawString x="2cm" y="27cm">Instituto Biblico de Capacitación Internacional</drawString>
+                <drawString x="2cm" y="26.5cm">Sistema de Seguimiento y Gestión Académico</drawString>
+                <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
+                <drawRightString x="20cm" y="27cm">Fecha Emision: {{today}}</drawRightString>
+                <drawRightString x="7.5cm" y="25cm">Nombre Completo: {{ nomcompleto  }}</drawRightString>
+                    <place x="0.75cm" y="16.7cm" width="33cm" height="7.5cm">
+                        <blockTable rowHeights="0.6cm, 0.0cm" colWidths="1cm, 6.5cm, 6.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm" style="blocktablestyle1">
+                            <tr>
+                            </tr>
+                            <tr>
+                                <td>Nro</td>
+                                <td>Curso</td>
+                                <td>Materia</td>
+                                <td>Nota 1</td>
+                                <td>Nota 2</td>
+                                <td>Nota 3</td>
+                                <td>Nota Final</td>
+                            </tr>
+                        </blockTable>
+                    </place>
+                <!-- Footer -->
+                <setFont name="Helvetica" size="8"/>
+                <drawRightString x="20cm" y="1cm"> Pag. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
+                <drawString x="2cm" y="1cm">Usuario: {{user}}</drawString>
+            </pageGraphics>
+            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="18.5cm" height="22cm"/>
+        </pageTemplate>
+    </template>
+    <stylesheet>
+        <!-- definicion de estilos -->
+        <blockTableStyle id="blocktablestyle1">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9"/>
+        </blockTableStyle>
+        <blockTableStyle id="blocktablestyleData">
+            <!-- <blockLeading length="2cm"/> -->
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="blue" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <!-- <blockSpan start="3,1" stop="4,1" /> -->
+        </blockTableStyle>
+        <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+    </stylesheet>
+    <story>
+       <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
+       {{for item in data}}
+       
+            <blockTable
+                style="blocktablestyleData"
+                rowHeights="0.5cm"
+                colWidths="1cm, 6.5cm, 6.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm"
+            >
+                <tr>
+                    <td>{{ item['notid'] }}</td>
+                    <td>{{ item['curnombre'] }}</td>
+                    <td>{{ item['matnombre'] }}</td>
+                    <td>{{ item['not1'] }}</td>
+                    <td>{{ item['not2'] }}</td>
+                    <td>{{ item['not3'] }}</td>
+                    <td>{{ item['notfinal'] }}</td>
+                    <!-- <td align="right">{{}}</td> -->
+                </tr>
+            </blockTable>
+            {{script}}
+                total["liq"] = round(total["liq"] + item['notfinal'], 2)
+            {{endscript}}
+       {{endfor}}
+       <illustration width="27cm" height="0cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+        <blockTable
+            style="blocktablestyleData"
+            rowHeights="0.5cm"
+            colWidths="18.5cm, 1.5cm"
+        > 
+             <tr>
+                 <td align="right">Promedio: </td> 
+                 <td align="right">{{ total['liq'] }}</td> 
+            </tr>
+        </blockTable>
+        <!-- <illustration width="33cm" height="0.2cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 0.1cm 32cm 0.1cm</lines>
+        </illustration> -->
+        <!--Variable para saber cuantas paginas tiene dejar al final para el total-->
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>

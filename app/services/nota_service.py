@@ -1,102 +1,98 @@
 from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
-from flask import Flask, request, jsonify, make_response
+from core.rml.report_generator import Report
+from flask import make_response
+
+def make(pdf):
+    response = make_response(pdf)
+    response.headers["Content-Disposition"] = "attachment; filename={}".format("archivo.pdf")
+    response.mimetype = 'application/pdf'
+    return response
 
 def listarNota():
     return select('''
         SELECT notid, insid, not1, not2, not3, notfinal, notusureg, notfecreg, notusumod, notfecmod, notestado FROM academico.nota;
     ''')
-
-def registrarPersona(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            SELECT * FROM academico.registrar_persona
-                ({pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc},  {perusureg} 
-                )
-        ''').format(
-            pernombres=sql.Literal(data['pernombres']),
-            perapepat=sql.Literal(data['perapepat']),
-            perapemat=sql.Literal(data['perapemat']),
-            pertipodoc=sql.Literal(data['pertipodoc']),
-            pernrodoc=sql.Literal(data['pernrodoc']),
-            perusureg=sql.Literal(data['perusureg'])
-        )
-        result = execute_response(as_string(query)) 
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
-    return result
-
-def gestionarPersona(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            SELECT academico.f_gestionar_persona
-                ({tipo},{perid}, {pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc}, {perfecnac}, {perdirec}, {peremail}, 
-                 {percelular}, {pertelefono}, {perpais}, {perciudad}, {pergenero}, 
-                 {perestcivil}, {perfoto}, {perestado}, {perobservacion}, {perusureg}, 
-                 {perusumod})
-        ''').format(
-            tipo=sql.Literal(data['tipo']),
-            perid=sql.Literal(data['perid']),
-            pernombres=sql.Literal(data['pernombres']),
-            perapepat=sql.Literal(data['perapepat']),
-            perapemat=sql.Literal(data['perapemat']),
-            pertipodoc=sql.Literal(data['pertipodoc']),
-            pernrodoc=sql.Literal(data['pernrodoc']),
-            perfecnac=sql.Literal(data['perfecnac']),
-            perdirec=sql.Literal(data['perdirec']),
-            peremail=sql.Literal(data['peremail']),
-            percelular=sql.Literal(data['percelular']),
-            pertelefono=sql.Literal(data['pertelefono']),
-            perpais=sql.Literal(data['perpais']),
-            perciudad=sql.Literal(data['perciudad']),
-            pergenero=sql.Literal(data['pergenero']),
-            perestcivil=sql.Literal(data['perestcivil']),
-            perfoto=sql.Literal(data['perfoto']),
-            perestado=sql.Literal(data['perestado']),
-            perobservacion=sql.Literal(data['perobservacion']),
-            perusureg=sql.Literal(data['perusureg']),
-            perusumod=sql.Literal(data['perusumod']),
-        )
-        result = execute(as_string(query)) 
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
-    return result
-
-def tipoDocumento():
-    return select('''
-        SELECT tipodocid, tipodocnombre
-        FROM academico.tipo_documento;
-    ''')
-def tipoEstadoCivil():
-    return select('''
-        SELECT estadocivilid, estadocivilnombre
-        FROM academico.tipo_estadocivil;
-    ''')
-def tipoGenero():
-    return select('''
-        SELECT generoid, generonombre
-        FROM academico.tipo_genero;
-    ''')
-def tipoPais():
-    return select('''
-        SELECT paisid, paisnombre
-        FROM academico.tipo_pais;
-    ''')
-def tipoCiudad():
-    return select('''
-        SELECT ciudadid, ciudadnombre, paisid
-        FROM academico.tipo_ciudad;
-    ''')
-    
-def listarUsuarios():
+ 
+def listarNotaEstudiante(data):
     return select(f'''
-    SELECT id, nombre_usuario, contrasena, nombre_completo, rol
-    FROM public.usuarios;
-    ''')
+        SELECT i.insid, i.matrid, cm.curid, c.curnombre, cm.matid, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
+        FROM academico.inscripcion i
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid
+        left join academico.materia m on m.matid = cm.matid
+        where i.peridestudiante = {data['perid']}
+        order by c.curnombre, m.matnombre; 
+    ''')   
 
+def listarNotaDocente(data):
+    return select(f'''
+        SELECT cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
+        cm.curmatdescripcion 
+        FROM academico.curso_materia cm
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.materia m on m.matid = cm.matid 
+        left join academico.persona p on p.perid = cm.periddocente 
+        where cm.periddocente = {data['perid']}
+        order by c.curnombre, m.matnombre; 
+    ''')   
+    
+
+    
+def listarNotaEstudianteMateria(data):
+    return select(f'''
+        SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
+               n.notfinal, 
+               i.peridestudiante,
+               p.pernomcompleto,
+               cm.matid, m.matnombre,
+               cm.curid, c.curnombre,
+               n.notusureg, n.notfecreg, n.notusumod, n.notfecmod, n.notestado 
+        FROM academico.nota n
+        left join academico.inscripcion i on i.insid = n.insid
+        left join academico.persona p on p.perid = i.peridestudiante
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid
+        left join academico.materia m on m.matid = cm.matid
+        where i.peridestudiante = {data['perid']}
+        and cm.curid = {data['curid']}
+        and cm.matid = {data['matid']}
+        order by c.curnombre, m.matnombre; 
+    ''')       
+
+def listarNotaEstudianteCurso(data):
+    return select(f'''
+        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
+        FROM academico.inscripcion i
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.materia m on m.matid = cm.matid 
+        left join academico.persona p on p.perid = i.peridestudiante
+        left join academico.nota n on n.insid = i.insid
+        where i.curmatid = {data['curmatid']}
+        order by p.pernomcompleto;
+    ''')  
+
+
+def rptNotaEstudianteMateria(data):
+    print("data", data)
+    params = select(f'''
+        SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
+               n.notfinal, 
+               i.peridestudiante,
+               p.pernomcompleto,
+               cm.matid, m.matnombre,
+               cm.curid, c.curnombre,
+               n.notusureg, n.notfecreg, n.notusumod, n.notfecmod, n.notestado 
+        FROM academico.nota n
+        left join academico.inscripcion i on i.insid = n.insid
+        left join academico.persona p on p.perid = i.peridestudiante
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid
+        left join academico.materia m on m.matid = cm.matid
+        where i.peridestudiante = {data['perid']}
+        order by c.curnombre, m.matnombre
+    ''')
+    print("params", params)
+    return make(Report().RptNotaEstudianteMateria(params, data['usuname']))

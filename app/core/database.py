@@ -137,7 +137,8 @@ def select(query):
         df = pd.read_sql_query(query, engine)
         df.columns = rename_cols(df.columns)
         jsonData = df.to_json(orient='records', date_format='iso')
-        return json.loads(jsonData), HTTPStatus.OK
+        return json.loads(jsonData)
+        # return json.loads(jsonData), HTTPStatus.OK
     except SQLAlchemyError as err:
         # Maneja errores específicos de SQLAlchemy
         session_db.rollback()
