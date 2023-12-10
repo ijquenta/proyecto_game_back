@@ -138,6 +138,7 @@ api.add_resource(Docente.ObtenerMateriasAsignadas, routes.obtenerMateriasAsignad
 
 # Nota
 api.add_resource(Nota.ListarNota, routes.listarNota)
+api.add_resource(Nota.GestionarNota, routes.gestionarNota)
 api.add_resource(Nota.ListarNotaEstudiante, routes.listarNotaEstudiante)
 api.add_resource(Nota.ListarNotaDocente, routes.listarNotaDocente)
 api.add_resource(Nota.ListarNotaEstudianteMateria, routes.listarNotaEstudianteMateria)

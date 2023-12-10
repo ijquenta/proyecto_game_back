@@ -181,20 +181,34 @@ def execute_response(query):
         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
 
 
+# def execute_function(query):
+#     try:
+#         result = session_db.execute(text(query))
+#         session_db.commit()
+#         row = result.fetchone()
+#         if row is not None:
+#             return {"valor": row.valor}, HTTPStatus.OK
+#         else:
+#             return {"code": 0, "message": "La función no devolvió ningún resultado."}, HTTPStatus.NOT_FOUND
+#     except SQLAlchemyError as err:
+#         session_db.rollback()
+#         print(err)
+#         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
+#     finally:
+#         session_db.close()
+        
+
 def execute_function(query):
     try:
-        result = session_db.execute(text(query))
+        result = session_db.execute(query)
         session_db.commit()
         row = result.fetchone()
         if row is not None:
-            return {"valor": row.valor}, HTTPStatus.OK
+            return {"valor": row["valor"]}, HTTPStatus.OK
         else:
             return {"code": 0, "message": "La función no devolvió ningún resultado."}, HTTPStatus.NOT_FOUND
-    except SQLAlchemyError as err:
-        # Maneja errores específicos de SQLAlchemy
+
+    except Exception as err:
         session_db.rollback()
         print(err)
         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
-    finally:
-        session_db.close()
-        

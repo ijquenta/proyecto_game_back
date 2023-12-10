@@ -9,6 +9,23 @@ def make(pdf):
     response.mimetype = 'application/pdf'
     return response
 
+def gestionarNota(data):
+    data = {key: f'\'{value}\'' if value is not None else 'NULL' for key, value in data.items()}
+
+    return execute_function(f'''
+       SELECT academico.f_gestionar_nota
+                ({data['tipo']},
+                {data['notid']}, 
+                {data['insid']}, 
+                {data['not1']}, 
+                {data['not2']}, 
+                {data['not3']},
+                {data['notfinal']},
+                {data['notusureg']}, 
+                {data['notusumod']}, 
+                {data['notestado']}) as valor;
+    ''')
+
 def listarNota():
     return select('''
         SELECT notid, insid, not1, not2, not3, notfinal, notusureg, notfecreg, notusumod, notfecmod, notestado FROM academico.nota;
