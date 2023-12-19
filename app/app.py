@@ -157,7 +157,8 @@ api.add_resource(Material.ListarMaterial, routes.listarMaterial)
 
 
 import jwt
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@192.168.0.41/db_academico'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
@@ -326,6 +327,101 @@ def post():
 def protected():
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
+
+
+
+# Configuración de correo
+from flask import Flask, jsonify, request
+from werkzeug.utils import secure_filename
+import os
+import random
+import string
+#Redireccionando cuando la página no existe
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'docx', 'xlsx'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def stringAleatorio(length=10):
+    """Genera una cadena aleatoria."""
+    letters = string.ascii_letters
+    return ''.join(random.choice(letters) for _ in range(length))
+
+@app.route('/registrar-archivo', methods=['POST'])
+def registrarArchivo():
+    try:
+        if 'archivo' not in request.files:
+            raise ValueError("No se proporcionó ningún archivo en la solicitud.")
+
+        file = request.files['archivo']
+
+        if file.filename == '':
+            raise ValueError("Nombre de archivo vacío.")
+
+        if file and allowed_file(file.filename):
+            basepath = os.path.dirname(__file__)
+            upload_directory = os.path.join(basepath, 'static', 'archivos')
+
+            if not os.path.exists(upload_directory):
+                os.makedirs(upload_directory)
+
+            filename = secure_filename(file.filename)
+            nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
+            upload_path = os.path.join(upload_directory, nuevo_nombre_file)
+
+            file.save(upload_path)
+
+            resp = {
+                "status": "success",
+                "message": "Archivo subido correctamente",
+                "filename": nuevo_nombre_file  # Puedes enviar el nuevo nombre del archivo si es necesario
+            }
+            return jsonify(resp), 200
+        else:
+            raise ValueError("Tipo de archivo no permitido.")
+
+    except Exception as e:
+        resp = {
+            "status": "error",
+            "message": f"Error al subir el archivo: {str(e)}"
+        }
+        return jsonify(resp), 500
+
+@app.route('/listar-archivos', methods=['GET'])
+def listarArchivos():
+    basepath = os.path.dirname(__file__)
+    upload_directory = os.path.join(basepath, 'static', 'archivos')
+
+    if not os.path.exists(upload_directory):
+        return jsonify({"archivos": []})
+
+    archivos = os.listdir(upload_directory)
+    return jsonify({"archivos": archivos})
+
+@app.route('/eliminar-archivo/<filename>', methods=['DELETE'])
+def eliminarArchivo(filename):
+    try:
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, 'static', 'archivos')
+
+        file_path = os.path.join(upload_directory, filename)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            resp = {
+                "status": "success",
+                "message": f"Archivo {filename} eliminado correctamente"
+            }
+            return jsonify(resp), 200
+        else:
+            raise FileNotFoundError(f"El archivo {filename} no existe.")
+
+    except Exception as e:
+        resp = {
+            "status": "error",
+            "message": f"Error al eliminar el archivo: {str(e)}"
+        }
+        return jsonify(resp), 500
 
 
 if __name__ == '__main__':
