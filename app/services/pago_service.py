@@ -7,95 +7,71 @@ def listarPago():
         SELECT pagid, pagdescripcion, pagestadodescripcion, pagmonto, pagdoc, pagrusureg, pagrfecreg, pagrusumod, pagrfecmod, pagestado FROM academico.pago;
     ''')
 
-def registrarPersona(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            SELECT * FROM academico.registrar_persona
-                ({pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc},  {perusureg} 
-                )
-        ''').format(
-            pernombres=sql.Literal(data['pernombres']),
-            perapepat=sql.Literal(data['perapepat']),
-            perapemat=sql.Literal(data['perapemat']),
-            pertipodoc=sql.Literal(data['pertipodoc']),
-            pernrodoc=sql.Literal(data['pernrodoc']),
-            perusureg=sql.Literal(data['perusureg'])
-        )
-        result = execute_response(as_string(query)) 
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
-    return result
+def gestionarPago(data):
+    data = {key: f'\'{value}\'' if value is not None else 'NULL' for key, value in data.items()}
 
-def gestionarPersona(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            SELECT academico.f_gestionar_persona
-                ({tipo},{perid}, {pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc}, {perfecnac}, {perdirec}, {peremail}, 
-                 {percelular}, {pertelefono}, {perpais}, {perciudad}, {pergenero}, 
-                 {perestcivil}, {perfoto}, {perestado}, {perobservacion}, {perusureg}, 
-                 {perusumod})
-        ''').format(
-            tipo=sql.Literal(data['tipo']),
-            perid=sql.Literal(data['perid']),
-            pernombres=sql.Literal(data['pernombres']),
-            perapepat=sql.Literal(data['perapepat']),
-            perapemat=sql.Literal(data['perapemat']),
-            pertipodoc=sql.Literal(data['pertipodoc']),
-            pernrodoc=sql.Literal(data['pernrodoc']),
-            perfecnac=sql.Literal(data['perfecnac']),
-            perdirec=sql.Literal(data['perdirec']),
-            peremail=sql.Literal(data['peremail']),
-            percelular=sql.Literal(data['percelular']),
-            pertelefono=sql.Literal(data['pertelefono']),
-            perpais=sql.Literal(data['perpais']),
-            perciudad=sql.Literal(data['perciudad']),
-            pergenero=sql.Literal(data['pergenero']),
-            perestcivil=sql.Literal(data['perestcivil']),
-            perfoto=sql.Literal(data['perfoto']),
-            perestado=sql.Literal(data['perestado']),
-            perobservacion=sql.Literal(data['perobservacion']),
-            perusureg=sql.Literal(data['perusureg']),
-            perusumod=sql.Literal(data['perusumod']),
-        )
-        result = execute(as_string(query)) 
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
-    return result
+    return execute_function(f'''
+       SELECT academico.f_gestionar_pago
+               ({data['tipo']},
+                {data['pagid']}, 
+                {data['insid']}, 
+                {data['pagdescripcion']}, 
+                {data['pagmonto']}, 
+                {data['pagfecha']},
+                {data['pagrusureg']},
+                {data['pagestadodescripcion']}, 
+                {data['pagestado']}) as valor;
+    ''')
 
-def tipoDocumento():
-    return select('''
-        SELECT tipodocid, tipodocnombre
-        FROM academico.tipo_documento;
-    ''')
-def tipoEstadoCivil():
-    return select('''
-        SELECT estadocivilid, estadocivilnombre
-        FROM academico.tipo_estadocivil;
-    ''')
-def tipoGenero():
-    return select('''
-        SELECT generoid, generonombre
-        FROM academico.tipo_genero;
-    ''')
-def tipoPais():
-    return select('''
-        SELECT paisid, paisnombre
-        FROM academico.tipo_pais;
-    ''')
-def tipoCiudad():
-    return select('''
-        SELECT ciudadid, ciudadnombre, paisid
-        FROM academico.tipo_ciudad;
-    ''')
-    
-def listarUsuarios():
+def listarPagoEstudiante(data):
     return select(f'''
-    SELECT id, nombre_usuario, contrasena, nombre_completo, rol
-    FROM public.usuarios;
-    ''')
+        SELECT i.insid, i.matrid, cm.curid, c.curnombre, cm.matid, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
+        FROM academico.inscripcion i
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid
+        left join academico.materia m on m.matid = cm.matid
+        where i.peridestudiante = {data['perid']}
+        order by c.curnombre, m.matnombre; 
+    ''') 
+
+def listarPagoEstudianteMateria(data):
+    return select(f'''
+       SELECT distinct i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre, m2.matnombre, i.peridestudiante, 
+                i.pagid, p.pagdescripcion, p.pagestadodescripcion, p.pagmonto, p.pagdoc, pagrusureg, pagrfecreg, pagrusumod, pagrfecmod, pagestado 
+        FROM academico.inscripcion i
+        left join academico.matricula m on m.matrid = i.matrid 
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid 
+        left join academico.materia m2 on m2.matid = cm.matid 
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.pago p on p.pagid = i.pagid
+        where i.peridestudiante = {data['perid']}
+        and cm.curid = {data['curid']}
+        and cm.matid = {data['matid']}
+    ''') 
+
+def listarPagoCurso():
+    return select(f'''
+        SELECT cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
+        cm.curmatdescripcion 
+        FROM academico.curso_materia cm
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.materia m on m.matid = cm.matid 
+        left join academico.persona p on p.perid = cm.periddocente 
+        order by c.curnombre, m.matnombre; 
+    ''')   
+    
+def listarPagoEstudiantesMateria(data):
+    return select(f'''
+       SELECT distinct i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre, m2.matnombre, i.peridestudiante, p2.pernomcompleto,
+                i.pagid, p.pagdescripcion, p.pagestadodescripcion, p.pagmonto, p.pagdoc, pagrusureg, pagrfecreg, pagrusumod, pagrfecmod, pagestado 
+        FROM academico.inscripcion i
+        left join academico.matricula m on m.matrid = i.matrid 
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid 
+        left join academico.materia m2 on m2.matid = cm.matid 
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.pago p on p.pagid = i.pagid
+        left join academico.persona p2 on p2.perid = i.peridestudiante 
+        where cm.curid = {data['curid']}
+        and cm.matid = {data['matid']}
+    ''') 

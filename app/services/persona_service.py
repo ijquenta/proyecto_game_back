@@ -63,6 +63,22 @@ def gestionarPersona(data):
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
 
+def eliminarPersona(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.f_eliminar_persona
+                ({tipo},{perid})
+        ''').format(
+            tipo=sql.Literal(data['tipo']),
+            perid=sql.Literal(data['perid']),
+        )
+        result = execute(as_string(query)) 
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
+    return result
+
 def tipoDocumento():
     return select('''
         SELECT tipodocid, tipodocnombre

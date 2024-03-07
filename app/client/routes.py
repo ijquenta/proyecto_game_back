@@ -13,6 +13,7 @@ class Routes:
 
     # Persona 
     gestionarPersona = apiVersion + '/gestionarPersona'
+    eliminarPersona = apiVersion + '/eliminarPersona'
     tipoDocumento = apiVersion + '/tipoDocumento'
     tipoEstadoCivil = apiVersion + '/tipoEstadoCivil'
     tipoGenero = apiVersion + '/tipoGenero'
@@ -95,6 +96,11 @@ class Routes:
     
     # Pago
     listarPago = apiVersion + '/listarPago'
+    listarPagoEstudiante = apiVersion + '/listarPagoEstudiante'
+    listarPagoEstudianteMateria = apiVersion + '/listarPagoEstudianteMateria'
+    listarPagoEstudiantesMateria = apiVersion + '/listarPagoEstudiantesMateria'
+    listarPagoCurso = apiVersion + '/listarPagoCurso'
+    gestionarPago = apiVersion + '/gestionarPago'
     
     # Asistencia
     listarAsistencia = apiVersion + '/listarAsistencia'

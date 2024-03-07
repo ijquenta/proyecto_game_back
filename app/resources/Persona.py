@@ -30,7 +30,7 @@ class RegistrarPersona(Resource):
         return registrarPersona(data)
 
 parsePersona = reqparse.RequestParser()
-parsePersona.add_argument('tipo', type=int, help='Tipo de operación (1: Crear, 2: Modificar, 3: Eliminar)', required=True)
+parsePersona.add_argument('tipo', type=int, help='Tipo de operación', required=True)
 parsePersona.add_argument('perid', type=int, help='ID de la persona', required=True)
 parsePersona.add_argument('pernombres', type=str, help='Nombres de la persona', required=True)
 parsePersona.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
@@ -46,7 +46,7 @@ parsePersona.add_argument('perpais', type=int, help='ID del país de la persona'
 parsePersona.add_argument('perciudad', type=int, help='ID de la ciudad de la persona', required=True)
 parsePersona.add_argument('pergenero', type=int, help='ID del género de la persona', required=True)
 parsePersona.add_argument('perestcivil', type=int, help='ID del estado civil de la persona', required=True)
-parsePersona.add_argument('perfoto', type=str, help='Foto de la persona (como una cadena base64, por ejemplo)', required=True)
+parsePersona.add_argument('perfoto', type=str, help='Foto de la persona', required=True)
 parsePersona.add_argument('perestado', type=int, help='Estado de la persona', required=True)
 parsePersona.add_argument('perobservacion', type=str, help='Observaciones sobre la persona', required=True)
 parsePersona.add_argument('perusureg', type=str, help='Usuario que registró la persona', required=True)
@@ -55,6 +55,14 @@ class GestionarPersona(Resource):
     def post(self):
         data = parsePersona.parse_args()
         return gestionarPersona(data)
+      
+parseEliminarPersona = reqparse.RequestParser()
+parseEliminarPersona.add_argument('tipo', type=int, help='Tipo de operación', required=True)
+parseEliminarPersona.add_argument('perid', type=int, help='ID de la persona', required=True)
+class EliminarPersona(Resource):
+    def post(self):
+        data = parseEliminarPersona.parse_args()
+        return eliminarPersona(data)
 
 class TipoDocumento(Resource):
   def get(self):

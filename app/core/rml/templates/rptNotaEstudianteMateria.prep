@@ -120,7 +120,7 @@
         > 
              <tr>
                  <td align="right">Promedio: </td> 
-                 <td align="right">{{ total['liq'] }}</td> 
+                 <td align="right">{{ total['liq'] / 4 }}</td> 
             </tr>
         </blockTable>
         <!-- <illustration width="33cm" height="0.2cm">

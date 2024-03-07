@@ -82,6 +82,7 @@ api.add_resource(Rol.GestionarRol, routes.gestionarRol)
 #Persona
 api.add_resource(Usuario.ListarPersona, routes.listarPersona)
 api.add_resource(Person.GestionarPersona, routes.gestionarPersona)
+api.add_resource(Person.EliminarPersona, routes.eliminarPersona)
 api.add_resource(Person.TipoDocumento, routes.tipoDocumento)
 api.add_resource(Person.TipoEstadoCivil, routes.tipoEstadoCivil)
 api.add_resource(Person.TipoGenero, routes.tipoGenero)
@@ -145,10 +146,13 @@ api.add_resource(Nota.ListarNotaEstudianteMateria, routes.listarNotaEstudianteMa
 api.add_resource(Nota.ListarNotaEstudianteCurso, routes.listarNotaEstudianteCurso)
 api.add_resource(Nota.RptNotaEstudianteMateria, routes.rptNotaEstudianteMateria)
 
-
 # Pago
 api.add_resource(Pago.ListarPago, routes.listarPago)
-
+api.add_resource(Pago.ListarPagoEstudiante, routes.listarPagoEstudiante)
+api.add_resource(Pago.ListarPagoEstudianteMateria, routes.listarPagoEstudianteMateria)
+api.add_resource(Pago.ListarPagoEstudiantesMateria, routes.listarPagoEstudiantesMateria)
+api.add_resource(Pago.ListarPagoCurso, routes.listarPagoCurso)
+api.add_resource(Pago.GestionarPago, routes.gestionarPago)
 # Asistencia
 api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
 
@@ -181,7 +185,7 @@ class Persona(db.Model):
     perciudad = db.Column(db.Integer)
     pergenero = db.Column(db.Integer)
     perestcivil = db.Column(db.Integer)
-    perfoto = db.Column(db.String)
+    perfoto = db.Column(db.String(120), index=True, unique=True)
     perestado = db.Column(db.SmallInteger, default=1)
     perobservacion = db.Column(db.String(255))
     perusureg = db.Column(db.String(50))
@@ -327,6 +331,65 @@ def post():
 def protected():
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
+
+import urllib.request
+from werkzeug.utils import secure_filename # pip install Werkzeug
+import os
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+# Se definee los archivos permitidos
+#ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/academico_api/upload', methods=['POST'])
+def upload_file():
+    if 'files[]' not in request.files:
+        resp=jsonify({
+            "message": 'No hay archivo en la respuesta',
+            "status": 'failed'
+        })
+        resp.status_code = 400
+        return resp
+    
+    files = request.files.getlist('files[]')
+    errors = {}
+    success = False
+    for file in files: 
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            success = True
+        else: 
+            resp = jsonify({
+                "message": 'Tipo de archivo no es permitido.',
+                "status": 'failed'
+            })
+            return resp
+    if success and errors:
+        errors['message'] = 'Archivos subidos correctamente'
+        errors['status'] = 'failed'
+        resp = jsonify(errors)
+        resp.status_code = 500
+        return resp
+    if success: 
+        resp = jsonify({
+            "message": 'Archivo subido correctamente',
+            "status": 'success'
+        })
+        resp.status_code = 201
+        return resp
+    else:
+        resp = jsonify(errors)
+        resp.status_code = 500
+        return resp
+    
+   
+    
 
 
 
