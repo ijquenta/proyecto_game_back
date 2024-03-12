@@ -107,8 +107,48 @@ def eliminarRol2(data):
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
 
+# def listarPersona():
+#     listPersons = select(f'''
+#      SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
+#         p.pertipodoc, td.tipodocnombre, 
+#         p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, 
+#         p.perpais, tp.paisnombre, 
+#         p.perciudad, tc.ciudadnombre,
+#         p.pergenero, tg.generonombre,
+#         p.perestcivil, te.estadocivilnombre,
+#         p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod 
+#         FROM academico.persona p
+#         left join academico.tipo_documento td on td.tipodocid = p.pertipodoc
+#         left join academico.tipo_pais tp on tp.paisid = p.perpais
+#         left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
+#         left join academico.tipo_genero tg on tg.generoid = p.pergenero
+#         left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
+#         ORDER BY p.perid desc; 
+#     ''')
+#     print(listPersons)
+#     return listPersons
+from datetime import datetime
+
+def darFormatoFecha(fecha_str):
+    if fecha_str is None:
+       return None
+    # Convertir la cadena de fecha a un objeto datetime
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    # Formatear la fecha como desees, por ejemplo, "DD/MM/AAAA HH:MM:SS"
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
+
+    return fecha_formateada
+
+def darFormatoFechaNacimiento(fecha_str):
+    if not fecha_str:
+        return None
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
+    return fecha_formateada
+
 def listarPersona():
-    return select(f'''
+    listPersons = select('''
      SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
         p.pertipodoc, td.tipodocnombre, 
         p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, 
@@ -125,3 +165,14 @@ def listarPersona():
         left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
         ORDER BY p.perid desc; 
     ''')
+
+    for person in listPersons:
+        person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
+        person["perfecreg"] = darFormatoFecha(person["perfecreg"])
+        person["perfecmod"] = darFormatoFecha(person["perfecmod"])
+
+    return listPersons
+
+# Ejemplo de uso
+personas_formateadas = listarPersona()
+# print(personas_formateadas)
