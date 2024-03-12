@@ -25,6 +25,7 @@ def registrarPersona(data):
     return result
 
 def gestionarPersona(data):
+    print("gestioanrPersona: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -87,17 +88,20 @@ def tipoDocumento():
 def tipoEstadoCivil():
     return select('''
         SELECT estadocivilid, estadocivilnombre
-        FROM academico.tipo_estadocivil;
+        FROM academico.tipo_estadocivil
+        order by case when estadocivilid = 1 then 0 else 1 end, estadocivilnombre;
     ''')
 def tipoGenero():
     return select('''
         SELECT generoid, generonombre
-        FROM academico.tipo_genero;
+        FROM academico.tipo_genero
+        order by generoid;
     ''')
 def tipoPais():
     return select('''
         SELECT paisid, paisnombre
-        FROM academico.tipo_pais;
+        FROM academico.tipo_pais
+        ORDER BY CASE WHEN paisid = 1 THEN 0 ELSE 1 END, paisnombre;
     ''')
 def tipoCiudad():
     return select('''
@@ -106,7 +110,9 @@ def tipoCiudad():
     ''')
     
 def listarUsuarios():
-    return select(f'''
+    listUsers = select(f'''
     SELECT id, nombre_usuario, contrasena, nombre_completo, rol
     FROM public.usuarios;
     ''')
+    print ("listUsers: ", listUsers)
+    return listUsers
