@@ -21,14 +21,39 @@ def gestionarRol(data):
         print("Error en Gestionar Rol: ",err)
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
+from datetime import datetime
+
+def darFormatoFecha(fecha_str):
+    if fecha_str is None:
+       return None
+    # Convertir la cadena de fecha a un objeto datetime
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    # Formatear la fecha como desees, por ejemplo, "DD/MM/AAAA HH:MM:SS"
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
+
+    return fecha_formateada
+
+def darFormatoFechaNacimiento(fecha_str):
+    if not fecha_str:
+        return None
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
+    return fecha_formateada
 
 def listarRoles():
-    return select(f'''
+    listRoles = select(f'''
     SELECT rolid, rolnombre, roldescripcion, rolusureg, rolfecreg, rolusumod, rolfecmod, rolestado
     FROM academico.rol
     where rolestado = 1
     order by rolid;        
     ''')
+
+    for rol in listRoles:
+        rol["rolfecreg"] = darFormatoFecha(rol["rolfecreg"])
+        rol["rolfecmod"] = darFormatoFecha(rol["rolfecmod"])
+    
+    return listRoles
     
 def crearRol(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
