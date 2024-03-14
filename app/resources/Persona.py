@@ -36,7 +36,7 @@ parsePersona.add_argument('pernombres', type=str, help='Nombres de la persona', 
 parsePersona.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
 parsePersona.add_argument('perapemat', type=str, help='Apellido materno de la persona', required=True)
 parsePersona.add_argument('pertipodoc', type=int, help='Tipo de documento de la persona', required=True)
-parsePersona.add_argument('pernrodoc', type=str, help='Número de documento de la persona', required=True)
+parsePersona.add_argument('pernrodoc', type=str, help='Número de documento de la persona')
 parsePersona.add_argument('perfecnac', type=str, help='Fecha de nacimiento de la persona')
 parsePersona.add_argument('perdirec', type=str, help='Dirección de la persona', required=True)
 parsePersona.add_argument('peremail', type=str, help='Correo electrónico de la persona', required=True)
