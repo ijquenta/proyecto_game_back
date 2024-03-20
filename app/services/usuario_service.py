@@ -17,12 +17,13 @@ def gestionarUsuario(data):
 def listaUsuario():
     return select(f'''
         SELECT 
-        u.usuid, u.perid, p.pernomcompleto, p.pernrodoc, u.rolid, r.rolnombre, u.usuname, u.usupassword, 
-        u.usupasswordhash, u.usuemail, u.usuimagen, u.usudescripcion, 
+        u.usuid, u.perid, p.pernomcompleto, p.pernrodoc, p.perfoto, u.rolid, r.rolnombre, u.usuname, 
+        u.usuemail, u.usudescripcion, 
         u.usuestado, u.usuusureg, u.usufecreg, u.usuusumod, u.usufecmod
         FROM academico.usuario u
         inner join academico.persona p on p.perid = u.perid
         inner join academico.rol r on r.rolid = u.rolid 
+        order by p.pernomcompleto 
     ''')
     
 def tipoPersona():
