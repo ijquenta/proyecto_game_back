@@ -28,7 +28,7 @@ def listaUsuario():
     
 def tipoPersona():
     return select(f''' 
-    select perid, pernomcompleto, pernrodoc from academico.persona p 
+    select perid, pernomcompleto, pernrodoc, perfoto from academico.persona p 
     order by pernomcompleto 
     ''')
 
