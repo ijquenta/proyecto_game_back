@@ -1,13 +1,32 @@
 from core.database import select, as_string, execute, execute_function
 from psycopg2 import sql
 from flask import jsonify, make_response
+from datetime import datetime
+
+def darFormatoFecha(fecha_str):
+    if fecha_str is None:
+       return None
+    # Convertir la cadena de fecha a un objeto datetime
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    # Formatear la fecha como desees, por ejemplo, "DD/MM/AAAA HH:MM:SS"
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
+
+    return fecha_formateada
 
 def listarMateria():
-    return select(f'''
+    lista_materias = select(f'''
     SELECT matid, matnombre, matdescripcion, matusureg, matfecreg, matusumod, matfecmod, matestado, matestadodescripcion, matnivel, matdesnivel
     FROM academico.materia
     order by matid desc;        
     ''')
+    
+    for materia in lista_materias:
+        materia["matfecreg"] = darFormatoFecha(materia["matfecreg"])
+        materia["matfecmod"] = darFormatoFecha(materia["matfecmod"])
+    
+    return lista_materias
+    
     
 def listaMateriaCombo(data):
     return select(f'''
