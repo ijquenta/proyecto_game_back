@@ -101,6 +101,12 @@ class Routes:
     listarPagoEstudiantesMateria = apiVersion + '/listarPagoEstudiantesMateria'
     listarPagoCurso = apiVersion + '/listarPagoCurso'
     gestionarPago = apiVersion + '/gestionarPago'
+    tipoPago = apiVersion + '/tipoPago'
+    getPayments = apiVersion + '/getPayments'
+    insertarPago = apiVersion + '/insertarPago'
+    modificarPago = apiVersion + '/modificarPago'
+    asignarPagoInscripcion = apiVersion + '/asignarPagoInscripcion'
+    obtenerUltimoPago = apiVersion + '/obtenerUltimoPago'
     
     # Asistencia
     listarAsistencia = apiVersion + '/listarAsistencia'
