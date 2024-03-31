@@ -3,11 +3,17 @@ from flask import session, request
 from client.responses import clientResponses as messages
 # from core.auth import require_token
 from http import HTTPStatus
-from services.beneficio_service import *
-from services.pago_service import *
+# from services.beneficio_service import *
+from services.pago_service import getPayments, listarPago, listarPagoEstudiante, listarPagoEstudianteMateria, listarPagoCurso, listarPagoEstudiantesMateria, gestionarPago, tipoPago, insertarPago, asignarPagoInscripcion, obtenerUltimoPago, modificarPago
 #import services.beneficio_service as beneficio
-
+from flask import jsonify, make_response
 from resources.Autenticacion import token_required
+
+class GetPayments(Resource):
+    def get(self):
+        paymests_data = getPayments()
+        print("paymests_data:",paymests_data)
+        return paymests_data
 
 class ListarPago(Resource):
     # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
@@ -63,3 +69,51 @@ class GestionarPago(Resource):
     def post(self):
         data = parseGestionarPago.parse_args()
         return gestionarPago(data)
+    
+class TipoPago(Resource):
+    def get(self):
+        return tipoPago()  
+
+# Insertar Pago
+parseInsertarPago = reqparse.RequestParser()
+parseInsertarPago.add_argument('pagdescripcion', type=str, help='Ingrese pagdescripcion', required=True)
+parseInsertarPago.add_argument('pagmonto', type=float, help='Ingrese pagmonto', required=True)
+parseInsertarPago.add_argument('pagarchivo', type=str, help='Ingrese pagarchivo')
+parseInsertarPago.add_argument('pagfecha', type=str, help='Ingrese pagfecha', required=True)
+parseInsertarPago.add_argument('pagusureg', type=str, help='Ingrese pagusureg', required=True)
+parseInsertarPago.add_argument('pagtipo', type=int, help='Ingrese pagtipo', required=True)
+class InsertarPago(Resource):
+    # @token_required
+    def post(self):
+        data = parseInsertarPago.parse_args()
+        return insertarPago(data)
+
+parseModificarPago = reqparse.RequestParser()
+parseModificarPago.add_argument('pagid', type=int, help='Ingrese pagid', required=True)
+parseModificarPago.add_argument('pagdescripcion', type=str, help='Ingrese pagdescripcion', required=True)
+parseModificarPago.add_argument('pagmonto', type=float, help='Ingrese pagmonto', required=True)
+parseModificarPago.add_argument('pagarchivo', type=str, help='Ingrese pagarchivo')
+parseModificarPago.add_argument('pagfecha', type=str, help='Ingrese pagfecha', required=True)
+parseModificarPago.add_argument('pagusumod', type=str, help='Ingrese pagusureg', required=True)
+parseModificarPago.add_argument('pagtipo', type=int, help='Ingrese pagtipo', required=True)
+parseModificarPago.add_argument('archivobol', type=int, help='Ingrese archivobol', required=True)
+class ModificarPago(Resource):
+    # @token_required
+    def post(self):
+        data = parseModificarPago.parse_args()
+        return modificarPago(data)
+
+# Asignar Pago a Inscripcion  
+parseAsignarPagoInscripcion = reqparse.RequestParser()
+parseAsignarPagoInscripcion.add_argument('insid', type=int, help='Ingrese insid', required=True)
+parseAsignarPagoInscripcion.add_argument('pagid', type=int, help='Ingrese pagid', required=True)
+parseAsignarPagoInscripcion.add_argument('pagusumod', type=str, help='Ingrese pagusureg', required=True)
+class AsignarPagoInscripcion(Resource):
+    # @token_required
+    def post(self):
+        data = parseAsignarPagoInscripcion.parse_args()
+        return asignarPagoInscripcion(data)
+    
+class ObtenerUltimoPago(Resource):
+    def get(self):
+        return obtenerUltimoPago()
