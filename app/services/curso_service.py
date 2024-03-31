@@ -1,16 +1,46 @@
 from core.database import select, as_string, execute, execute_function, execute_response
 from psycopg2 import sql
 from flask import jsonify, make_response
+from datetime import datetime
+
+def darFormatoFechaConHora(fecha_str):
+    if fecha_str is None:
+       return None
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
+    return fecha_formateada
+
+def darFormatoFechaSinHora(fecha_str):
+    if not fecha_str:
+        return None
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
+    return fecha_formateada
 
 def listarCursoMateria():
-    return select(f'''
-    SELECT curmatid, c.curnombre , cm.curid, m.matnombre, cm.matid, m.matnivel, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, curmatfecini, curmatfecfin, curmatestado, curmatestadodescripcion, curmatusureg, curmatfecreg, curmatusumod, curmatfecmod, curmatidrol, curmatidroldes
-    FROM academico.curso_materia cm
-    inner join academico.curso c on c.curid  = cm.curid 
-    inner join academico.materia m on m.matid = cm.matid 
-    inner join academico.persona p on p.perid = cm.periddocente 
-    order by curmatid desc;       
-    ''')
+    lista_cursos = select(f'''
+        SELECT cm.curmatid, c.curnombre, cm.curid, m.matnombre, cm.matid, m.matnivel, 
+        p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
+        c.curnivel,
+        u.rolid, r.rolnombre,
+        cm.curmatfecini, cm.curmatfecfin, cm.curmatestado, cm.curmatestadodescripcion, 
+        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol, cm.curmatidroldes
+        FROM academico.curso_materia cm
+        inner join academico.curso c on c.curid  = cm.curid 
+        inner join academico.materia m on m.matid = cm.matid 
+        inner join academico.persona p on p.perid = cm.periddocente 
+        inner join academico.usuario u on u.perid = cm.periddocente
+        inner join academico.rol r on r.rolid = u.rolid
+        order by curmatid desc;      
+        ''')
+    print("Lista_cursos: ", lista_cursos)
+    for curso in lista_cursos:
+        curso["curmatfecini"] = darFormatoFechaSinHora(curso["curmatfecini"])
+        curso["curmatfecfin"] = darFormatoFechaSinHora(curso["curmatfecfin"])
+        curso["curmatfecreg"] = darFormatoFechaConHora(curso["curmatfecreg"])
+        curso["curmatfecmod"] = darFormatoFechaConHora(curso["curmatfecmod"])
+    print(lista_cursos)
+    return lista_cursos
     
 def eliminarCursoMateria(data):
     return execute_function(f'''
