@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, session
+from flask import Flask, request, jsonify, make_response, send_file, session
 from flask_cors import CORS
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -15,6 +15,9 @@ import logging
 # Client
 from client.responses import clientResponses as messages
 from client.routes import Routes as routes
+
+# Models
+from model.pago_model import modelPago
 
 # Resources
 import resources.Persona as Person
@@ -153,6 +156,12 @@ api.add_resource(Pago.ListarPagoEstudianteMateria, routes.listarPagoEstudianteMa
 api.add_resource(Pago.ListarPagoEstudiantesMateria, routes.listarPagoEstudiantesMateria)
 api.add_resource(Pago.ListarPagoCurso, routes.listarPagoCurso)
 api.add_resource(Pago.GestionarPago, routes.gestionarPago)
+api.add_resource(Pago.TipoPago, routes.tipoPago)
+api.add_resource(Pago.GetPayments, routes.getPayments)
+api.add_resource(Pago.InsertarPago, routes.insertarPago)
+api.add_resource(Pago.AsignarPagoInscripcion, routes.asignarPagoInscripcion)
+api.add_resource(Pago.ObtenerUltimoPago, routes.obtenerUltimoPago)
+api.add_resource(Pago.ModificarPago, routes.modificarPago)
 # Asistencia
 api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
 
@@ -332,83 +341,119 @@ def protected():
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
 
-import urllib.request
-from werkzeug.utils import secure_filename # pip install Werkzeug
-import os
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-# Se definee los archivos permitidos
-#ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+# import urllib.request
+# from werkzeug.utils import secure_filename # pip install Werkzeug
+# import os
+# UPLOAD_FOLDER = 'static/uploads'
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+# ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@app.route('/academico_api/upload', methods=['POST'])
-def upload_file():
-    if 'files[]' not in request.files:
-        resp=jsonify({
-            "message": 'No hay archivo en la respuesta',
-            "status": 'failed'
-        })
-        resp.status_code = 400
-        return resp
+# def allowed_file(filename):
+#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# @app.route('/academico_api/upload', methods=['POST'])
+# def upload_file():
+#     if 'files[]' not in request.files:
+#         resp=jsonify({
+#             "message": 'No hay archivo en la respuesta',
+#             "status": 'failed'
+#         })
+#         resp.status_code = 400
+#         return resp
     
-    files = request.files.getlist('files[]')
-    errors = {}
-    success = False
-    for file in files: 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            success = True
-        else: 
-            resp = jsonify({
-                "message": 'Tipo de archivo no es permitido.',
-                "status": 'failed'
-            })
-            return resp
-    if success and errors:
-        errors['message'] = 'Archivos subidos correctamente'
-        errors['status'] = 'failed'
-        resp = jsonify(errors)
-        resp.status_code = 500
-        return resp
-    if success: 
-        resp = jsonify({
-            "message": 'Archivo subido correctamente',
-            "status": 'success'
-        })
-        resp.status_code = 201
-        return resp
-    else:
-        resp = jsonify(errors)
-        resp.status_code = 500
-        return resp
+#     files = request.files.getlist('files[]')
+#     errors = {}
+#     success = False
+#     for file in files: 
+#         if file and allowed_file(file.filename):
+#             filename = secure_filename(file.filename)
+#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#             success = True
+#         else: 
+#             resp = jsonify({
+#                 "message": 'Tipo de archivo no es permitido.',
+#                 "status": 'failed'
+#             })
+#             return resp
+#     if success and errors:
+#         errors['message'] = 'Archivos subidos correctamente'
+#         errors['status'] = 'failed'
+#         resp = jsonify(errors)
+#         resp.status_code = 500
+#         return resp
+#     if success: 
+#         resp = jsonify({
+#             "message": 'Archivo subido correctamente',
+#             "status": 'success'
+#         })
+#         resp.status_code = 201
+#         return resp
+#     else:
+#         resp = jsonify(errors)
+#         resp.status_code = 500
+#         return resp
     
-   
-    
-
-
-
-# Configuración de correo
 from flask import Flask, jsonify, request
 from werkzeug.utils import secure_filename
 import os
 import random
 import string
-#Redireccionando cuando la página no existe
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'docx', 'xlsx'}
+
+EXTENSIONS = {'pdf'}
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in EXTENSIONS
 
 def stringAleatorio(length=10):
-    """Genera una cadena aleatoria."""
     letters = string.ascii_letters
-    return ''.join(random.choice(letters) for _ in range(length))
+    random_string = ''.join(random.choice(letters) for _ in range(length))
+    return random_string
+
+@app.route('/academico_api/pago/upload', methods=['POST'])
+def upload_file_pago():
+    if 'files[]' not in request.files:
+        return jsonify({"message": 'No hay archivos en la solicitud', "status": 'failed'}), 400
+    
+    files = request.files.getlist('files[]')
+    errors = []
+    success = False
+    
+    for file in files:
+        if file and allowed_file(file.filename):
+            basepath = os.path.dirname(__file__)
+            upload_directory = os.path.join(basepath, 'static', 'files_pago')
+
+            if not os.path.exists(upload_directory):
+                os.makedirs(upload_directory)
+
+            filename = secure_filename(file.filename)
+            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
+            upload_path = os.path.join(upload_directory, filename)
+
+            file.save(upload_path)
+            success = True
+        else:
+            errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
+
+    if success:
+        if errors:
+            status_code = 207  # Código de estado HTTP para respuesta parcial
+            message = 'Algunos archivos no se pudieron subir.'
+        else:
+            status_code = 201
+            message = 'Todos los archivos subidos correctamente.'
+    else:
+        status_code = 400
+        message = 'Ningún archivo subido correctamente.'
+
+    return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
+
+
+@app.route('/academico_api/pago/download/<file_name>')
+def download_file(file_name):
+    archivo_path = 'static/files_pago/' + file_name
+    return send_file(archivo_path, as_attachment=True)
+
 
 @app.route('/registrar-archivo', methods=['POST'])
 def registrarArchivo():
