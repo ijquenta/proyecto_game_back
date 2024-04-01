@@ -167,7 +167,8 @@ api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
 
 # Material
 api.add_resource(Material.ListarMaterial, routes.listarMaterial)
-
+api.add_resource(Material.ListarTexto, routes.listarTexto)
+api.add_resource(Material.InsertarTexto, routes.insertarTexto)
 
 import jwt
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
@@ -448,12 +449,54 @@ def upload_file_pago():
 
     return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
 
+@app.route('/academico_api/texto/upload', methods=['POST'])
+def upload_file_texto():
+    if 'files[]' not in request.files:
+        return jsonify({"message": 'No hay archivos en la solicitud', "status": 'failed'}), 400
+    
+    files = request.files.getlist('files[]')
+    errors = []
+    success = False
+    
+    for file in files:
+        if file and allowed_file(file.filename):
+            basepath = os.path.dirname(__file__)
+            upload_directory = os.path.join(basepath, 'static', 'files_texto')
+
+            if not os.path.exists(upload_directory):
+                os.makedirs(upload_directory)
+
+            filename = secure_filename(file.filename)
+            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
+            upload_path = os.path.join(upload_directory, filename)
+
+            file.save(upload_path)
+            success = True
+        else:
+            errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
+
+    if success:
+        if errors:
+            status_code = 207  # Código de estado HTTP para respuesta parcial
+            message = 'Algunos archivos no se pudieron subir.'
+        else:
+            status_code = 201
+            message = 'Todos los archivos subidos correctamente.'
+    else:
+        status_code = 400
+        message = 'Ningún archivo subido correctamente.'
+
+    return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
 
 @app.route('/academico_api/pago/download/<file_name>')
 def download_file(file_name):
     archivo_path = 'static/files_pago/' + file_name
     return send_file(archivo_path, as_attachment=True)
 
+@app.route('/academico_api/texto/download/<file_name>')
+def download_file_texto(file_name):
+    archivo_path = 'static/files_texto/' + file_name
+    return send_file(archivo_path, as_attachment=True)
 
 @app.route('/registrar-archivo', methods=['POST'])
 def registrarArchivo():
