@@ -9,3 +9,22 @@ def listarMaterial():
         inner join academico.materia m on m.matid = mt.matid 
     ''')
 
+
+def listarTexto():
+    return select('''
+        SELECT texid, texnombre, textipo, texdocumento, texusureg, texfecreg, texusumod, texfecmod, texestado FROM academico.texto order by texid desc;
+    ''')
+    
+# Insertar texto
+def insertarTexto(data):
+    print("Data_insertarTexto: ", data)
+    res = execute_function(f'''
+       SELECT academico.f_texto_insertar (  
+                \'{data['texnombre']}\', 
+                \'{data['textipo']}\', 
+                \'{data['texdocumento']}\',
+                \'{data['texusureg']}\'
+                ) as valor;
+    ''')
+    print("insertarTexto: ", res)
+    return res
