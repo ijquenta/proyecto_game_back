@@ -113,6 +113,8 @@ class Routes:
     
     # Material de Apoyo
     listarMaterial = apiVersion + '/listarMaterial'
+    listarTexto = apiVersion + '/listarTexto'
+    insertarTexto = apiVersion + '/insertarTexto'
     
     # Reportes
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
