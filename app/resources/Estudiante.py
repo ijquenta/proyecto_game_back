@@ -83,4 +83,18 @@ class TipoCiudad(Resource):
 class TipoEstadoCivil(Resource):
   def get(self):
     return tipoEstadoCivil()
-  
+
+parseActualizarDatosPersonales = reqparse.RequestParser()
+parseActualizarDatosPersonales.add_argument('perid', type=int, help='ID de la persona - perid', required=True)
+parseActualizarDatosPersonales.add_argument('pernrohijos', type=int, help='número de hijos - pernrohijos', required=True)
+parseActualizarDatosPersonales.add_argument('perprofesion', type=str, help='Profesión - perprofesion', required=True)
+parseActualizarDatosPersonales.add_argument('perfeclugconversion', type=str, help='Fecha, lugar de conversion - perfeclugconversion', required=True)
+parseActualizarDatosPersonales.add_argument('perbautismoaguas', type=int, help='Bautismo en aguas - perbautismoaguas', required=True)
+parseActualizarDatosPersonales.add_argument('perbautismoespiritu', type=int, help='Bautismo en espiritu - perbautismoespiritu', required=True)
+parseActualizarDatosPersonales.add_argument('pernomdiriglesia', type=str, help='Nombre y dirección de la iglesia - pernomdiriglesia', required=True)
+parseActualizarDatosPersonales.add_argument('pernompastor', type=str, help='Nombre del pastor - pernompastor', required=True)
+parseActualizarDatosPersonales.add_argument('perusumod', type=str, help='Usuario que modificó la persona - perusumod', required=True)
+class ActualizarDatosPersonales(Resource):
+    def post(self):
+        data = parseActualizarDatosPersonales.parse_args()
+        return actualizarDatosPersonales(data)  

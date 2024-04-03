@@ -10,7 +10,8 @@ def listarEstudiante():
         p.perciudad, tc.ciudadnombre,
         p.pergenero, tg.generonombre,
         p.perestcivil, te.estadocivilnombre,
-        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod,
+        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod, p.pernrohijos, p.perprofesion, p.perfeclugconversion,
+        p.perbautismoaguas, p.perbautismoespiritu, p.pernomdiriglesia, p.pernompastor,
         u.usuid, u.usuname, u.usuemail, u.usuimagen  
         FROM academico.persona p
         left join academico.usuario u on u.perid = p.perid
@@ -138,6 +139,33 @@ def listarUsuarios():
     SELECT id, nombre_usuario, contrasena, nombre_completo, rol
     FROM public.usuarios;
     ''')
+
+
+# Actualizar datos personales
+def actualizarDatosPersonales(data):
+    res = execute_function(f'''
+       SELECT academico.f_persona_actualizar_datos_personal (
+                {data['perid']},
+                \'{data['perusumod']}\',
+                {data['pernrohijos']},
+                \'{data['perprofesion']}\',
+                \'{data['perfeclugconversion']}\',
+                {data['perbautismoaguas']},
+                {data['perbautismoespiritu']},
+                \'{data['pernomdiriglesia']}\',
+                \'{data['pernompastor']}\'  
+                ) as valor;
+    ''')
+    return res
+
+
+
+
+
+
+
+
+
 
 #Beneficio Social
 
