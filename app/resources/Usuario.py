@@ -7,7 +7,7 @@ from services.beneficio_service import *
 from services.usuario_service import *
 from functools import wraps
 from flask import request
-from resources.Autenticacion import token_required
+# from resources.Autenticacion import token_required
 #import services.beneficio_service as beneficio
 
 # @app.route('/register', methods=['POST'])
@@ -66,7 +66,7 @@ class ListarRoles(Resource):
 parsePerfil = reqparse.RequestParser()
 parsePerfil.add_argument('usuid', type=int, help = 'Debe elegir el usuid', required = True)
 class Perfil(Resource):
-  @token_required
+  # @token_required
   def post(self):
       data = parsePerfil.parse_args()
       return perfil(data)
@@ -98,8 +98,14 @@ class EliminarRol(Resource):
       data = parseEliminarRol.parse_args()
       return eliminarRol(data)
 
-
-
+parseObtenerEmail = reqparse.RequestParser()
+parseObtenerEmail.add_argument('usuname', type=str, help = 'Debe elegir el usuname', required = True)
+parseObtenerEmail.add_argument('usuemail', type=str, help = 'Debe elegir el usuemail', required = True)
+class ObtenerEmail(Resource):
+  # @token_required
+  def post(self):
+      data = parseObtenerEmail.parse_args()
+      return obtenerEmail(data)
 
 
 

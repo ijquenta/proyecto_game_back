@@ -17,14 +17,38 @@ def darFormatoFechaSinHora(fecha_str):
     fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
     return fecha_formateada
 
+# def listarCursoMateria():
+#     lista_cursos = select(f'''
+#         SELECT cm.curmatid, c.curnombre, cm.curid, m.matnombre, cm.matid, m.matnivel, 
+#         p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
+#         c.curnivel,
+#         u.rolid, r.rolnombre,
+#         cm.curmatfecini, cm.curmatfecfin, cm.curmatestado, cm.curmatestadodescripcion, 
+#         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol, cm.curmatidroldes
+#         FROM academico.curso_materia cm
+#         inner join academico.curso c on c.curid  = cm.curid 
+#         inner join academico.materia m on m.matid = cm.matid 
+#         inner join academico.persona p on p.perid = cm.periddocente 
+#         inner join academico.usuario u on u.perid = cm.periddocente
+#         inner join academico.rol r on r.rolid = u.rolid
+#         order by curmatid desc;      
+#         ''')
+#     print("Lista_cursos: ", lista_cursos)
+#     for curso in lista_cursos:
+#         curso["curmatfecini"] = darFormatoFechaSinHora(curso["curmatfecini"])
+#         curso["curmatfecfin"] = darFormatoFechaSinHora(curso["curmatfecfin"])
+#         curso["curmatfecreg"] = darFormatoFechaConHora(curso["curmatfecreg"])
+#         curso["curmatfecmod"] = darFormatoFechaConHora(curso["curmatfecmod"])
+#     print(lista_cursos)
+#     return lista_cursos
+
 def listarCursoMateria():
     lista_cursos = select(f'''
-        SELECT cm.curmatid, c.curnombre, cm.curid, m.matnombre, cm.matid, m.matnivel, 
+        SELECT distinct cm.curmatid, c.curnombre, cm.curid, m.matnombre, cm.matid, m.matnivel, 
         p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
         c.curnivel,
-        u.rolid, r.rolnombre,
         cm.curmatfecini, cm.curmatfecfin, cm.curmatestado, cm.curmatestadodescripcion, 
-        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol, cm.curmatidroldes
+        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol as rolid, cm.curmatidroldes as rolnombre
         FROM academico.curso_materia cm
         inner join academico.curso c on c.curid  = cm.curid 
         inner join academico.materia m on m.matid = cm.matid 
@@ -33,19 +57,19 @@ def listarCursoMateria():
         inner join academico.rol r on r.rolid = u.rolid
         order by curmatid desc;      
         ''')
-    print("Lista_cursos: ", lista_cursos)
+    # print("Lista_cursos: ", lista_cursos)
     for curso in lista_cursos:
         curso["curmatfecini"] = darFormatoFechaSinHora(curso["curmatfecini"])
         curso["curmatfecfin"] = darFormatoFechaSinHora(curso["curmatfecfin"])
         curso["curmatfecreg"] = darFormatoFechaConHora(curso["curmatfecreg"])
         curso["curmatfecmod"] = darFormatoFechaConHora(curso["curmatfecmod"])
-    print(lista_cursos)
+    # print(lista_cursos)
     return lista_cursos
     
-def eliminarCursoMateria(data):
-    return execute_function(f'''
-    SELECT academico.eliminar_curso_materia({data['curmatid']});
-    ''')
+# def eliminarCursoMateria(data):
+#     return execute_function(f'''
+#     SELECT academico.eliminar_curso_materia({data['curmatid']}) as valor;
+#     ''')
 
 def eliminarCursoMateria(data):
     resultado = execute_function(f'''
@@ -111,7 +135,7 @@ def listaCursoCombo():
     return select(f'''
     SELECT curid, curnombre, curnivel
     FROM academico.curso
-    where curestadodescripcion = 'VIGENTE'
+    where curestado = 1
     order by curnivel      
     ''')
 
