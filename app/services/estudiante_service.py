@@ -1,5 +1,6 @@
 from core.database import select, execute, execute_function, execute_response, as_string
 from psycopg2 import sql
+from utils.date_formatting import darFormatoFechaConHora, darFormatoFechaSinHora
 
 def listarEstudiante():
     return select('''
@@ -29,16 +30,23 @@ def listarEstudiante():
 
 
 def obtenerMateriasInscritas(data):
-    return select(f'''
-        SELECT distinct i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre, m2.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, 
-        i.insusumod, i.insfecmod, i.insestado, i.insestadodescripcion 
+    lista_obtenerMateriasInscritas = select(f'''
+         SELECT distinct i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre,cm.curmatfecini, cm.curmatfecfin, cm.periddocente, p.pernomcompleto, m2.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, 
+        i.insusumod, i.insfecmod, i.insestado, i.insestadodescripcion
         FROM academico.inscripcion i
         left join academico.matricula m on m.matrid = i.matrid 
         left join academico.curso_materia cm on cm.curmatid = i.curmatid 
         left join academico.materia m2 on m2.matid = cm.matid 
         left join academico.curso c on c.curid = cm.curid 
+        left join academico.persona p on p.perid = cm.periddocente
         where i.peridestudiante = {data['perid']}
     ''')
+    for materia_inscrita in lista_obtenerMateriasInscritas:
+        materia_inscrita["insfecreg"] = darFormatoFechaConHora(materia_inscrita["insfecreg"])
+        materia_inscrita["insfecmod"] = darFormatoFechaConHora(materia_inscrita["insfecmod"])
+        materia_inscrita["curmatfecini"] = darFormatoFechaSinHora(materia_inscrita["curmatfecini"])
+        materia_inscrita["curmatfecfin"] = darFormatoFechaSinHora(materia_inscrita["curmatfecfin"])
+    return lista_obtenerMateriasInscritas
 
 
 
