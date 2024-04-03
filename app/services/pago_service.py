@@ -3,7 +3,7 @@ from web.wsrrhh_service import *
 from flask import Flask, request, jsonify, make_response
 from datetime import datetime
 from model.pago_model import modelPago
-from utils.date_formatting import darFormatoFechaConHora
+from utils.date_formatting import darFormatoFechaConHora, darFormatoFechaSinHora
 
 def getPayments():
     pagos = modelPago.query.all()
@@ -127,16 +127,22 @@ def listarPagoEstudianteMateria(data):
     ''') 
 
 def listarPagoCurso():
-    return select(f'''
-        SELECT cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+    lista = select(f'''
+        SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
         cm.curmatdescripcion 
         FROM academico.curso_materia cm
         left join academico.curso c on c.curid = cm.curid 
         left join academico.materia m on m.matid = cm.matid 
         left join academico.persona p on p.perid = cm.periddocente 
-        order by c.curnombre, m.matnombre; 
-    ''')   
+        order by c.curnombre, m.matnombre;
+    ''')  
+    for pago in lista:
+        pago["curmatfecreg"] = darFormatoFechaConHora(pago["curmatfecreg"])
+        pago["curmatfecmod"] = darFormatoFechaConHora(pago["curmatfecmod"])
+        pago["curmatfecini"] = darFormatoFechaSinHora(pago["curmatfecini"])
+        pago["curmatfecfin"] = darFormatoFechaSinHora(pago["curmatfecfin"]) 
+    return lista
     
 # Listar los pagos de los estudiantes por materia filtrado por curso y materia.
 def listarPagoEstudiantesMateria(data):
