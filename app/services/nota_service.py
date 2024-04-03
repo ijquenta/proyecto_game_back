@@ -33,15 +33,21 @@ def listarNota():
     ''')
  
 def listarNotaEstudiante(data):
-    return select(f'''
-        SELECT i.insid, i.matrid, cm.curid, c.curnombre, cm.matid, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
+    lista_nota_estudiante = select(f'''
+        select distinct i.insid, i.matrid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid,  cm.periddocente, p.pernomcompleto, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
         FROM academico.inscripcion i
         left join academico.curso_materia cm on cm.curmatid = i.curmatid
         left join academico.curso c on c.curid = cm.curid
         left join academico.materia m on m.matid = cm.matid
+         left join academico.persona p on p.perid = cm.periddocente
         where i.peridestudiante = {data['perid']}
-        order by c.curnombre, m.matnombre; 
-    ''')   
+    ''')
+    for nota_estudiante in lista_nota_estudiante:
+        nota_estudiante["insfecreg"] = darFormatoFechaConHora(nota_estudiante["insfecreg"])
+        nota_estudiante["insfecmod"] = darFormatoFechaConHora(nota_estudiante["insfecmod"])
+        nota_estudiante["curmatfecini"] = darFormatoFechaSinHora(nota_estudiante["curmatfecini"])
+        nota_estudiante["curmatfecfin"] = darFormatoFechaSinHora(nota_estudiante["curmatfecfin"])   
+    return lista_nota_estudiante
 
 def listarNotaDocente(data):
     return select(f'''
