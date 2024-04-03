@@ -17,14 +17,24 @@ def darFormatoFechaSinHora(fecha_str):
     fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
     return fecha_formateada
 
+def darFormatoFechaSinHoraAlReves(fecha_str):
+    if not fecha_str:
+        return None
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    fecha_formateada = fecha_datetime.strftime("%Y-%m-%d")
+    return fecha_formateada
+
 def listarInscripcion():
     lista_inscripciones = select(f'''
         SELECT 
+        distinct
         i.insid, 
         i.matrid, m.matrgestion, m.matrestado, m.matrestadodescripcion, 
         i.peridestudiante, p.pernomcompleto as pernombrecompletoestudiante, p.perfoto, 
         i.pagid, p2.pagdescripcion,  p2.pagtipo, p2.pagmonto, p2.pagfecha, p2.pagarchivo,
-        i.curmatid, cm.curid, cm.curmatdescripcion, c.curnombre, cm.matid, m2.matnombre,
+        i.curmatid, cm.curid, cm.curmatdescripcion, c.curnombre, cm.matid, 
+        cm.curmatfecini, cm.curmatfecfin,
+        m2.matnombre,
         cm.periddocente, p3.pernomcompleto as pernombrecompletodocente,
         i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, 
         i.insestado, i.insestadodescripcion
@@ -38,24 +48,56 @@ def listarInscripcion():
         left join academico.persona p3 on cm.periddocente = p3.perid
         order by i.insid desc;
     ''')
-    print("lista_inscripciones: ", lista_inscripciones)
+    # print("lista_inscripciones: ", lista_inscripciones)
     for curso in lista_inscripciones:
         curso["insfecreg"] = darFormatoFechaConHora(curso["insfecreg"])
         curso["insfecmod"] = darFormatoFechaConHora(curso["insfecmod"])
-    print(lista_inscripciones)
+        curso["curmatfecini"] = darFormatoFechaSinHora(curso["curmatfecini"])
+        curso["curmatfecfin"] = darFormatoFechaSinHora(curso["curmatfecfin"])
+    # print(lista_inscripciones)
     return lista_inscripciones
 
        
     
+# def listarComboCursoMateria():
+#     lista_comboCursoMateria = select(f'''
+#         SELECT distinct  
+#         cm.curmatid,
+#         c.curnombre || ' - ' || m.matnombre || ' - ' || cm.curmatfecini || ' a ' || cm.curmatfecfin AS curmatdescripcion
+#         FROM academico.curso_materia cm
+#         LEFT JOIN academico.curso c ON c.curid = cm.curid 
+#         LEFT JOIN academico.materia m ON m.matid = cm.matid;
+#     ''')
+#     for cursoCombo in lista_comboCursoMateria:
+#         cursoCombo["curmatfecini"] = darFormatoFechaSinHora(cursoCombo["curmatfecini"])
+#         cursoCombo["curmatfecfin"] = darFormatoFechaSinHora(cursoCombo["curmatfecfin"])
+#     return lista_comboCursoMateria
+   
 def listarComboCursoMateria():
-    return select(f'''
-        SELECT 
-        cm.curmatid,
-        c.curnombre || ' - ' || m.matnombre AS curmatdescripcion
+    lista_comboCursoMateria = select('''
+        SELECT DISTINCT  
+            cm.curmatid,
+            c.curnombre,
+            m.matnombre,
+            cm.curmatfecini,
+            cm.curmatfecfin
         FROM academico.curso_materia cm
         LEFT JOIN academico.curso c ON c.curid = cm.curid 
         LEFT JOIN academico.materia m ON m.matid = cm.matid;
     ''')
+
+    resultado = []
+
+    for cursoCombo in lista_comboCursoMateria:
+        curmatdescripcion = f'{cursoCombo["curnombre"]} - {cursoCombo["matnombre"]} - { darFormatoFechaSinHora(cursoCombo["curmatfecini"])} a { darFormatoFechaSinHora(cursoCombo["curmatfecfin"])}'
+        resultado.append({"curmatid": cursoCombo["curmatid"], "curmatdescripcion": curmatdescripcion})
+
+    # Ordenar la lista por curmatdescripcion
+    resultado.sort(key=lambda x: x["curmatdescripcion"])
+    return resultado
+
+
+
 
 
 def listarComboMatricula():
