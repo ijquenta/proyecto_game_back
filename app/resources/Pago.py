@@ -7,7 +7,7 @@ from http import HTTPStatus
 from services.pago_service import getPayments, listarPago, listarPagoEstudiante, listarPagoEstudianteMateria, listarPagoCurso, listarPagoEstudiantesMateria, gestionarPago, tipoPago, insertarPago, asignarPagoInscripcion, obtenerUltimoPago, modificarPago
 #import services.beneficio_service as beneficio
 from flask import jsonify, make_response
-from resources.Autenticacion import token_required
+# from resources.Autenticacion import token_required
 
 class GetPayments(Resource):
     def get(self):

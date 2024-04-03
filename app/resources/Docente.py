@@ -7,7 +7,7 @@ from services.beneficio_service import *
 from services.docente_service import *
 #import services.beneficio_service as beneficio
 
-from resources.Autenticacion import token_required
+# from resources.Autenticacion import token_required
 
 parseObtenerMateriasAsignadas = reqparse.RequestParser()
 parseObtenerMateriasAsignadas.add_argument('perid', type=int, help='Ingresar perid', required=True)

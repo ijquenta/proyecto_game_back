@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from services.nota_service import *
-from resources.Autenticacion import token_required
+# from resources.Autenticacion import token_required
 import services.nota_service as nota
 
 class ListarNota(Resource):

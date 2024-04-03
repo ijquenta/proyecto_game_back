@@ -7,7 +7,7 @@ from services.beneficio_service import *
 from services.estudiante_service import *
 #import services.beneficio_service as beneficio
 
-from resources.Autenticacion import token_required
+# from resources.Autenticacion import token_required
 
 class ListarEstudiante(Resource):
     # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase

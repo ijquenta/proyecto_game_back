@@ -3,7 +3,7 @@ from flask import session, request
 from client.responses import clientResponses as messages
 from http import HTTPStatus
 # from services.beneficio_service import *
-from resources.Autenticacion import token_required
+# from resources.Autenticacion import token_required
 from services.material_service import listarMaterial, listarTexto, insertarTexto
 
 class ListarMaterial(Resource):
