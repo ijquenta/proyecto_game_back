@@ -64,3 +64,7 @@ class RptNotaEstudianteMateria(Resource):
     def post(self):
         data = parseRptNotaEstudianteMateria.parse_args()
         return nota.rptNotaEstudianteMateria(data)
+    
+class ListarNotaCurso(Resource):
+    def get(self):
+        return listarNotaCurso() 

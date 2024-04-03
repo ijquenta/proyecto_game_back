@@ -2,6 +2,7 @@ from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
 from core.rml.report_generator import Report
 from flask import make_response
+from utils.date_formatting import darFormatoFechaConHora, darFormatoFechaSinHora
 
 def make(pdf):
     response = make_response(pdf)
@@ -113,3 +114,21 @@ def rptNotaEstudianteMateria(data):
     ''')
     print("params", params)
     return make(Report().RptNotaEstudianteMateria(params, data['usuname']))
+
+def listarNotaCurso():
+    lista = select(f'''
+        SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
+        cm.curmatdescripcion 
+        FROM academico.curso_materia cm
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.materia m on m.matid = cm.matid 
+        left join academico.persona p on p.perid = cm.periddocente 
+        order by c.curnombre, m.matnombre;
+    ''')  
+    for pago in lista:
+        pago["curmatfecreg"] = darFormatoFechaConHora(pago["curmatfecreg"])
+        pago["curmatfecmod"] = darFormatoFechaConHora(pago["curmatfecmod"])
+        pago["curmatfecini"] = darFormatoFechaSinHora(pago["curmatfecini"])
+        pago["curmatfecfin"] = darFormatoFechaSinHora(pago["curmatfecfin"]) 
+    return lista
