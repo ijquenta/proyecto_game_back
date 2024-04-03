@@ -1,6 +1,7 @@
 from flask_restful import Api
 import resources.Persona as Person
 import resources.Usuario as Usuario
+import resources.Estudiante as Estudiante   
 from client.routes import Routes as routes
 
 def persona_routes(api: Api):
@@ -13,3 +14,4 @@ def persona_routes(api: Api):
     api.add_resource(Person.TipoPais, routes.tipoPais)
     api.add_resource(Person.TipoCiudad, routes.tipoCiudad)
     api.add_resource(Person.RegistrarPersona, routes.registrarPersona)
+    api.add_resource(Estudiante.ActualizarDatosPersonales, routes.actualizarDatosPersonales)
