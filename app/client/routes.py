@@ -28,6 +28,7 @@ class Routes:
     tipoPersona = apiVersion +'/tipoPersona'
     perfil = apiVersion + auth + '/perfil'
     listaUsuarios = apiVersion + '/listaUsuarios'
+    obtenerEmail = apiVersion + '/obtenerEmail'
 
     # Roles
     listarRoles = apiVersion + '/listarRoles'
