@@ -177,3 +177,14 @@ def listarPersona():
 # Ejemplo de uso
 personas_formateadas = listarPersona()
 # print(personas_formateadas)
+
+
+
+
+def obtenerEmail(data):
+    res = select(f'''
+    select usuid, usuname, usuemail from academico.usuario u where usuname = \'{data['usuname']}\' and usuemail = \'{data['usuemail']}\'
+    ''')
+    print ("res: ", res)
+    return res
+
