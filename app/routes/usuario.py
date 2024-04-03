@@ -1,0 +1,12 @@
+from flask_restful import Api
+import resources.Persona as Person
+import resources.Usuario as Usuario
+from client.routes import Routes as routes
+
+def usuario_routes(api: Api):
+    api.add_resource(Person.ListarUsuarios, routes.listaUsuarios)
+    api.add_resource(Usuario.GestionarUsuario, routes.gestionarUsuario)
+    api.add_resource(Usuario.ListaUsuario, routes.listaUsuario)
+    api.add_resource(Usuario.TipoPersona, routes.tipoPersona)
+    api.add_resource(Usuario.Perfil, routes.perfil)
+    api.add_resource(Usuario.ObtenerEmail, routes.obtenerEmail)
