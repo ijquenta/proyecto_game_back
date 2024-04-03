@@ -99,16 +99,40 @@ def obtenerUltimoPago():
        select pagid from academico.pago p where pagestado = 1 order by pagid desc limit 1
     ''') 
     
+# def listarPagoEstudiante(data):
+#     return select(f'''
+#         SELECT i.insid, i.matrid, cm.curid, c.curnombre, cm.matid, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
+#         FROM academico.inscripcion i
+#         left join academico.curso_materia cm on cm.curmatid = i.curmatid
+#         left join academico.curso c on c.curid = cm.curid
+#         left join academico.materia m on m.matid = cm.matid
+#         where i.peridestudiante = {data['perid']}
+#         order by c.curnombre, m.matnombre; 
+#     ''') 
+
 def listarPagoEstudiante(data):
-    return select(f'''
-        SELECT i.insid, i.matrid, cm.curid, c.curnombre, cm.matid, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
-        FROM academico.inscripcion i
-        left join academico.curso_materia cm on cm.curmatid = i.curmatid
-        left join academico.curso c on c.curid = cm.curid
-        left join academico.materia m on m.matid = cm.matid
-        where i.peridestudiante = {data['perid']}
-        order by c.curnombre, m.matnombre; 
-    ''') 
+    lista_pago_estudiante = select(f'''
+         select distinct i.insid, i.matrid, cm.curid, 
+               c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto, i.peridestudiante, i.pagid, i.insusureg,
+               i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
+            
+          FROM academico.inscripcion i
+          left join academico.curso_materia cm on cm.curmatid = i.curmatid
+          left join academico.curso c on c.curid = cm.curid
+          left join academico.materia m on m.matid = cm.matid
+          LEFT JOIN academico.persona p ON p.perid = cm.periddocente
+          where i.peridestudiante = {data['perid']}
+          order by c.curnombre, m.matnombre; 
+    ''')
+
+    for pago_estudiante in lista_pago_estudiante:
+        pago_estudiante["insfecreg"] = darFormatoFechaConHora(pago_estudiante["insfecreg"])
+        pago_estudiante["insfecmod"] = darFormatoFechaConHora(pago_estudiante["insfecmod"])
+        pago_estudiante["curmatfecini"] = darFormatoFechaSinHora(pago_estudiante["curmatfecini"])
+        pago_estudiante["curmatfecfin"] = darFormatoFechaSinHora(pago_estudiante["curmatfecfin"])
+
+    return lista_pago_estudiante
+
 
 def listarPagoEstudianteMateria(data):
     return select(f'''
