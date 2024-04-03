@@ -17,7 +17,8 @@ def obtenerMateriasAsignadas(data):
     
 def listarDocente():
     return select('''
-        SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
+       SELECT  distinct
+        p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
         p.pertipodoc, td.tipodocnombre, 
         p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, 
         p.perpais, tp.paisnombre, 
@@ -34,7 +35,7 @@ def listarDocente():
         left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
         left join academico.tipo_genero tg on tg.generoid = p.pergenero
         left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
-        where r.rolnombre = 'Docente'
+        where r.rolnombre = 'Docente' or r.rolnombre = 'Secretaria'
         order by p.pernomcompleto
     ''')
 
