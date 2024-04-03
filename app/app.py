@@ -2,41 +2,33 @@ from flask import Flask, request, jsonify, make_response, send_file, session
 from flask_cors import CORS
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy # Base de datos
+from flask_mail import Mail, Message # importamos para el servicio de correo
 from logging.handlers import RotatingFileHandler
-
 from core import configuration
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from functools import wraps
-import jwt
+# import jwt
 import logging
-
+import os # impotamos para obtener las variables de entorno
+import random
+import string
 # Client
 from client.responses import clientResponses as messages
 from client.routes import Routes as routes
-
 # Models
 from model.pago_model import modelPago
-
 # Resources
-import resources.Persona as Person
 import resources.Reportes as Report
-import resources.Usuario as Usuario
-import resources.Materia as Materia
-import resources.Curso as Curso
-import resources.Nivel as Nivel
+# import resources.Usuario as Usuario
 import resources.Autenticacion as Autenticacion
-import services.nivel_service as NivelService
-import resources.Inscripcion as Inscripcion
-import resources.Matricula as Matricula
 import resources.Rol as Rol
 import resources.Estudiante as Estudiante
 import resources.Docente as Docente
-import resources.Nota as Nota
-import resources.Pago as Pago
 import resources.Asistencia as Asistencia
-import resources.Material as Material
+import services.nivel_service as NivelService
 
 LOG_FILENAME = 'aplication.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
@@ -44,11 +36,24 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 handler = RotatingFileHandler(LOG_FILENAME, maxBytes=40000000, backupCount=40)
 logger.addHandler(handler)
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
 jwt = JWTManager(app)
 CORS(app)
+# app.config['SECRET_KEY'] = os.environ.get("APP_SECRET_KEY")
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USERNAME"] = os.environ.get("EMAIL_HOST_USER")
+app.config["MAIL_PASSWORD"] = os.environ.get("EMAIL_HOST_PASSWORD")
+app.config["MAIL_USE_TLS"] = False
+app.config["MAIL_USE_SSL"] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+mail = Mail(app)
+api = Api(app)
+db = SQLAlchemy(app)
+
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -57,125 +62,56 @@ def page_not_found(error):
 @app.errorhandler(500)
 def page_not_found(error):
     return messages._500, 500
-    
+
 api = Api(app)
 app.secret_key = configuration.APP_SECRET_KEY
 
-# api.add_resource(resources.Index, routes.index)
-# api.add_resource(resources.Protected, routes.protected)
-
 # API Usuarios
-api.add_resource(Person.ListarUsuarios, routes.listaUsuarios)
-api.add_resource(Usuario.GestionarUsuario, routes.gestionarUsuario)
-api.add_resource(Usuario.ListaUsuario, routes.listaUsuario)
-api.add_resource(Usuario.TipoPersona, routes.tipoPersona)
-api.add_resource(Usuario.Perfil, routes.perfil)
-
+from routes.usuario import usuario_routes
+usuario_routes(api=api)
 # Reporte Prueba
 api.add_resource(Report.rptTotalesSigma, routes.rptTotalesSigma)
-
 # Roles
 api.add_resource(Rol.ListarRoles, routes.listarRoles)
 api.add_resource(Rol.GestionarRol, routes.gestionarRol)
-# api.add_resource(Usuario.CrearRol, routes.crearRol)
-# api.add_resource(Usuario.Login, routes.login)
-# api.add_resource(Usuario.ModificarRol, routes.modificarRol)
-# api.add_resource(Usuario.EliminarRol, routes.eliminarRol)
-
 #Persona
-api.add_resource(Usuario.ListarPersona, routes.listarPersona)
-api.add_resource(Person.GestionarPersona, routes.gestionarPersona)
-api.add_resource(Person.EliminarPersona, routes.eliminarPersona)
-api.add_resource(Person.TipoDocumento, routes.tipoDocumento)
-api.add_resource(Person.TipoEstadoCivil, routes.tipoEstadoCivil)
-api.add_resource(Person.TipoGenero, routes.tipoGenero)
-api.add_resource(Person.TipoPais, routes.tipoPais)
-api.add_resource(Person.TipoCiudad, routes.tipoCiudad)
-api.add_resource(Person.RegistrarPersona, routes.registrarPersona)
-
+from routes.persona import persona_routes
+persona_routes(api=api)
 # Materia
-api.add_resource(Materia.ListarMateria, routes.listarMateria)
-api.add_resource(Materia.EliminarMateria, routes.eliminarMateria)
-api.add_resource(Materia.InsertarMateria, routes.insertarMateria)
-api.add_resource(Materia.ModificarMateria, routes.modificarMateria)
-
+from routes.materia import materia_routes
+materia_routes(api=api)
 # Curso - Materia
-api.add_resource(Curso.ListarCursoMateria, routes.listarCursoMateria)
-api.add_resource(Curso.EliminarCursoMateria, routes.eliminarCursoMateria)
-api.add_resource(Curso.InsertarCursoMateria, routes.insertarCursoMateria)
-api.add_resource(Curso.ModificarCursoMateria, routes.modificarCursoMateria)
-api.add_resource(Curso.TipoRol, routes.tipoRol)
-
-# Combo
-api.add_resource(Curso.ListaCursoCombo, routes.listaCursoCombo)
-api.add_resource(Materia.ListaMateriaCombo, routes.listaMateriaCombo)
-api.add_resource(Curso.ListaPersonaDocenteCombo, routes.listaPersonaDocenteCombo)
-
+from routes.cursomateria import cursomateria_routes
+cursomateria_routes(api=api)
 # Nivel
-api.add_resource(Nivel.ListarNivel, routes.listarNivel)
-api.add_resource(Nivel.InsertarNivel, routes.insertarNivel)
-api.add_resource(Nivel.ModificarNivel, routes.modificarNivel)
-api.add_resource(Nivel.EliminarNivel, routes.eliminarNivel)
-
+from routes.nivel import nivel_routes
+nivel_routes(api=api)
 # Inscripción
-api.add_resource(Inscripcion.ListarInscripcion, routes.listarInscripcion)
-api.add_resource(Inscripcion.InsertarInscripcion, routes.insertarInscripcion)
-api.add_resource(Inscripcion.ModificarInscripcion, routes.modificarInscripcion)
-api.add_resource(Inscripcion.EliminarInscripcion, routes.eliminarInscripcion)
-api.add_resource(Inscripcion.ObtenerCursoMateria, routes.obtenerCursoMateria)
-api.add_resource(Inscripcion.ListarComboCursoMateria, routes.listarComboCursoMateria)
-api.add_resource(Inscripcion.ListarComboMatricula, routes.listarComboMatricula)
-
+from routes.inscripcion import inscripcion_routes
+inscripcion_routes(api=api)
 # Matricula
-api.add_resource(Matricula.ListarMatricula, routes.listarMatricula)
-api.add_resource(Matricula.InsertarMatricula, routes.insertarMatricula)
-api.add_resource(Matricula.ModificarMatricula, routes.modificarMatricula)
-api.add_resource(Matricula.EliminarMatricula, routes.eliminarMatricula)
-
+from routes.matricula import matricula_routes
+matricula_routes(api=api)
 # Estudiante
 api.add_resource(Estudiante.ListarEstudiante, routes.listarEstudiante)
 api.add_resource(Estudiante.ObtenerMateriasInscritas, routes.obtenerMateriasInscritas)
-
 # Docente
 api.add_resource(Docente.ListarDocente, routes.listarDocente)
 api.add_resource(Docente.ObtenerMateriasAsignadas, routes.obtenerMateriasAsignadas)
-
 # Nota
-api.add_resource(Nota.ListarNota, routes.listarNota)
-api.add_resource(Nota.GestionarNota, routes.gestionarNota)
-api.add_resource(Nota.ListarNotaEstudiante, routes.listarNotaEstudiante)
-api.add_resource(Nota.ListarNotaDocente, routes.listarNotaDocente)
-api.add_resource(Nota.ListarNotaEstudianteMateria, routes.listarNotaEstudianteMateria)
-api.add_resource(Nota.ListarNotaEstudianteCurso, routes.listarNotaEstudianteCurso)
-api.add_resource(Nota.RptNotaEstudianteMateria, routes.rptNotaEstudianteMateria)
-
+from routes.nota import nota_routes
+nota_routes(api=api)
 # Pago
-api.add_resource(Pago.ListarPago, routes.listarPago)
-api.add_resource(Pago.ListarPagoEstudiante, routes.listarPagoEstudiante)
-api.add_resource(Pago.ListarPagoEstudianteMateria, routes.listarPagoEstudianteMateria)
-api.add_resource(Pago.ListarPagoEstudiantesMateria, routes.listarPagoEstudiantesMateria)
-api.add_resource(Pago.ListarPagoCurso, routes.listarPagoCurso)
-api.add_resource(Pago.GestionarPago, routes.gestionarPago)
-api.add_resource(Pago.TipoPago, routes.tipoPago)
-api.add_resource(Pago.GetPayments, routes.getPayments)
-api.add_resource(Pago.InsertarPago, routes.insertarPago)
-api.add_resource(Pago.AsignarPagoInscripcion, routes.asignarPagoInscripcion)
-api.add_resource(Pago.ObtenerUltimoPago, routes.obtenerUltimoPago)
-api.add_resource(Pago.ModificarPago, routes.modificarPago)
+from routes.pago import pago_routes
+pago_routes(api=api)
 # Asistencia
 api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
-
 # Material
-api.add_resource(Material.ListarMaterial, routes.listarMaterial)
-api.add_resource(Material.ListarTexto, routes.listarTexto)
-api.add_resource(Material.InsertarTexto, routes.insertarTexto)
+from routes.material import material_routes
+material_routes(api=api)
 
-import jwt
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost/db_academico'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@192.168.0.41/db_academico'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-db = SQLAlchemy(app)
 
+# from model.persona import Persona as Persona
 class Persona(db.Model):
     __tablename__ = 'persona'
     __table_args__ = {'schema': 'academico'}
@@ -195,14 +131,14 @@ class Persona(db.Model):
     perciudad = db.Column(db.Integer)
     pergenero = db.Column(db.Integer)
     perestcivil = db.Column(db.Integer)
-    perfoto = db.Column(db.String(120), index=True, unique=True)
+    perfoto = db.Column(db.String)
     perestado = db.Column(db.SmallInteger, default=1)
     perobservacion = db.Column(db.String(255))
     perusureg = db.Column(db.String(50))
     perfecreg = db.Column(db.TIMESTAMP, default=db.func.now())
     perusumod = db.Column(db.String(50))
     perfecmod = db.Column(db.TIMESTAMP)
-
+# from model.rol import Rol as Rol
 class Rol(db.Model):
     __tablename__ = 'rol'
     __table_args__ = {'schema': 'academico'}
@@ -214,7 +150,7 @@ class Rol(db.Model):
     rolusumod = db.Column(db.String(50))
     rolfecmod = db.Column(db.TIMESTAMP)
     rolestado = db.Column(db.SmallInteger, default=1)
-     
+# from model.usuario import Usuario
 class Usuario(db.Model):
     __tablename__ = 'usuario'
     __table_args__ = {'schema': 'academico'}
@@ -239,43 +175,37 @@ class Usuario(db.Model):
     @classmethod
     def get_by_id(cls, user_id):
         return cls.query.get(user_id)
-    
-def encode_token(user_id, user_rol):
-    payload = {
-        'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0),
-        'iat': datetime.utcnow(),
-        'sub': user_id,
-        'rol': user_rol 
-    }
-    token = jwt.encode(payload, configuration.APP_SECRET_KEY, algorithm='HS256')
-    return token.decode('utf-8')
 
+from resources.Autenticacion import TokenGenerator
+
+import jwt
 def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if "Authorization" in request.headers:
-            token = request.headers["Authorization"].split(" ")[1]
-        if not token:
-            return {
-                "message": "Authentication Token is missing",
-                "error": "Unauthorized"
-            }, 401
-        try:
-            data=jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
-            current_user=Usuario().get_by_id(data["sub"])
-            if current_user is None:
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = None
+            if "Authorization" in request.headers:
+                token = request.headers["Authorization"].split(" ")[1]
+            if not token:
                 return {
-                "message": "Invalid Authentication token",
-                "error": "Unauthorized"
-            }, 401
-        except Exception as e:
-            return {
-                "message": "An error Occured",
-                "error": str(e)
-            }, 401
-        return f(*args, **kwargs)
-    return decorated
+                    "message": "Authentication Token is missing",
+                    "error": "Unauthorized"
+                }, 401
+            try:
+                data=jwt.decode(token, os.environ.get("APP_SECRET_KEY"), algorithms=["HS256"])
+                # data=TokenGenerator.decode_token(token)
+                current_user=Usuario().get_by_id(data["sub"])
+                if current_user is None:
+                    return {
+                    "message": "Invalid Authentication token",
+                    "error": "Unauthorized"
+                }, 401
+            except Exception as e:
+                return {
+                    "message": "An error Occured",
+                    "error": str(e)
+                }, 401
+            return f(*args, **kwargs)
+        return decorated
 
 @app.route('/academico_api/register', methods=['POST'])
 def register_user():
@@ -313,7 +243,7 @@ def post():
         user = Usuario.query.filter_by(usuname = user_data['usuname']).first()
         if user and check_password_hash(user.usupassword, user_data['usupassword']) == True:
             rol = Rol.query.get(user.rolid)
-            auth_token = encode_token(user.usuid, rol.rolnombre)
+            auth_token = TokenGenerator.encode_token(user.usuid, rol.rolnombre)
             resp = {
                 "status":"succes",
                 "message" :"Successfully logged in",
@@ -337,10 +267,27 @@ def post():
         return make_response(jsonify(resp)), 404
 
 @app.route('/protected', methods=['GET'])
-@token_required 
+# @token_required 
 def protected():
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
+
+ 
+
+
+EXTENSIONS_PDF = {'pdf'}
+EXTENSIONS_IMG = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in EXTENSIONS_PDF
+
+def allowed_file_img(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in EXTENSIONS_IMG
+
+def stringAleatorio(length=10):
+    letters = string.ascii_letters
+    random_string = ''.join(random.choice(letters) for _ in range(length))
+    return random_string
 
 # import urllib.request
 # from werkzeug.utils import secure_filename # pip install Werkzeug
@@ -349,10 +296,9 @@ def protected():
 # app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 # ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
-
 # def allowed_file(filename):
 #     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-# @app.route('/academico_api/upload', methods=['POST'])
+# @app.route('/academico_api/fotoPerfil/upload', methods=['POST'])
 # def upload_file():
 #     if 'files[]' not in request.files:
 #         resp=jsonify({
@@ -361,7 +307,6 @@ def protected():
 #         })
 #         resp.status_code = 400
 #         return resp
-    
 #     files = request.files.getlist('files[]')
 #     errors = {}
 #     success = False
@@ -393,22 +338,46 @@ def protected():
 #         resp = jsonify(errors)
 #         resp.status_code = 500
 #         return resp
+
+
+@app.route('/academico_api/fotoPerfil/upload', methods=['POST'])
+def upload_file_foto_perfil():
+    if 'files[]' not in request.files:
+        return jsonify({"message": 'No hay imagenes en la solicitud', "status": 'failed'}), 400
     
-from flask import Flask, jsonify, request
-from werkzeug.utils import secure_filename
-import os
-import random
-import string
+    files = request.files.getlist('files[]')
+    errors = []
+    success = False
+    
+    for file in files:
+        if file and allowed_file_img(file.filename):
+            basepath = os.path.dirname(__file__)
+            upload_directory = os.path.join(basepath, 'static', 'files_fotoperfil')
 
-EXTENSIONS = {'pdf'}
+            if not os.path.exists(upload_directory):
+                os.makedirs(upload_directory)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in EXTENSIONS
+            filename = secure_filename(file.filename)
+            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
+            upload_path = os.path.join(upload_directory, filename)
+            file.save(upload_path)
+            success = True
+        else:
+            errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
 
-def stringAleatorio(length=10):
-    letters = string.ascii_letters
-    random_string = ''.join(random.choice(letters) for _ in range(length))
-    return random_string
+    if success:
+        if errors:
+            status_code = 207  # Código de estado HTTP para respuesta parcial
+            message = 'Algunos archivos no se pudieron subir.'
+        else:
+            status_code = 201
+            message = 'Todos los archivos subidos correctamente.'
+    else:
+        status_code = 400
+        message = 'Ningún archivo subido correctamente.'
+
+    return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
+
 
 @app.route('/academico_api/pago/upload', methods=['POST'])
 def upload_file_pago():
@@ -574,10 +543,31 @@ def eliminarArchivo(filename):
         }
         return jsonify(resp), 500
 
+@app.route('/enviar-correo', methods=['POST'])
+def enviar_correo():
+    data = request.get_json()
+    destinatario = data.get('destinatario')
+    asunto = data.get('asunto')
+    mensaje = data.get('mensaje')
+    if not destinatario or not asunto or not mensaje:
+        return jsonify({'mensaje': 'Faltan datos requeridos'}), 400
+    try:
+        # Crear el mensaje de correo
+        msg = Message(sender = os.environ.get("EMAIL_HOST_USER"),
+                      subject=asunto,
+                      recipients=[destinatario],
+                      body=mensaje)
+        # Enviar el mensaje de correo
+        mail.send(msg)
+        return jsonify({'mensaje': 'Correo enviado correctamente'}), 200
+    except Exception as e:
+        return jsonify({'mensaje': f'Error al enviar el correo: {str(e)}'}), 500
+    
 
+    
 if __name__ == '__main__':
 	HOST = configuration.SERVER_HOST
 	PORT = configuration.SERVER_PORT
 	DEBUG = configuration.DEBUG
-	print (HOST,PORT, ':3')
+	print(HOST,PORT, ':3')
 	app.run(host=HOST,port=PORT,debug=True)
