@@ -74,7 +74,7 @@ def modificarRol(data):
     return result
 
 def eliminarRol(data):
-    print("Datos eliminar->",data)
+    # print("Datos eliminar->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -100,7 +100,7 @@ def eliminarRol2(data):
             ''').format(
                 rolId=sql.Literal(data['rolId'])
             )
-        print("Consulta SQL:", query, data['rolId'])
+        # print("Consulta SQL:", query, data['rolId'])
         result = execute(as_string(query))
         print(result)
     except Exception as err:

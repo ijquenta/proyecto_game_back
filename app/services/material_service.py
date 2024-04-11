@@ -17,7 +17,7 @@ def listarTexto():
     
 # Insertar texto
 def insertarTexto(data):
-    print("Data_insertarTexto: ", data)
+    # print("Data_insertarTexto: ", data)
     res = execute_function(f'''
        SELECT academico.f_texto_insertar (  
                 \'{data['texnombre']}\', 
@@ -26,5 +26,5 @@ def insertarTexto(data):
                 \'{data['texusureg']}\'
                 ) as valor;
     ''')
-    print("insertarTexto: ", res)
+    # print("insertarTexto: ", res)
     return res

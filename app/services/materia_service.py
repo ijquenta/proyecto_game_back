@@ -37,7 +37,7 @@ def listaMateriaCombo(data):
         ''')
 
 def crearRol(data):
-    print("Datos->",data)
+    # print("Datos->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -54,7 +54,7 @@ def crearRol(data):
     return result
 
 def modificarRol(data):
-    print("Datos->",data)
+    # print("Datos->",data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -101,7 +101,7 @@ def eliminarRol2(data):
             ''').format(
                 rolId=sql.Literal(data['rolId'])  
             )
-        print("Consulta SQL:", query, data['rolId'])  
+        # print("Consulta SQL:", query, data['rolId'])  
         result = execute(as_string(query))
         print(result)
     except Exception as err:
@@ -128,7 +128,7 @@ def eliminarMateria(data):
     SELECT academico.eliminar_materia({data['matid']}) as valor;
     ''')
     result = resultado[0]['valor']
-    print("Resultado: ", result)
+    # print("Resultado: ", result)
     if result == 1:
         response_data = {'message': 'Materia eliminado correctamente'}
         status_code = 200
@@ -139,12 +139,12 @@ def eliminarMateria(data):
         else:
             response_data = {'message': 'No se puede eliminar la materia debido a que tiene registros relacionados'}
             status_code = 500
-        print("response_data: ",response_data)    
+        # print("response_data: ",response_data)    
 
     return make_response(jsonify(response_data), status_code)
 
 def insertarMateria(data):
-    print("Insertar Materia ->", data)
+    # print("Insertar Materia ->", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -165,7 +165,7 @@ def insertarMateria(data):
     return result
 
 def modificarMateria(data):
-    print("Modificar Materia ->", data)
+    # print("Modificar Materia ->", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''

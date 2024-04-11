@@ -119,7 +119,7 @@ def obtenerCursoMateria(data):
 
 
 def insertarInscripcion(data):
-    print("Insertar Inscripcion: ", data)
+    # print("Insertar Inscripcion: ", data)
     
     if data['pagid'] is not None:
         pagid = data['pagid']
@@ -138,7 +138,7 @@ def insertarInscripcion(data):
     ''')
 
 def modificarInscripcion(data):
-    print("Modificar Inscripcion: ", data)
+    # print("Modificar Inscripcion: ", data)
     if data['pagid'] is not None:
         pagid = data['pagid']
     else:
@@ -156,7 +156,7 @@ def modificarInscripcion(data):
     ''')  
 
 def eliminarInscripcion(data):
-    print("Eliminar Inscripcion: ", data)
+    # print("Eliminar Inscripcion: ", data)
     return execute_function(f'''
     SELECT academico.eliminar_inscripcion(
         {data['insid']})  as valor;                      

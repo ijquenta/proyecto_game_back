@@ -48,7 +48,7 @@ def gestionarPago(data):
     
 # Insertar pago
 def insertarPago(data):
-    print("Data_insertarPago: ", data)
+    # print("Data_insertarPago: ", data)
     res = execute_function(f'''
        SELECT academico.f_pago_insertar (  
                 \'{data['pagdescripcion']}\', 
@@ -59,12 +59,12 @@ def insertarPago(data):
                 {data['pagtipo']}
                 ) as valor;
     ''')
-    print("insertarPago: ", res)
+    # print("insertarPago: ", res)
     return res
 
 # Modificar pago
 def modificarPago(data):
-    print("DatamodificarPago: ", data)
+    # print("DatamodificarPago: ", data)
     res = execute_function(f'''
        SELECT academico.f_pago_modificar (  
                   {data['pagid']}, 
@@ -77,12 +77,12 @@ def modificarPago(data):
                   {data['archivobol']}
                 ) as valor;
     ''')
-    print("modificarPago: ", res)
+    # print("modificarPago: ", res)
     return res
 
 # Asignar pago a inscripcion
 def asignarPagoInscripcion(data):
-    print("asignarPagoInscripcion: ", data)
+    # print("asignarPagoInscripcion: ", data)
     res = execute_function(f'''
        SELECT academico.f_pago_asignar_a_inscripcion (  
                 {data['insid']}, 
@@ -90,7 +90,7 @@ def asignarPagoInscripcion(data):
                 \'{data['pagusumod']}\'
                 ) as valor;
     ''')
-    print("asignarPagoInscripcion2: ", res)
+    # print("asignarPagoInscripcion2: ", res)
     return res
 
 
@@ -189,7 +189,7 @@ def listarPagoEstudiantesMateria(data):
         where cm.curid = {data['curid']}
         and cm.matid = {data['matid']}
     ''')
-    print("listarPagoEstudiantesMateria: ", lista)
+    # print("listarPagoEstudiantesMateria: ", lista)
     for pago in lista:
         pago["pagfecreg"] = darFormatoFechaConHora(pago["pagfecreg"])
         pago["pagfecmod"] = darFormatoFechaConHora(pago["pagfecmod"])

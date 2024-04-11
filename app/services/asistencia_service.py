@@ -22,7 +22,7 @@ def registrarPersona(data):
             perusureg=sql.Literal(data['perusureg'])
         )
         result = execute_response(as_string(query)) 
-        print("Resultado: ", result)
+        # print("Resultado: ", result)
     except Exception as err:
         print(err)
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404

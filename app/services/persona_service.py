@@ -25,7 +25,7 @@ def registrarPersona(data):
     return result
 
 def gestionarPersona(data):
-    print("gestioanrPersona: ", data)
+    # print("gestioanrPersona: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''

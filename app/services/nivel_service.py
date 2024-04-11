@@ -23,13 +23,13 @@ def listarNivel():
     FROM academico.curso
     order by curid desc;
     ''')
-    print("Lista_niveles: ", lista_niveles)
+    # print("Lista_niveles: ", lista_niveles)
     for nivel in lista_niveles:
         nivel["curfchini"] = darFormatoFechaSinHora(nivel["curfchini"])
         nivel["curfchfin"] = darFormatoFechaSinHora(nivel["curfchfin"])
         nivel["curfecreg"] = darFormatoFechaConHora(nivel["curfecreg"])
         nivel["curfecmod"] = darFormatoFechaConHora(nivel["curfecmod"])
-    print(lista_niveles)
+    # print(lista_niveles)
     return lista_niveles
 
 

@@ -59,12 +59,12 @@ def rptConsolidadoBeneficoSocial(idGestion, idMes, codDocente, nroLiquidacion):
 
 
 def rptTotalesSigma():
-    print("sql")
+    # print("sql")
     params = select(f'''
         SELECT id, nombre_usuario, contrasena, nombre_completo, rol
         FROM public.usuarios;
     ''')
-    print("params", params)
+    # print("params", params)
     return make(Report().RptTotalesSigma(params, 1))
     # return select(f'''
     #     SELECT da, ue, pg, proy, act, denominacion, total_indemnizacion FROM p_bsocial.bs_reporte_totales_sigma2(\'{fechaInicio}\', \'{fechaFin}\') AS 
