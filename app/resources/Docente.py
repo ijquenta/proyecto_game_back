@@ -83,3 +83,10 @@ class TipoCiudad(Resource):
 class TipoEstadoCivil(Resource):
   def get(self):
     return tipoEstadoCivil()
+  
+parseMateriaEstudianteCurso = reqparse.RequestParser()
+parseMateriaEstudianteCurso.add_argument('curmatid', type=int, help='Ingrese curmatid', required=True)
+class ListarMateriaEstudianteCurso(Resource):
+    def post(self):
+        data = parseMateriaEstudianteCurso.parse_args()
+        return listarMateriaEstudianteCurso(data)

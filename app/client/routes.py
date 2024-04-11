@@ -86,6 +86,7 @@ class Routes:
     # Docente
     listarDocente = apiVersion + '/listarDocente'
     obtenerMateriasAsignadas = apiVersion + '/obtenerMateriasAsignadas'
+    listarMateriaEstudianteCurso = apiVersion + '/listarMateriaEstudianteCurso'
 
     # Nota
     listarNota = apiVersion + '/listarNota'

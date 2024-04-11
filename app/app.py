@@ -98,6 +98,7 @@ api.add_resource(Estudiante.ObtenerMateriasInscritas, routes.obtenerMateriasInsc
 # Docente
 api.add_resource(Docente.ListarDocente, routes.listarDocente)
 api.add_resource(Docente.ObtenerMateriasAsignadas, routes.obtenerMateriasAsignadas)
+api.add_resource(Docente.ListarMateriaEstudianteCurso, routes.listarMateriaEstudianteCurso)
 # Nota
 from routes.nota import nota_routes
 nota_routes(api=api)

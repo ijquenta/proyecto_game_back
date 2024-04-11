@@ -1,9 +1,9 @@
 from core.database import select, execute, execute_function, execute_response
 from web.wsrrhh_service import *
-
+from utils.date_formatting import darFormatoFechaConHora, darFormatoFechaSinHora
 
 def obtenerMateriasAsignadas(data):
-    return select(f'''
+    lista_materias_asignadas = select(f'''
         SELECT cm.curmatid, cm.curid, c.curnombre, cm.matid, m2.matnombre, cm.periddocente, p.pernomcompleto,
         cm.curmatfecini, 
         cm.curmatfecfin, cm.curmatestado, cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, 
@@ -14,6 +14,24 @@ def obtenerMateriasAsignadas(data):
         left join academico.curso c on c.curid = cm.curid 
         where cm.periddocente = {data['perid']}
     ''')
+    for materia_asignada in lista_materias_asignadas:
+        materia_asignada['curmatfecini'] = darFormatoFechaSinHora(materia_asignada['curmatfecini'])
+        materia_asignada['curmatfecfin'] = darFormatoFechaSinHora(materia_asignada['curmatfecfin'])
+        materia_asignada['curmatfecreg'] = darFormatoFechaConHora(materia_asignada['curmatfecreg'])
+        materia_asignada['curmatfecmod'] = darFormatoFechaConHora(materia_asignada['curmatfecmod'])
+    return lista_materias_asignadas
+
+def listarMateriaEstudianteCurso(data):
+    return select(f'''
+        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto
+        FROM academico.inscripcion i
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.materia m on m.matid = cm.matid 
+        left join academico.persona p on p.perid = i.peridestudiante
+        where i.curmatid = {data['curmatid']}
+        order by p.pernomcompleto;
+    ''')  
     
 def listarDocente():
     return select('''
