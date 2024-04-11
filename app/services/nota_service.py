@@ -50,8 +50,8 @@ def listarNotaEstudiante(data):
     return lista_nota_estudiante
 
 def listarNotaDocente(data):
-    return select(f'''
-        SELECT cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+    lista_nota_docente = select(f'''
+        SELECT cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin , cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
         cm.curmatdescripcion 
         FROM academico.curso_materia cm
@@ -60,7 +60,14 @@ def listarNotaDocente(data):
         left join academico.persona p on p.perid = cm.periddocente 
         where cm.periddocente = {data['perid']}
         order by c.curnombre, m.matnombre; 
-    ''')   
+    ''')
+    for nota_docente in lista_nota_docente:
+        nota_docente["curmatfecreg"] = darFormatoFechaConHora(nota_docente["curmatfecreg"])
+        nota_docente["curmatfecmod"] = darFormatoFechaConHora(nota_docente["curmatfecmod"])
+        nota_docente["curmatfecini"] = darFormatoFechaSinHora(nota_docente["curmatfecini"])
+        nota_docente["curmatfecfin"] = darFormatoFechaSinHora(nota_docente["curmatfecfin"])   
+    
+    return lista_nota_docente
     
 
     
@@ -100,7 +107,7 @@ def listarNotaEstudianteCurso(data):
 
 
 def rptNotaEstudianteMateria(data):
-    print("data", data)
+    # print("data", data)
     params = select(f'''
         SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
                n.notfinal, 
@@ -118,7 +125,7 @@ def rptNotaEstudianteMateria(data):
         where i.peridestudiante = {data['perid']}
         order by c.curnombre, m.matnombre
     ''')
-    print("params", params)
+    # print("params", params)
     return make(Report().RptNotaEstudianteMateria(params, data['usuname']))
 
 def listarNotaCurso():
