@@ -112,7 +112,7 @@ def rptNotaEstudianteMateria(data):
         SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
                n.notfinal, 
                i.peridestudiante,
-               p.pernomcompleto,
+               p.pernomcompleto, p.pernrodoc, p.peremail, p.percelular, p.perfoto,
                cm.matid, m.matnombre,
                cm.curid, c.curnombre,
                n.notusureg, n.notfecreg, n.notusumod, n.notfecmod, n.notestado 
