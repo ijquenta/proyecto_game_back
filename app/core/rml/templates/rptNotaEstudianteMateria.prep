@@ -17,7 +17,7 @@
             cartaV: pagesize="(21.6cm, 27.9cm)"
     -->
     <!-- <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social"> -->
-    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social">
+    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Nota Estudiante" author="Estudiante">
         <pageTemplate id="main">
             <pageGraphics>
                 <!-- Header -->
@@ -29,31 +29,50 @@
                 today=datetime.datetime.today()
                 today=today.strftime("%d/%m/%y %H:%M")
                 nomcompleto = data[0]['pernomcompleto']
+                perfoto = data[0]['perfoto']
+                pernrodoc = data[0]['pernrodoc']
+                peremail = data[0]['peremail']
+                percelular = data[0]['percelular']
+                numero_materias = len(data)
                 #se puede hacer lo que sea con la info
                 total = {
                     "liq": 0
                 }
                 {{endscript}}
+
+                <!-- Imagen de la Institución -->
+                <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="static/images/logo_ibci.png"/>
                 <setFont name="Helvetica" size="11"/>
-                <drawCentredString x="10.5cm" y="25.5cm">NOTAS</drawCentredString>
+                
                 <setFont name="Helvetica" size="9"/>
-                <drawString x="2cm" y="27cm">Instituto Biblico de Capacitación Internacional</drawString>
-                <drawString x="2cm" y="26.5cm">Sistema de Seguimiento y Gestión Académico</drawString>
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawCentredString x="11.5cm" y="25.5cm">NOTAS</drawCentredString>
+                <drawString x="7cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawString>
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawString x="7cm" y="26cm">Sistema de Gestión y Seguimiento Académico</drawString>
+                <setFont name="Helvetica" size="9"/>  <!-- Restablecer la fuente para el texto siguiente -->
+
                 <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
-                <drawRightString x="20cm" y="27cm">Fecha Emision: {{today}}</drawRightString>
-                <drawRightString x="7.5cm" y="25cm">Nombre Completo: {{ nomcompleto  }}</drawRightString>
-                    <place x="0.75cm" y="16.7cm" width="33cm" height="7.5cm">
+                <drawRightString x="20cm" y="27cm">Fecha Emisión: {{ today }}</drawRightString>
+                <drawString x="1cm" y="25cm">Nombre Completo: {{ nomcompleto }}</drawString>
+                <drawString x="1cm" y="24.7cm">Número de documento: {{ pernrodoc }}</drawString>
+                <drawString x="1cm" y="24.4cm">Correo electrónico: {{ peremail }}</drawString>
+                <drawString x="1cm" y="24.1cm">Celular: {{ percelular }}</drawString>
+                <!-- Imagen del estudiante -->
+                <image x="19cm" y="24cm" width="1.5cm" height="1.5cm" file="static/files_fotoperfil/{{perfoto}}"/>
+
+                    <place x="0.75cm" y="16cm" width="33cm" height="7.5cm">
                         <blockTable rowHeights="0.6cm, 0.0cm" colWidths="1cm, 6.5cm, 6.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm" style="blocktablestyle1">
                             <tr>
                             </tr>
                             <tr>
                                 <td>Nro</td>
-                                <td>Curso</td>
-                                <td>Materia</td>
-                                <td>Nota 1</td>
-                                <td>Nota 2</td>
-                                <td>Nota 3</td>
-                                <td>Nota Final</td>
+                                <td>Nombre del Curso</td>
+                                <td>Nombre de la Materia</td>
+                                <td>1° Nota</td>
+                                <td>2° Nota</td>
+                                <td>3° Nota</td>
+                                <td>N. Final</td>
                             </tr>
                         </blockTable>
                     </place>
@@ -61,8 +80,9 @@
                 <setFont name="Helvetica" size="8"/>
                 <drawRightString x="20cm" y="1cm"> Pag. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
                 <drawString x="2cm" y="1cm">Usuario: {{user}}</drawString>
+                <!-- Footer -->
             </pageGraphics>
-            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="18.5cm" height="22cm"/>
+            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="18.5cm" height="21.3cm"/>
         </pageTemplate>
     </template>
     <stylesheet>
@@ -76,15 +96,20 @@
             <blockFont name="Helvetica" size="9"/>
         </blockTableStyle>
         <blockTableStyle id="blocktablestyleData">
-            <!-- <blockLeading length="2cm"/> -->
+            <blockLeading length="2cm"/>
             <blockFont name="Helvetica" size="8"/>
-            <!-- <lineStyle kind="GRID" colorName="blue" thickness="1" start="0,0" stop="-1,-1" /> -->
-            <!-- <blockSpan start="3,1" stop="4,1" /> -->
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <blockSpan start="3,1" stop="4,1" />
         </blockTableStyle>
+
+
         <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
         <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
         <paraStyle name="tableText2" alignment="right" fontSize="8"/>
     </stylesheet>
+   
+
+
     <story>
        <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
        {{for item in data}}
@@ -119,8 +144,8 @@
             colWidths="18.5cm, 1.5cm"
         > 
              <tr>
-                 <td align="right">Promedio: </td> 
-                 <td align="right">{{ total['liq'] / 4 }}</td> 
+                 <td align="right">Promedio General: </td> 
+                 <td align="right">{{ total['liq'] / numero_materias }}</td> 
             </tr>
         </blockTable>
         <!-- <illustration width="33cm" height="0.2cm">
