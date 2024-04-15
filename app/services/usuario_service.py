@@ -168,14 +168,14 @@ def listarPersona():
     ''')
 
     for person in listPersons:
-        person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
+        # person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
         person["perfecreg"] = darFormatoFecha(person["perfecreg"])
         person["perfecmod"] = darFormatoFecha(person["perfecmod"])
 
     return listPersons
 
 # Ejemplo de uso
-personas_formateadas = listarPersona()
+# personas_formateadas = listarPersona()
 # print(personas_formateadas)
 
 

@@ -274,6 +274,11 @@ def protected():
    return make_response(jsonify(resp)), 200
 
  
+@app.route('/', methods=['GET'])
+def index():
+   resp = {"message": "Estas en la API de academico_api"}
+   return make_response(jsonify(resp)), 200
+
 
 
 EXTENSIONS_PDF = {'pdf'}
