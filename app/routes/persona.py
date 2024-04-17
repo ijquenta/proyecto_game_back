@@ -5,7 +5,7 @@ import resources.Estudiante as Estudiante
 from client.routes import Routes as routes
 
 def persona_routes(api: Api):
-    api.add_resource(Usuario.ListarPersona, routes.listarPersona)
+    api.add_resource(Person.ListarPersona, routes.listarPersona)
     api.add_resource(Person.GestionarPersona, routes.gestionarPersona)
     api.add_resource(Person.EliminarPersona, routes.eliminarPersona)
     api.add_resource(Person.TipoDocumento, routes.tipoDocumento)

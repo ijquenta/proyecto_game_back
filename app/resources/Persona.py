@@ -5,10 +5,14 @@ from client.responses import clientResponses as messages
 from http import HTTPStatus
 from services.beneficio_service import *
 from services.persona_service import *
-#import services.beneficio_service as beneficio
-
 # from resources.Autenticacion import token_required
 
+
+class ListarPersona(Resource):
+  # @token_required
+  def get(self):
+      return listarPersona()
+    
 class ListarUsuarios(Resource):
     # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
     # @token_required
@@ -59,6 +63,7 @@ class GestionarPersona(Resource):
 parseEliminarPersona = reqparse.RequestParser()
 parseEliminarPersona.add_argument('tipo', type=int, help='Tipo de operación', required=True)
 parseEliminarPersona.add_argument('perid', type=int, help='ID de la persona', required=True)
+parseEliminarPersona.add_argument('perusumod', type=str, help='Usuario que modificó la persona', required=True)
 class EliminarPersona(Resource):
     def post(self):
         data = parseEliminarPersona.parse_args()

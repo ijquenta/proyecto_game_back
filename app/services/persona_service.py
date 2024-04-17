@@ -1,6 +1,27 @@
-from core.database import select, execute, execute_function, execute_response
-from web.wsrrhh_service import *
-from flask import Flask, request, jsonify, make_response
+from core.database import select, execute, execute_function, execute_response, as_string
+from psycopg2 import sql
+from utils.date_formatting import darFormatoFechaNacimiento, darFormatoFechaSinHora, darFormatoFechaConHora
+
+
+def listarPersona():
+    listPersons = select('''
+     SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, p.pertipodoc, td.tipodocnombre, 
+        p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, p.perpais, tp.paisnombre, 
+        p.perciudad, tc.ciudadnombre, p.pergenero, tg.generonombre, p.perestcivil, te.estadocivilnombre,
+        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod 
+        FROM academico.persona p
+        left join academico.tipo_documento td on td.tipodocid = p.pertipodoc
+        left join academico.tipo_pais tp on tp.paisid = p.perpais
+        left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
+        left join academico.tipo_genero tg on tg.generoid = p.pergenero
+        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
+        ORDER BY p.pernomcompleto; 
+    ''')
+    for person in listPersons:
+        person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
+        person["perfecreg"] = darFormatoFechaConHora(person["perfecreg"])
+        person["perfecmod"] = darFormatoFechaConHora(person["perfecmod"])
+    return listPersons
 
 def registrarPersona(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
@@ -25,7 +46,6 @@ def registrarPersona(data):
     return result
 
 def gestionarPersona(data):
-    # print("gestioanrPersona: ", data)
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -69,10 +89,11 @@ def eliminarPersona(data):
     try:
         query = sql.SQL('''
             SELECT academico.f_eliminar_persona
-                ({tipo},{perid})
+                ({tipo},{perid},{perusumod})
         ''').format(
             tipo=sql.Literal(data['tipo']),
             perid=sql.Literal(data['perid']),
+            perusumod=sql.Literal(data['perusumod'])   
         )
         result = execute(as_string(query)) 
     except Exception as err:
