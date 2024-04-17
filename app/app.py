@@ -74,6 +74,7 @@ api.add_resource(Report.rptTotalesSigma, routes.rptTotalesSigma)
 # Roles
 api.add_resource(Rol.ListarRoles, routes.listarRoles)
 api.add_resource(Rol.GestionarRol, routes.gestionarRol)
+api.add_resource(Rol.GestionarRolEstado, routes.gestionarRolEstado)
 #Persona
 from routes.persona import persona_routes
 persona_routes(api=api)

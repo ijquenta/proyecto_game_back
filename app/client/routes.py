@@ -79,6 +79,7 @@ class Routes:
    
     # Rol
     gestionarRol = apiVersion + '/gestionarRol'
+    gestionarRolEstado = apiVersion + '/gestionarRolEstado'
     
     # Estudiante
     listarEstudiante = apiVersion + '/listarEstudiante'

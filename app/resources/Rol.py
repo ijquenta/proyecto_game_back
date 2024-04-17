@@ -19,6 +19,15 @@ class GestionarRol(Resource):
   def post(self):
     data = parseGestionarRol.parse_args()
     return gestionarRol(data)
+  
+parseGestionarRolEstado = reqparse.RequestParser()
+parseGestionarRolEstado.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)  
+parseGestionarRolEstado.add_argument('rolid', type=int, help='Debe elegir rolid', required=True)  
+parseGestionarRolEstado.add_argument('rolusumod', type=str, help='Debe elegir rolusumod', required=True)
+class GestionarRolEstado(Resource):
+  def post(self):  
+    data = parseGestionarRolEstado.parse_args()
+    return gestionarRolEstado(data)
 
 class ListarRoles(Resource):
   def get(self):

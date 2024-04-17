@@ -1,26 +1,6 @@
 from core.database import select, execute, execute_function
 from core.database import execute, as_string
 from psycopg2 import sql
-
-
-def gestionarRol(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
-    try:
-        query = sql.SQL('''
-            SELECT academico.f_gestionar_rol({tipo}, {rolid}, {rolnombre}, {roldescripcion}, {rolestado}, {rolusureg});
-            ''').format(
-                tipo=sql.Literal(data['tipo']),
-                rolid=sql.Literal(data['rolid']),
-                rolnombre=sql.Literal(data['rolnombre']),
-                roldescripcion=sql.Literal(data['roldescripcion']),
-                rolestado=sql.Literal(data['rolestado']),
-                rolusureg=sql.Literal(data['rolusureg'])
-            )
-        result = execute(as_string(query))
-    except Exception as err:
-        print("Error en Gestionar Rol: ",err)
-        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
-    return result
 from datetime import datetime
 
 def darFormatoFecha(fecha_str):
@@ -41,11 +21,45 @@ def darFormatoFechaNacimiento(fecha_str):
     fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
     return fecha_formateada
 
+def gestionarRol(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.f_gestionar_rol({tipo}, {rolid}, {rolnombre}, {roldescripcion}, {rolestado}, {rolusureg});
+            ''').format(
+                tipo=sql.Literal(data['tipo']),
+                rolid=sql.Literal(data['rolid']),
+                rolnombre=sql.Literal(data['rolnombre']),
+                roldescripcion=sql.Literal(data['roldescripcion']),
+                rolestado=sql.Literal(data['rolestado']),
+                rolusureg=sql.Literal(data['rolusureg'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print("Error en Gestionar Rol: ",err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+def gestionarRolEstado(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.f_rol_gestionar_estado({tipo}, {rolid}, {rolusumod});
+            ''').format(
+                tipo=sql.Literal(data['tipo']),
+                rolid=sql.Literal(data['rolid']),
+                rolusumod=sql.Literal(data['rolusumod'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print("Error en Gestionar Rol Estado: ", err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
 def listarRoles():
     listRoles = select(f'''
     SELECT rolid, rolnombre, roldescripcion, rolusureg, rolfecreg, rolusumod, rolfecmod, rolestado
     FROM academico.rol
-    where rolestado = 1
     order by rolid;        
     ''')
 
