@@ -1,21 +1,47 @@
 from core.database import select, execute, execute_function, as_string
 from psycopg2 import sql
 from werkzeug.security import generate_password_hash, check_password_hash
+from utils.date_formatting import darFormatoFechaSinHora, darFormatoFechaConHora
 
 def gestionarUsuario(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
             SELECT academico.f_gestionar_usuario({tipo}, {usuid}, {perid}, {rolid}, {usuname}, {usupassword}, {usupasswordhash}, {usuemail}, {usuimagen}, {usudescripcion}, {usuestado}, {usuusureg});
-            ''').format( tipo=sql.Literal(data['tipo']), usuid=sql.Literal(data['usuid']), perid=sql.Literal(data['perid']), rolid=sql.Literal(data['rolid']), usuname=sql.Literal(data['usuname']), usupassword = sql.Literal(generate_password_hash(data['usupassword'])), usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])), usuemail=sql.Literal(data['usuemail']), usuimagen=sql.Literal(data['usuimagen']), usudescripcion=sql.Literal(data['usudescripcion']), usuestado=sql.Literal(data['usuestado']), usuusureg=sql.Literal(data['usuusureg']))
+            ''').format( tipo=sql.Literal(data['tipo']), usuid=sql.Literal(data['usuid']), perid=sql.Literal(data['perid']), rolid=sql.Literal(data['rolid']), usuname=sql.Literal(data['usuname']), 
+                         usupassword = sql.Literal(generate_password_hash(data['usupassword'])), usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])), 
+                         usuemail=sql.Literal(data['usuemail']), usuimagen=sql.Literal(data['usuimagen']), usudescripcion=sql.Literal(data['usudescripcion']), 
+                         usuestado=sql.Literal(data['usuestado']), usuusureg=sql.Literal(data['usuusureg']))
         result = execute(as_string(query))
     except Exception as err:
         print("Error en Gestionar Usuario: ",err)
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
 
+def gestionarUsuarioEstado(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.f_usuario_gestionar_estado({tipo}, {usuid}, {usuusumod});
+            ''').format( tipo=sql.Literal(data['tipo']), usuid=sql.Literal(data['usuid']), usuusumod=sql.Literal(data['usuusumod']))
+        result = execute(as_string(query))
+    except Exception as err:
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
+def gestionarUsuarioPassword(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.f_usuario_password({usuid}, {usupassword}, {usuusumod});
+            ''').format( usuid=sql.Literal(data['usuid']), usupassword = sql.Literal(generate_password_hash(data['usupassword'])), usuusumod=sql.Literal(data['usuusumod']))
+        result = execute(as_string(query))
+    except Exception as err:
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
+
 def listaUsuario():
-    return select(f'''
+    listUsers = select(f'''
         SELECT 
         u.usuid, u.perid, p.pernomcompleto, p.pernrodoc, p.perfoto, u.rolid, r.rolnombre, u.usuname, 
         u.usuemail, u.usudescripcion, 
@@ -26,10 +52,19 @@ def listaUsuario():
         order by p.pernomcompleto 
     ''')
     
+    for user in listUsers:
+        user["usufecreg"] = darFormatoFechaConHora(user["usufecreg"])
+        user["usufecmod"] = darFormatoFechaConHora(user["usufecmod"])
+    return listUsers
+    
+    
+    
 def tipoPersona():
     return select(f''' 
     select perid, pernomcompleto, pernrodoc, perfoto from academico.persona p 
-    order by pernomcompleto 
+    where perestado = 1
+    order by pernomcompleto ;
+    
     ''')
 
 def perfil(data):
@@ -148,31 +183,7 @@ def darFormatoFechaNacimiento(fecha_str):
     fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
     return fecha_formateada
 
-def listarPersona():
-    listPersons = select('''
-     SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, 
-        p.pertipodoc, td.tipodocnombre, 
-        p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, 
-        p.perpais, tp.paisnombre, 
-        p.perciudad, tc.ciudadnombre,
-        p.pergenero, tg.generonombre,
-        p.perestcivil, te.estadocivilnombre,
-        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod 
-        FROM academico.persona p
-        left join academico.tipo_documento td on td.tipodocid = p.pertipodoc
-        left join academico.tipo_pais tp on tp.paisid = p.perpais
-        left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
-        left join academico.tipo_genero tg on tg.generoid = p.pergenero
-        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
-        ORDER BY p.perid desc; 
-    ''')
 
-    for person in listPersons:
-        # person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
-        person["perfecreg"] = darFormatoFecha(person["perfecreg"])
-        person["perfecmod"] = darFormatoFecha(person["perfecmod"])
-
-    return listPersons
 
 # Ejemplo de uso
 # personas_formateadas = listarPersona()

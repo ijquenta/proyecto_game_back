@@ -10,3 +10,5 @@ def usuario_routes(api: Api):
     api.add_resource(Usuario.TipoPersona, routes.tipoPersona)
     api.add_resource(Usuario.Perfil, routes.perfil)
     api.add_resource(Usuario.ObtenerEmail, routes.obtenerEmail)
+    api.add_resource(Usuario.GestionarUsuarioEstado, routes.gestionarUsuarioEstado)
+    api.add_resource(Usuario.GestionarUsuarioPassword, routes.gestionarUsuarioPassword)

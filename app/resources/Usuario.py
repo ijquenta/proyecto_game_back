@@ -45,7 +45,28 @@ class GestionarUsuario(Resource):
   def post(self):
     data = parseGestionarUsuario.parse_args()
     return gestionarUsuario(data)
+  
+  
+parseGestionarUsuarioEstado = reqparse.RequestParser()
+parseGestionarUsuarioEstado.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
+parseGestionarUsuarioEstado.add_argument('usuid', type=int, help='Debe elegir usuid', required=True)
+parseGestionarUsuarioEstado.add_argument('usuusumod', type=str, help='Debe elegir usumod', required=True)
+class GestionarUsuarioEstado(Resource):
+  def post(self):
+    data = parseGestionarUsuarioEstado.parse_args()
+    return gestionarUsuarioEstado(data)
 
+
+parseGestionarUsuarioPassword = reqparse.RequestParser()
+parseGestionarUsuarioPassword.add_argument('usuid', type=int, help='Debe elegir usuid', required=True)
+parseGestionarUsuarioPassword.add_argument('usupassword', type=str, help='Debe elegir usupassword', required=True)
+parseGestionarUsuarioPassword.add_argument('usuusumod', type=str, help='Debe elegir usumod', required=True)
+class GestionarUsuarioPassword(Resource):
+  def post(self):
+    data = parseGestionarUsuarioPassword.parse_args()
+    return gestionarUsuarioPassword(data)
+  
+  
 class ListaUsuario(Resource):
   def get(self):
     return listaUsuario()
@@ -53,11 +74,6 @@ class ListaUsuario(Resource):
 class TipoPersona(Resource):
   def get(self):
     return tipoPersona()
-
-class ListarPersona(Resource):
-  # @token_required
-  def get(self):
-      return listarPersona()
 
 class ListarRoles(Resource):
   def get(self):
