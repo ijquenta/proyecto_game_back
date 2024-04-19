@@ -76,3 +76,13 @@ class ModificarMateria(Resource):
     def post(self):
         data = parseModificarMateria.parse_args()
         return modificarMateria(data)
+      
+      
+parseGestionarMateriaEstado = reqparse.RequestParser()
+parseGestionarMateriaEstado.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
+parseGestionarMateriaEstado.add_argument('matid', type=int, help='Debe elegir matid', required=True)
+parseGestionarMateriaEstado.add_argument('matusumod', type=str, help='Debe elegir matusumod', required=True)
+class GestionarMateriaEstado(Resource):
+    def post(self):
+        data = parseGestionarMateriaEstado.parse_args()
+        return gestionarMateriaEstado(data)

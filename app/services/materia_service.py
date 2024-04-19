@@ -185,3 +185,21 @@ def modificarMateria(data):
         print(err)
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
+
+
+
+def gestionarMateriaEstado(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+            SELECT academico.f_materia_gestionar_estado({tipo}, {matid}, {matusumod});
+            ''').format(
+                tipo=sql.Literal(data['tipo']),
+                matid=sql.Literal(data['matid']),
+                matusumod=sql.Literal(data['matusumod'])
+            )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result
