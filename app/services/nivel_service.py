@@ -95,3 +95,11 @@ def eliminarNivel(data):
 
     
 
+def gestionarNivelEstado(data):
+    return execute_function(f'''
+    SELECT academico.f_nivel_gestionar_estado(
+          {data['tipo']}, 
+          {data['curid']}, 
+        \'{data['curusumod']}\'
+        )  as valor;                      
+    ''')

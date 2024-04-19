@@ -45,3 +45,11 @@ class ModificarNivel(Resource):
     return modificarNivel(data)
   
   
+parseGestionarNivelEstado = reqparse.RequestParser()
+parseGestionarNivelEstado.add_argument('tipo', type=int, help = 'Debe elegir tipo', required = True)
+parseGestionarNivelEstado.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
+parseGestionarNivelEstado.add_argument('curusumod', type=str, help = 'Debe elegir curusumod', required = True)
+class GestionarNivelEstado(Resource):
+  def post(self):
+    data = parseGestionarNivelEstado.parse_args()
+    return gestionarNivelEstado(data)
