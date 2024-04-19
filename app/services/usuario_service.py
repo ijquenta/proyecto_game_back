@@ -69,7 +69,7 @@ def tipoPersona():
 
 def perfil(data):
     return select(f'''
-    SELECT u.usuid, u.perid, p.pernomcompleto, u.rolid, r.rolnombre , u.usuname, u.usuemail, u.usuimagen 
+    SELECT u.usuid, u.perid, p.pernomcompleto, p.perfoto, u.rolid, r.rolnombre , u.usuname, u.usuemail, u.usuimagen 
     FROM academico.usuario u
     left join academico.persona p on p.perid = u.perid
     left join academico.rol r on r.rolid = u.rolid 
