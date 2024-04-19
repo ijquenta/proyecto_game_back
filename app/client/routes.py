@@ -43,12 +43,14 @@ class Routes:
     eliminarMateria = apiVersion + '/eliminarMateria'
     insertarMateria = apiVersion + '/insertarMateria'
     modificarMateria = apiVersion + '/modificarMateria'
+    gestionarMateriaEstado = apiVersion + '/gestionarMateriaEstado'
     
     #Curso - Materia
     listarCursoMateria = apiVersion + '/listarCursoMateria'
     eliminarCursoMateria = apiVersion + '/eliminarCursoMateria'
     insertarCursoMateria = apiVersion + '/insertarCursoMateria'
     modificarCursoMateria = apiVersion + '/modificarCursoMateria'
+    gestionarCursoMateriaEstado = apiVersion + '/gestionarCursoMateriaEstado'
     tipoRol = apiVersion + '/tipoRol'
     
     # Combo
@@ -61,6 +63,7 @@ class Routes:
     insertarNivel = apiVersion + '/insertarNivel'
     modificarNivel = apiVersion + '/modificarNivel'
     eliminarNivel = apiVersion + '/eliminarNivel'
+    gestionarNivelEstado = apiVersion + '/gestionarNivelEstado'
     
     #Incripcion
     listarInscripcion = apiVersion + '/listarInscripcion'
@@ -99,6 +102,7 @@ class Routes:
     listarNotaEstudianteMateria = apiVersion + '/listarNotaEstudianteMateria'
     listarNotaEstudianteCurso = apiVersion + '/listarNotaEstudianteCurso'
     rptNotaEstudianteMateria = apiVersion + '/rptNotaEstudianteMateria'
+    rptNotaCursoMateria = apiVersion + '/rptNotaCursoMateria'
     listarNotaCurso = apiVersion + '/listarNotaCurso'
     
     # Pago
