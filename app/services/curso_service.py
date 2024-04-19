@@ -45,7 +45,7 @@ def darFormatoFechaSinHora(fecha_str):
 def listarCursoMateria():
     lista_cursos = select(f'''
         SELECT distinct cm.curmatid, c.curnombre, cm.curid, m.matnombre, cm.matid, m.matnivel, 
-        p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
+        p.pernomcompleto, p.perfoto, p.pernrodoc, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
         c.curnivel,
         cm.curmatfecini, cm.curmatfecfin, cm.curmatestado, cm.curmatestadodescripcion, 
         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol as rolid, cm.curmatidroldes as rolnombre
@@ -141,11 +141,13 @@ def listaCursoCombo():
 
 def listaPersonaDocenteCombo(data):
     return select(f'''
-    select distinct p.perid, p.pernomcompleto
+    select distinct p.perid, p.pernomcompleto, p.perfoto, p.pernrodoc
     from academico.persona p 
     inner join academico.usuario u on u.perid = p.perid
     inner join academico.rol r ON r.rolid = u.rolid
-    where r.rolnombre = \'{data['rolnombre']}\'  
+    where r.rolnombre = \'{data['rolnombre']}\'
+    and p.perestado = 1
+    order by p.pernomcompleto  
     ''')
     
 def tipoRol():
@@ -154,3 +156,20 @@ def tipoRol():
 	FROM academico.rol
 	order by rolnombre;                
     ''')
+    
+    
+def gestionarCursoMateriaEstado(data):
+    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+    try:
+        query = sql.SQL('''
+                        SELECT academico.f_curso_materia_gestionar_estado
+                        ({tipo}, {curmatid}, {curmatusumod});''').format(
+                            tipo = sql.Literal(data['tipo']),
+                            curmatid = sql.Literal(data['curmatid']),
+                            curmatusumod = sql.Literal(data['curmatusumod'])
+                        )
+        result = execute(as_string(query))
+    except Exception as err:
+        print(err)
+        return {'code': 0, 'message': 'Error: '+ str(err)}, 404
+    return result

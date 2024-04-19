@@ -10,3 +10,4 @@ def cursomateria_routes(api: Api):
     api.add_resource(Curso.TipoRol, routes.tipoRol)
     api.add_resource(Curso.ListaCursoCombo, routes.listaCursoCombo)
     api.add_resource(Curso.ListaPersonaDocenteCombo, routes.listaPersonaDocenteCombo)
+    api.add_resource(Curso.GestionarCursoMateriaEstado, routes.gestionarCursoMateriaEstado)

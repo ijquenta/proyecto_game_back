@@ -60,3 +60,13 @@ class ListaPersonaDocenteCombo(Resource):
 class TipoRol(Resource):
   def get(self):
     return tipoRol()
+  
+  
+parseGestionarCursoMateriaEstado = reqparse.RequestParser()
+parseGestionarCursoMateriaEstado.add_argument('tipo', type=int, help='Debe ingresar tipo', required = True)
+parseGestionarCursoMateriaEstado.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)
+parseGestionarCursoMateriaEstado.add_argument('curmatusumod', type=str, help='Debe insersar curmatusumod', required = True)
+class GestionarCursoMateriaEstado(Resource):
+  def post(self):
+      data = parseGestionarCursoMateriaEstado.parse_args()
+      return gestionarCursoMateriaEstado(data)
