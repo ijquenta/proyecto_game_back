@@ -65,6 +65,14 @@ class RptNotaEstudianteMateria(Resource):
         data = parseRptNotaEstudianteMateria.parse_args()
         return nota.rptNotaEstudianteMateria(data)
     
+parseRptNotaCursoMateria = reqparse.RequestParser()
+parseRptNotaCursoMateria.add_argument('curmatid', type=int, help='Ingrese curmatid', required=True)
+parseRptNotaCursoMateria.add_argument('usuname', type=str, help='Ingrese usuname', required=True)
+class RptNotaCursoMateria(Resource):
+    def post(self):
+        data = parseRptNotaCursoMateria.parse_args()
+        return nota.rptNotaCursoMateria(data)
+    
 class ListarNotaCurso(Resource):
     def get(self):
         return listarNotaCurso() 

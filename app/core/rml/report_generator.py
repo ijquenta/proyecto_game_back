@@ -92,3 +92,13 @@ class Report():
                 pdf_out = output.getvalue()
         print('Enviandos archivo rptNotaEstudianteMateria')
         return pdf_out
+    
+    def RptNotaCursoMateria(self, data, user):
+        print("datos", data)
+        templateTS = preppy.getModule(PATH+'rptNotaCursoMateria.prep')        
+        with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+            with BytesIO() as output:
+                generatePdf(buffer, output)
+                pdf_out = output.getvalue()
+        print('Enviandos archivo rptNotaCursoMateria')
+        return pdf_out

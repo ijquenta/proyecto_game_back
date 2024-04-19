@@ -94,7 +94,7 @@ def listarNotaEstudianteMateria(data):
 
 def listarNotaEstudianteCurso(data):
     return select(f'''
-        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
+        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, p.perfoto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
         FROM academico.inscripcion i
         left join academico.curso_materia cm on cm.curmatid = i.curmatid
         left join academico.curso c on c.curid = cm.curid 
@@ -128,15 +128,31 @@ def rptNotaEstudianteMateria(data):
     # print("params", params)
     return make(Report().RptNotaEstudianteMateria(params, data['usuname']))
 
+
+def rptNotaCursoMateria(data):
+    params = select(f'''
+        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, p.perfoto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
+        FROM academico.inscripcion i
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.materia m on m.matid = cm.matid 
+        left join academico.persona p on p.perid = i.peridestudiante
+        left join academico.nota n on n.insid = i.insid
+        where i.curmatid = {data['curmatid']}
+        order by p.pernomcompleto;
+    ''')
+    return make(Report().RptNotaCursoMateria(params, data['usuname']))
+
 def listarNotaCurso():
     lista = select(f'''
-        SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+        SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto, p.perfoto,
         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
         cm.curmatdescripcion 
         FROM academico.curso_materia cm
         left join academico.curso c on c.curid = cm.curid 
         left join academico.materia m on m.matid = cm.matid 
         left join academico.persona p on p.perid = cm.periddocente 
+        where cm.curmatestado = 1
         order by c.curnombre, m.matnombre;
     ''')  
     for pago in lista:
