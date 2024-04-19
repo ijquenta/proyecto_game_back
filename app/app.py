@@ -29,6 +29,9 @@ import resources.Estudiante as Estudiante
 import resources.Docente as Docente
 import resources.Asistencia as Asistencia
 import services.nivel_service as NivelService
+# imports utils
+from utils.optimize_image import optimize_image
+from PIL import Image
 
 LOG_FILENAME = 'aplication.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
@@ -351,11 +354,11 @@ def stringAleatorio(length=10):
 def upload_file_foto_perfil():
     if 'files[]' not in request.files:
         return jsonify({"message": 'No hay imagenes en la solicitud', "status": 'failed'}), 400
-    
+
     files = request.files.getlist('files[]')
     errors = []
     success = False
-    
+
     for file in files:
         if file and allowed_file_img(file.filename):
             basepath = os.path.dirname(__file__)
@@ -365,17 +368,22 @@ def upload_file_foto_perfil():
                 os.makedirs(upload_directory)
 
             filename = secure_filename(file.filename)
-            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
             upload_path = os.path.join(upload_directory, filename)
-            file.save(upload_path)
-            success = True
+            
+            # Guardar la imagen usando optimización
+            try:
+                optimize_image(file, upload_path)
+                success = True
+            except Exception as e:
+                errors.append({'filename': file.filename, 'message': str(e)})
+
         else:
             errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
 
     if success:
         if errors:
             status_code = 207  # Código de estado HTTP para respuesta parcial
-            message = 'Algunos archivos no se pudieron subir.'
+            message = 'Algunos archivos no se pudieron subir correctamente.'
         else:
             status_code = 201
             message = 'Todos los archivos subidos correctamente.'
