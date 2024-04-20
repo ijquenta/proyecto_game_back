@@ -57,4 +57,11 @@ class EliminarInscripcion(Resource):
     return eliminarInscripcion(data)
   
   
-  
+parseGestionarInscripcionEstado = reqparse.RequestParser()
+parseGestionarInscripcionEstado.add_argument('tipo', type=int, help = 'Debe elegir tipo', required = True)
+parseGestionarInscripcionEstado.add_argument('insid', type=int, help = 'Debe elegir insid', required = True)
+parseGestionarInscripcionEstado.add_argument('insusumod', type=str, help = 'Debe elegir insusumod', required = True)
+class GestionarInscripcionEstado(Resource):
+  def post(self):
+    data = parseGestionarInscripcionEstado.parse_args()
+    return gestionarInscripcionEstado(data)

@@ -73,6 +73,7 @@ class Routes:
     obtenerCursoMateria = apiVersion + '/obtenerCursoMateria'
     listarComboCursoMateria = apiVersion + '/listarComboCursoMateria'
     listarComboMatricula = apiVersion + '/listarComboMatricula'
+    gestionarInscripcionEstado = apiVersion + '/gestionarInscripcionEstado'
 
     #Matricula
     listarMatricula = apiVersion + '/listarMatricula'

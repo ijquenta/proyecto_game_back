@@ -35,7 +35,7 @@ def listarInscripcion():
         i.curmatid, cm.curid, cm.curmatdescripcion, c.curnombre, cm.matid, 
         cm.curmatfecini, cm.curmatfecfin,
         m2.matnombre,
-        cm.periddocente, p3.pernomcompleto as pernombrecompletodocente,
+        cm.periddocente, p3.pernomcompleto as pernombrecompletodocente, p3.perfoto as perfotodocente,
         i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, 
         i.insestado, i.insestadodescripcion
         FROM academico.inscripcion i
@@ -160,7 +160,17 @@ def eliminarInscripcion(data):
     return execute_function(f'''
     SELECT academico.eliminar_inscripcion(
         {data['insid']})  as valor;                      
-    ''')  
+    ''') 
+    
+def gestionarInscripcionEstado(data):
+    return execute_function(f'''
+    SELECT academico.f_inscripcion_gestionar_estado(
+          {data['tipo']},    
+          {data['insid']},    
+          \'{data['insusumod']}\'
+    ) as valor;
+    ''')
+     
     
     
     
