@@ -83,23 +83,35 @@ class Report():
         # print('Enviandos archivo rptTotalSimga')
         return pdf_out
     
-    def RptNotaEstudianteMateria(self, data, user):
-        print("datos", data)
-        print("PATCH: ",PATH)
-        templateTS = preppy.getModule(PATH+'rptNotaEstudianteMateria.prep')        
-        with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
-            with BytesIO() as output:
-                generatePdf(buffer, output)
-                pdf_out = output.getvalue()
-        print('Enviandos archivo rptNotaEstudianteMateria')
-        return pdf_out
+    def RptNotaEstudianteMateria(self, data, user):    
+        try:
+            print("Entrando en la función RptNotaEstudianteMateria")
+            print("datos", data)
+            print("PATCH: ",PATH)
+            templateTS = preppy.getModule(PATH+'rptNotaEstudianteMateria.prep')        
+            with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            print('Enviandos archivo rptNotaEstudianteMateria')
+            return pdf_out
+            # Resto del código...
+        except Exception as e:
+            print("Error en la función RptNotaEstudianteMateria:", e)
+            # Manejar el error de alguna manera
+       
     
     def RptNotaCursoMateria(self, data, user):
-        print("datos", data)
-        templateTS = preppy.getModule('rptNotaCursoMateria.prep')        
-        with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
-            with BytesIO() as output:
-                generatePdf(buffer, output)
-                pdf_out = output.getvalue()
-        print('Enviado archivo rptNotaCursoMateria')
-        return pdf_out
+        try:
+            print("datos", data)
+            templateTS = preppy.getModule('rptNotaCursoMateria.prep')        
+            with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            print('Enviado archivo rptNotaCursoMateria')
+            return pdf_out
+        except Exception as e:
+            print("Error en la función RptNotaCursoMateria:", e)
+            # Manejar el error de alguna manera
+       
