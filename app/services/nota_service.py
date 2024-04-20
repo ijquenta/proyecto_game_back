@@ -107,7 +107,7 @@ def listarNotaEstudianteCurso(data):
 
 
 def rptNotaEstudianteMateria(data):
-    # print("data", data)
+    print("data", data)
     params = select(f'''
         SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
                n.notfinal, 

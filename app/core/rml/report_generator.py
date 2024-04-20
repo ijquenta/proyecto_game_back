@@ -84,7 +84,8 @@ class Report():
         return pdf_out
     
     def RptNotaEstudianteMateria(self, data, user):
-        # print(PATH)
+        print("datos", data)
+        print("PATCH: ",PATH)
         templateTS = preppy.getModule(PATH+'rptNotaEstudianteMateria.prep')        
         with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
             with BytesIO() as output:
@@ -100,5 +101,5 @@ class Report():
             with BytesIO() as output:
                 generatePdf(buffer, output)
                 pdf_out = output.getvalue()
-        print('Enviandos archivo rptNotaCursoMateria')
+        print('Enviado archivo rptNotaCursoMateria')
         return pdf_out
