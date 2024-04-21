@@ -56,6 +56,7 @@ class Routes:
     # Combo
     listaCursoCombo = apiVersion + '/listaCursoCombo'
     listaMateriaCombo = apiVersion + '/listaMateriaCombo'
+    listaMateriaCombo2 = apiVersion + '/listaMateriaCombo2'
     listaPersonaDocenteCombo = apiVersion + '/listaPersonaDocenteCombo'
     
     #Nivel
@@ -80,6 +81,7 @@ class Routes:
     insertarMatricula = apiVersion + '/insertarMatricula'
     modificarMatricula = apiVersion + '/modificarMatricula'
     eliminarMatricula = apiVersion + '/eliminarMatricula'
+    gestionarMatriculaEstado = apiVersion + '/gestionarMatriculaEstado' 
    
     # Rol
     gestionarRol = apiVersion + '/gestionarRol'
@@ -127,6 +129,10 @@ class Routes:
     listarMaterial = apiVersion + '/listarMaterial'
     listarTexto = apiVersion + '/listarTexto'
     insertarTexto = apiVersion + '/insertarTexto'
+    listarMateriaTexto = apiVersion + '/listarMateriaTexto'   
+    listarTextoCombo = apiVersion + '/listarTextoCombo'
+    insertarMateriaTexto = apiVersion + '/insertarMateriaTexto'
+    modificarMateriaTexto = apiVersion + '/modificarMateriaTexto'
     
     # Reportes
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
