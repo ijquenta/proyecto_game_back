@@ -1,4 +1,4 @@
-from core.database import select, execute, execute_function, execute_response, execute_function_multiple
+from core.database import select, execute, execute_function, execute_response
 from utils.date_formatting import darFormatoFechaConHora
 
 def listarMaterial():
