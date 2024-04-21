@@ -241,35 +241,37 @@ def register_user():
         }
         return make_response(jsonify(resp)),202
         
-@app.route('/academico_api/login', methods = ['POST'])
-def post():
+@app.route('/academico_api/login', methods=['POST'])
+def login():
     user_data = request.get_json()
+    
+    # Verificar si los campos requeridos están presentes en la solicitud
+    if 'usuname' not in user_data or 'usupassword' not in user_data:
+        return jsonify({"status": "Error", "message": "Missing username or password"}), 400
+
+    # recuperar el usuario de la base de datos
     try:
-        user = Usuario.query.filter_by(usuname = user_data['usuname']).first()
-        if user and check_password_hash(user.usupassword, user_data['usupassword']) == True:
+        user = Usuario.query.filter_by(usuname=user_data['usuname']).first()
+        
+        # Verificar si el usuario existe y la contraseña es correcta
+        if user and check_password_hash(user.usupassword, user_data['usupassword']):
             rol = Rol.query.get(user.rolid)
             auth_token = TokenGenerator.encode_token(user.usuid, rol.rolnombre)
             resp = {
-                "status":"succes",
-                "message" :"Successfully logged in",
-                'auth_token':auth_token,
+                "status": "success",
+                "message": "Successfully logged in",
+                'auth_token': auth_token,
                 "usuario": user.usuid,
                 "rol": rol.rolnombre,
             }
-            return make_response(jsonify(resp)),200
+            return jsonify(resp), 200
         else:
-            resp ={
-                "status":"Error",
-                "message":"User does not exist"
-            }
-            return make_response(jsonify(resp)), 404
+            return jsonify({"status": "Error", "message": "Invalid username or password"}), 401
+    
+    # Capturar cualquier excepción que pueda ocurrir durante la ejecución
     except Exception as e:
         print(e)
-        resp = {
-            "Status":"error",
-            "Message":"User login failed"
-        }
-        return make_response(jsonify(resp)), 404
+        return jsonify({"status": "Error", "message": "Internal server error"}), 500
 
 @app.route('/protected', methods=['GET'])
 # @token_required 
