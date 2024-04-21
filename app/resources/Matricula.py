@@ -38,3 +38,12 @@ class EliminarMatricula(Resource):
   def post(self):
     data = parseEliminarMatricula.parse_args()
     return eliminarMatricula(data)
+
+parseGestionarMatriculaEstado = reqparse.RequestParser()
+parseGestionarMatriculaEstado.add_argument('tipo', type=int, help = 'Debe elegir tipo', required = True)
+parseGestionarMatriculaEstado.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
+parseGestionarMatriculaEstado.add_argument('matrusumod', type=str, help = 'Debe elegir matrusmod', required = True)
+class GestionarMatriculaEstado(Resource):
+  def post(self):
+    data = parseGestionarMatriculaEstado.parse_args()
+    return gestionarMatriculaEstado(data)

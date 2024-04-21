@@ -44,3 +44,11 @@ def eliminarMatricula(data):
     SELECT academico.eliminar_matricula(
         \'{data['matrid']}\')  as valor;                      
     ''')  
+
+def gestionarMatriculaEstado(data):
+    return execute_function(f'''
+    SELECT academico.f_matricula_gestionar_estado(
+          {data['tipo']}, 
+          {data['matrid']}, 
+        \'{data['matrusumod']}\')  as valor;                      
+    ''')  
