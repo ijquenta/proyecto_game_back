@@ -8,6 +8,10 @@ class ListarMateria(Resource):
 class ListarPersona(Resource):
   def get(self):
       return listarPersona()
+    
+class ListaMateriaCombo2(Resource):
+  def get(self):
+      return listaMateriaCombo2()
 
 parseListaMateriaCombo = reqparse.RequestParser()
 parseListaMateriaCombo.add_argument('curnivel', type=int, help='Debe ingresar el id nivel', required = True)

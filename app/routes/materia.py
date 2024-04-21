@@ -8,4 +8,5 @@ def materia_routes(api: Api):
     api.add_resource(Materia.InsertarMateria, routes.insertarMateria)
     api.add_resource(Materia.ModificarMateria, routes.modificarMateria)
     api.add_resource(Materia.ListaMateriaCombo, routes.listaMateriaCombo)
+    api.add_resource(Materia.ListaMateriaCombo2, routes.listaMateriaCombo2)
     api.add_resource(Materia.GestionarMateriaEstado, routes.gestionarMateriaEstado)
