@@ -137,7 +137,7 @@ def listarPagoEstudiante(data):
 def listarPagoEstudianteMateria(data):
     return select(f'''
        SELECT distinct 
-                i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre, m2.matnombre, i.peridestudiante, 
+                i.insid, i.matrid, m.matrgestion, i.curmatid, c.curnombre, m2.matnombre, i.peridestudiante, p2.perfoto,
                 i.pagid, p.pagdescripcion, p.pagmonto, p.pagarchivo, pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagtipo, pagfecha
         FROM academico.inscripcion i
         left join academico.matricula m on m.matrid = i.matrid 
@@ -145,6 +145,7 @@ def listarPagoEstudianteMateria(data):
         left join academico.materia m2 on m2.matid = cm.matid 
         left join academico.curso c on c.curid = cm.curid 
         left join academico.pago p on p.pagid = i.pagid
+        left join academico.persona p2 on p2.perid = i.peridestudiante
         where i.peridestudiante = {data['perid']}
         and cm.curid = {data['curid']}
         and cm.matid = {data['matid']}
@@ -152,7 +153,7 @@ def listarPagoEstudianteMateria(data):
 
 def listarPagoCurso():
     lista = select(f'''
-        SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto,
+        SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto, p.perfoto,
         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
         cm.curmatdescripcion 
         FROM academico.curso_materia cm
@@ -177,6 +178,7 @@ def listarPagoEstudiantesMateria(data):
             c.curnombre, 
             m2.matnombre, 
             p2.pernomcompleto,
+            p2.perfoto,
             p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, 
             pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagtipo 
         FROM academico.inscripcion i
