@@ -28,7 +28,9 @@ import resources.Rol as Rol
 import resources.Estudiante as Estudiante
 import resources.Docente as Docente
 import resources.Asistencia as Asistencia
+import resources.Contabilidad as Contabilidad
 import services.nivel_service as NivelService
+import resources.Principal as Principal
 # imports utils
 from utils.optimize_image import optimize_image
 from PIL import Image
@@ -74,6 +76,7 @@ from routes.usuario import usuario_routes
 usuario_routes(api=api)
 # Reporte Prueba
 api.add_resource(Report.rptTotalesSigma, routes.rptTotalesSigma)
+api.add_resource(Report.rptCursoMateriaContabilidad, routes.rptCursoMateriaContabilidad)
 # Roles
 api.add_resource(Rol.ListarRoles, routes.listarRoles)
 api.add_resource(Rol.GestionarRol, routes.gestionarRol)
@@ -99,6 +102,12 @@ matricula_routes(api=api)
 # Estudiante
 api.add_resource(Estudiante.ListarEstudiante, routes.listarEstudiante)
 api.add_resource(Estudiante.ObtenerMateriasInscritas, routes.obtenerMateriasInscritas)
+# Contabilidad
+api.add_resource(Contabilidad.ListarCursoMateriaContabilidad, routes.listarCursoMateriaContabilidad)
+# Principal
+api.add_resource(Principal.ListarCantidades, routes.listarCantidades)
+api.add_resource(Principal.ListarEstudiantesMateria, routes.listarEstudiantesMateria)
+api.add_resource(Principal.ListarEstudiantesNivel, routes.listarEstudiantesNivel)
 # Docente
 api.add_resource(Docente.ListarDocente, routes.listarDocente)
 api.add_resource(Docente.ObtenerMateriasAsignadas, routes.obtenerMateriasAsignadas)
