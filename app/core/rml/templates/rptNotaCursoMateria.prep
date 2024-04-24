@@ -39,7 +39,7 @@
                 {{endscript}}
 
                 <!-- Imagen de la Institución -->
-                <!-- <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="static/images/logo_ibci.png"/> -->
+                <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
                 <setFont name="Helvetica" size="11"/>
                 
                 <setFont name="Helvetica" size="9"/>
