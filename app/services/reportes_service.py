@@ -5,6 +5,7 @@
 from flask import make_response
 from core.rml.report_generator import Report
 from core.database import select
+from utils.date_formatting import darFormatoFechaSinHora
 
 import pandas as pd
 
@@ -71,4 +72,28 @@ def rptTotalesSigma():
     #     (da varchar, ue varchar, pg varchar, proy varchar, act varchar, denominacion varchar, total_indemnizacion numeric)
     # ''')
 
-
+def rptCursoMateriaContabilidad(data):
+    print("con list descuentos: ",data)
+    params_descuentos = data['descuentos']
+    params_resumen = data["resumen"]
+    print("params_descuentos", params_descuentos)
+    print("params_resumen", params_resumen)
+    #  
+    params = select(f'''
+                    SELECT 
+                    cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, 
+                    cm.periddocente, p.pernomcompleto, p.perfoto, cm.curmatfecini, cm.curmatfecfin, cm.curmatcosto, t1.numest as numero_estudiantes
+                    FROM academico.curso_materia cm
+                    JOIN ( SELECT curmatid, count(peridestudiante) as numest FROM 
+                            academico.inscripcion  WHERE insestado = 1 GROUP BY curmatid
+                    ) as t1 ON t1.curmatid = cm.curmatid
+                    LEFT JOIN academico.curso c ON c.curid = cm.curid
+                    LEFT JOIN academico.materia m ON m.matid = cm.matid
+                    left JOIN academico.persona p on p.perid = cm.periddocente
+                    WHERE cm.curmatfecini > '{data['fecini']}' AND cm.curmatfecfin < '{data['fecfin']}'
+                    and cm.curmatestado = 1
+                    ''')
+    for p in params:
+        p['curmatfecini'] = darFormatoFechaSinHora(p['curmatfecini'])
+        p['curmatfecfin'] = darFormatoFechaSinHora(p['curmatfecfin'])   
+    return make(Report().RptCursoMateriaContabilidad(params, params_descuentos, params_resumen))
