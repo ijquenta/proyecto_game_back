@@ -83,6 +83,15 @@ class Report():
         # print('Enviandos archivo rptTotalSimga')
         return pdf_out
     
+    def RptCursoMateriaContabilidad(self, data, data2, data3):
+        # print("Reporte Curso Materia Contabilidad: ", data)
+        templateTs = preppy.getModule(PATH+'rptCursoMateriaContabilidad.prep')
+        with BytesIO(bytes(templateTs.get(data, data2, data3), 'utf-8')) as buffer:
+            with BytesIO() as output:
+                generatePdf(buffer, output)
+                pdf_out = output.getvalue()
+        return pdf_out
+    
     def RptNotaEstudianteMateria(self, data, user):    
         try:
             print("Entrando en la función RptNotaEstudianteMateria")
