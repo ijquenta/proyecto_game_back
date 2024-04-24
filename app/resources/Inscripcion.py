@@ -65,3 +65,13 @@ class GestionarInscripcionEstado(Resource):
   def post(self):
     data = parseGestionarInscripcionEstado.parse_args()
     return gestionarInscripcionEstado(data)
+  
+  
+parseObtenerEstudiantesInscritos = reqparse.RequestParser()
+parseObtenerEstudiantesInscritos.add_argument('curmatid', type=int, help = 'Debe elegir curmatid', required = True)
+class ObtenerEstudiantesIncritos(Resource):
+  def post(self):
+    data = parseObtenerEstudiantesInscritos.parse_args()
+    return obtenerEstudiantesIncritos(data)
+  
+  

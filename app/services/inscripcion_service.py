@@ -170,7 +170,14 @@ def gestionarInscripcionEstado(data):
           \'{data['insusumod']}\'
     ) as valor;
     ''')
-     
+
+def obtenerEstudiantesIncritos(data):
+    return select(f'''
+    select peridestudiante as perid 
+    from academico. inscripcion i
+    where curmatid = {data['curmatid']}
+    and i.insestado = 1
+    ''')
     
     
     
