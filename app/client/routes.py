@@ -75,6 +75,8 @@ class Routes:
     listarComboCursoMateria = apiVersion + '/listarComboCursoMateria'
     listarComboMatricula = apiVersion + '/listarComboMatricula'
     gestionarInscripcionEstado = apiVersion + '/gestionarInscripcionEstado'
+    obtenerEstudiantesIncritos = apiVersion + '/obtenerEstudiantesIncritos'
+
 
     #Matricula
     listarMatricula = apiVersion + '/listarMatricula'
@@ -136,3 +138,14 @@ class Routes:
     
     # Reportes
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
+    rptCursoMateriaContabilidad = apiVersion + '/rptCursoMateriaContabilidad'
+    
+    
+    # Contabilidad
+    listarCursoMateriaContabilidad = apiVersion + '/listarCursoMateriaContabilidad'
+    
+    
+    #principal
+    listarCantidades = apiVersion + '/listarCantidades'
+    listarEstudiantesMateria = apiVersion + '/listarEstudiantesMateria'
+    listarEstudiantesNivel = apiVersion + '/listarEstudiantesNivel'
