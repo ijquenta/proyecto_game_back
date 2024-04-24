@@ -14,6 +14,13 @@ def darFormatoFechaSinHora(fecha_str):
     fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
     return fecha_formateada
 
+def darFormatoFechaSinHorav2(fecha_str):
+    if not fecha_str:
+        return None
+    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    fecha_formateada = fecha_datetime.strftime("%Y-%m-%d")
+    return fecha_formateada
+
 
 def darFormatoFechaNacimiento(fecha_str):
     if not fecha_str:
