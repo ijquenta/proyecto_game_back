@@ -29,7 +29,7 @@ def listarInscripcion():
         SELECT 
         distinct
         i.insid, 
-        i.matrid, m.matrgestion, m.matrestado, m.matrestadodescripcion, 
+        i.matrid, m.tipmatrid, tm.tipmatrgestion, m.matrestado, m.matrdescripcion,   
         i.peridestudiante, p.pernomcompleto as pernombrecompletoestudiante, p.perfoto, 
         i.pagid, p2.pagdescripcion,  p2.pagtipo, p2.pagmonto, p2.pagfecha, p2.pagarchivo,
         i.curmatid, cm.curid, cm.curmatdescripcion, c.curnombre, cm.matid, 
@@ -46,6 +46,7 @@ def listarInscripcion():
         left join academico.curso c on cm.curid = c.curid
         left join academico.materia m2 on cm.matid = m2.matid
         left join academico.persona p3 on cm.periddocente = p3.perid
+        left join academico.tipo_matricula tm on tm.tipmatrid = m.tipmatrid
         order by i.insid desc;
     ''')
     # print("lista_inscripciones: ", lista_inscripciones)
@@ -96,8 +97,17 @@ def listarComboCursoMateria():
     resultado.sort(key=lambda x: x["curmatdescripcion"])
     return resultado
 
-
-
+# Consulta para obtener la matriculas de un estudiante 
+def listarComboMatriculaEstudiante(data):
+    return select(f'''
+    select m.matrid, m.tipmatrid, tm.tipmatrgestion, m.peridestudiante, p.pernomcompleto, p.perfoto
+    from academico.matricula m
+    left join academico.tipo_matricula tm on tm.tipmatrid = m.tipmatrid
+    left join academico.persona p on p.perid = m.peridestudiante
+    where m.peridestudiante = {data['peridestudiante']}
+    and m.matrestado = 1    
+    order by tm.tipmatrgestion;
+    ''')
 
 
 def listarComboMatricula():
@@ -171,7 +181,7 @@ def gestionarInscripcionEstado(data):
     ) as valor;
     ''')
 
-def obtenerEstudiantesIncritos(data):
+def obtenerEstudiantesInscritos(data):
     return select(f'''
     select peridestudiante as perid 
     from academico. inscripcion i

@@ -10,5 +10,6 @@ def inscripcion_routes(api: Api):
     api.add_resource(Inscripcion.ObtenerCursoMateria, routes.obtenerCursoMateria)
     api.add_resource(Inscripcion.ListarComboCursoMateria, routes.listarComboCursoMateria)
     api.add_resource(Inscripcion.ListarComboMatricula, routes.listarComboMatricula)
+    api.add_resource(Inscripcion.ListarComboMatriculaEstudiante, routes.listarComboMatriculaEstudiante)
     api.add_resource(Inscripcion.GestionarInscripcionEstado, routes.gestionarInscripcionEstado)
-    api.add_resource(Inscripcion.ObtenerEstudiantesIncritos, routes.obtenerEstudiantesIncritos)
+    api.add_resource(Inscripcion.ObtenerEstudiantesInscritos, routes.obtenerEstudiantesInscritos)

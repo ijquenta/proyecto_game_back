@@ -180,26 +180,24 @@ def listarPagoCurso():
     
 # Listar los pagos de los estudiantes por materia filtrado por curso y materia.
 def listarPagoEstudiantesMateria(data):
+    print("datos in", data)
     lista = select(f'''
-       SELECT distinct 
-            i.insid, i.matrid, i.curmatid, i.peridestudiante, i.pagid,
-            m.matrgestion, 
-            c.curnombre, 
-            m2.matnombre, 
-            p2.pernomcompleto,
-            p2.perfoto,
-            p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, 
-            pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagtipo 
-        FROM academico.inscripcion i
+        SELECT distinct i.insid, i.curmatid, i.peridestudiante, 
+                    i.pagid, m.matrid, tm.tipmatrgestion, c.curnombre, m2.matnombre, p2.pernomcompleto, 
+                    p2.perfoto, p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, 
+                    pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagtipo 
+        FROM academico.inscripcion i 
         left join academico.matricula m on m.matrid = i.matrid 
         left join academico.curso_materia cm on cm.curmatid = i.curmatid 
+        left join academico.tipo_matricula tm on m.tipmatrid = tm.tipmatrid
         left join academico.materia m2 on m2.matid = cm.matid 
         left join academico.curso c on c.curid = cm.curid 
-        left join academico.pago p on p.pagid = i.pagid
+        left join academico.pago p on p.pagid = i.pagid 
         left join academico.persona p2 on p2.perid = i.peridestudiante 
         where cm.curid = {data['curid']}
         and cm.matid = {data['matid']}
     ''')
+    # print(lista)
     # print("listarPagoEstudiantesMateria: ", lista)
     for pago in lista:
         pago["pagfecreg"] = darFormatoFechaConHora(pago["pagfecreg"])

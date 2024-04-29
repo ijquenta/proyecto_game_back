@@ -12,6 +12,13 @@ class ListarComboCursoMateria(Resource):
 class ListarComboMatricula(Resource):
   def get(self):
       return listarComboMatricula()
+    
+parseListarComboMatriculaEstudiante = reqparse.RequestParser()
+parseListarComboMatriculaEstudiante.add_argument('peridestudiante', type=int, help = 'Debe elegir peridestudiante', required = True)
+class ListarComboMatriculaEstudiante(Resource):
+  def post(self):
+    data = parseListarComboMatriculaEstudiante.parse_args()
+    return listarComboMatriculaEstudiante(data)
 
 parseInsertarInscripcion = reqparse.RequestParser()
 parseInsertarInscripcion.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
@@ -69,9 +76,9 @@ class GestionarInscripcionEstado(Resource):
   
 parseObtenerEstudiantesInscritos = reqparse.RequestParser()
 parseObtenerEstudiantesInscritos.add_argument('curmatid', type=int, help = 'Debe elegir curmatid', required = True)
-class ObtenerEstudiantesIncritos(Resource):
+class ObtenerEstudiantesInscritos(Resource):
   def post(self):
     data = parseObtenerEstudiantesInscritos.parse_args()
-    return obtenerEstudiantesIncritos(data)
+    return obtenerEstudiantesInscritos(data)
   
   
