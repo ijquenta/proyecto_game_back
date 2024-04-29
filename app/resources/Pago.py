@@ -4,7 +4,7 @@ from client.responses import clientResponses as messages
 # from core.auth import require_token
 from http import HTTPStatus
 # from services.beneficio_service import *
-from services.pago_service import getPayments, listarPago, listarPagoEstudiante, listarPagoEstudianteMateria, listarPagoCurso, listarPagoEstudiantesMateria, gestionarPago, tipoPago, insertarPago, asignarPagoInscripcion, obtenerUltimoPago, modificarPago
+from services.pago_service import getPayments, listarPago, listarPagoEstudiante, listarPagoEstudianteMateria, listarPagoCurso, listarPagoEstudiantesMateria, gestionarPago, tipoPago, insertarPago, asignarPagoInscripcion, obtenerUltimoPago, modificarPago, asignarPagoMatricula
 #import services.beneficio_service as beneficio
 from flask import jsonify, make_response
 # from resources.Autenticacion import token_required
@@ -113,6 +113,17 @@ class AsignarPagoInscripcion(Resource):
     def post(self):
         data = parseAsignarPagoInscripcion.parse_args()
         return asignarPagoInscripcion(data)
+    
+# Asignar pago a matricula  
+parseAsignarPagoMatricula = reqparse.RequestParser()
+parseAsignarPagoMatricula.add_argument('matrid', type=int, help='Ingrese matrid', required=True)
+parseAsignarPagoMatricula.add_argument('pagid', type=int, help='Ingrese pagid', required=True)
+parseAsignarPagoMatricula.add_argument('matrusumod', type=str, help='Ingrese matrusumod', required=True)
+class AsignarPagoMatricula(Resource):
+    # @token_required
+    def post(self):
+        data = parseAsignarPagoMatricula.parse_args()
+        return asignarPagoMatricula(data)
     
 class ObtenerUltimoPago(Resource):
     def get(self):

@@ -82,7 +82,6 @@ def modificarPago(data):
 
 # Asignar pago a inscripcion
 def asignarPagoInscripcion(data):
-    # print("asignarPagoInscripcion: ", data)
     res = execute_function(f'''
        SELECT academico.f_pago_asignar_a_inscripcion (  
                 {data['insid']}, 
@@ -90,7 +89,17 @@ def asignarPagoInscripcion(data):
                 \'{data['pagusumod']}\'
                 ) as valor;
     ''')
-    # print("asignarPagoInscripcion2: ", res)
+    return res
+
+# Asignar pago de matricula
+def asignarPagoMatricula(data):
+    res = execute_function(f'''
+       SELECT academico.f_pago_asignar_a_matricula (  
+                {data['matrid']}, 
+                {data['pagid']}, 
+                \'{data['matrusumod']}\'
+                ) as valor;
+    ''')
     return res
 
 

@@ -212,3 +212,25 @@ def execute_function(query):
         session_db.rollback()
         print(err)
         return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.NOT_FOUND
+    
+def execute_function_multiple(query):
+    try:
+        if not session_db.transaction:
+            with session_db.begin() as connection:
+                result = connection.execute(query)
+                row = result.fetchone()
+                if row is not None:
+                    return {"valor": row["valor"]}, HTTPStatus.OK
+                else:
+                    return {"code": 0, "message": "La función no devolvió ningún resultado."}, HTTPStatus.NOT_FOUND
+        else:
+            result = session_db.execute(query)
+            row = result.fetchone()
+            if row is not None:
+                return {"valor": row["valor"]}, HTTPStatus.OK
+            else:
+                return {"code": 0, "message": "La función no devolvió ningún resultado."}, HTTPStatus.NOT_FOUND
+
+    except Exception as err:
+        print(err)
+        return {"code": 0, "message": f"Error: {err}"}, HTTPStatus.INTERNAL_SERVER_ERROR

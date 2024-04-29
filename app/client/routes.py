@@ -84,6 +84,12 @@ class Routes:
     modificarMatricula = apiVersion + '/modificarMatricula'
     eliminarMatricula = apiVersion + '/eliminarMatricula'
     gestionarMatriculaEstado = apiVersion + '/gestionarMatriculaEstado' 
+    listarTipoMatricula = apiVersion + '/listarTipoMatricula'
+    insertarTipoMatricula = apiVersion + '/insertarTipoMatricula'
+    modificarTipoMatricula = apiVersion + '/modificarTipoMatricula'
+    gestionarTipoMatriculaEstado = apiVersion + '/gestionarTipoMatriculaEstado'
+    listarTipoMatriculaCombo = apiVersion + '/listarTipoMatriculaCombo'
+    listarTipoPersonaEstudiante = apiVersion + '/listarTipoPersonaEstudiante'
    
     # Rol
     gestionarRol = apiVersion + '/gestionarRol'
@@ -122,6 +128,7 @@ class Routes:
     insertarPago = apiVersion + '/insertarPago'
     modificarPago = apiVersion + '/modificarPago'
     asignarPagoInscripcion = apiVersion + '/asignarPagoInscripcion'
+    asignarPagoMatricula = apiVersion + '/asignarPagoMatricula'
     obtenerUltimoPago = apiVersion + '/obtenerUltimoPago'
     
     # Asistencia
