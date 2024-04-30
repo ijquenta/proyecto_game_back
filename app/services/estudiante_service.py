@@ -31,7 +31,7 @@ def listarEstudiante():
 
 def obtenerMateriasInscritas(data):
     lista_obtenerMateriasInscritas = select(f'''
-        SELECT distinct i.insid, i.matrid, tm.left join academico.matricula m on m.matrid = i.matrid, i.curmatid, c.curnombre,cm.curmatfecini, cm.curmatfecfin, cm.periddocente, p.pernomcompleto, m2.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, 
+        SELECT distinct i.insid, i.matrid, tm.tipmatrgestion, i.curmatid, c.curnombre,cm.curmatfecini, cm.curmatfecfin, cm.periddocente, p.pernomcompleto, m2.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, 
         i.insusumod, i.insfecmod, i.insestado, i.insestadodescripcion
         FROM academico.inscripcion i
         left join academico.matricula m on m.matrid = i.matrid 
