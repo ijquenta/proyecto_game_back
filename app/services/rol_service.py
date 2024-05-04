@@ -1,25 +1,6 @@
-from core.database import select, execute, execute_function
-from core.database import execute, as_string
 from psycopg2 import sql
-from datetime import datetime
-
-def darFormatoFecha(fecha_str):
-    if fecha_str is None:
-       return None
-    # Convertir la cadena de fecha a un objeto datetime
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-
-    # Formatear la fecha como desees, por ejemplo, "DD/MM/AAAA HH:MM:SS"
-    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
-
-    return fecha_formateada
-
-def darFormatoFechaNacimiento(fecha_str):
-    if not fecha_str:
-        return None
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
-    return fecha_formateada
+from core.database import select, execute, execute_function, execute, as_string
+from utils.date_formatting import *
 
 def gestionarRol(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
@@ -64,8 +45,8 @@ def listarRoles():
     ''')
 
     for rol in listRoles:
-        rol["rolfecreg"] = darFormatoFecha(rol["rolfecreg"])
-        rol["rolfecmod"] = darFormatoFecha(rol["rolfecmod"])
+        rol["rolfecreg"] = darFormatoFechaConHora(rol["rolfecreg"])
+        rol["rolfecmod"] = darFormatoFechaConHora(rol["rolfecmod"])
     
     return listRoles
     

@@ -4,7 +4,7 @@ class Routes:
     index = apiVersion + '/'
     protected = apiVersion + '/secure'
 
-    # Login y Register
+    # Routes for login and Register
     login = apiVersion + '/login'
     register = apiVersion + '/register'
     verify = apiVersion + '/verify/token'

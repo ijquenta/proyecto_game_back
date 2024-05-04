@@ -1,11 +1,15 @@
 from flask_restful import Resource, reqparse
+
 from services.nota_service import *
 # from resources.Autenticacion import token_required
-import services.nota_service as nota
 
 class ListarNota(Resource):
     def get(self):
         return listarNota()
+
+class ListarNotaCurso(Resource):
+    def get(self):
+        return listarNotaCurso() 
 
 parseGestionarNota = reqparse.RequestParser()
 parseGestionarNota.add_argument('tipo', type=int, help='Ingrese tipo', required=True)
@@ -63,7 +67,7 @@ parseRptNotaEstudianteMateria.add_argument('usuname', type=str, help='Ingrese us
 class RptNotaEstudianteMateria(Resource):
     def post(self):
         data = parseRptNotaEstudianteMateria.parse_args()
-        return nota.rptNotaEstudianteMateria(data)
+        return rptNotaEstudianteMateria(data)
     
 parseRptNotaCursoMateria = reqparse.RequestParser()
 parseRptNotaCursoMateria.add_argument('curmatid', type=int, help='Ingrese curmatid', required=True)
@@ -71,8 +75,5 @@ parseRptNotaCursoMateria.add_argument('usuname', type=str, help='Ingrese usuname
 class RptNotaCursoMateria(Resource):
     def post(self):
         data = parseRptNotaCursoMateria.parse_args()
-        return nota.rptNotaCursoMateria(data)
+        return rptNotaCursoMateria(data)
     
-class ListarNotaCurso(Resource):
-    def get(self):
-        return listarNotaCurso() 

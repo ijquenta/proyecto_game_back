@@ -1,28 +1,7 @@
 from core.database import select, as_string, execute, execute_function
 from psycopg2 import sql
 from flask import jsonify, make_response
-from datetime import datetime
-
-def darFormatoFechaConHora(fecha_str):
-    if fecha_str is None:
-       return None
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
-    return fecha_formateada
-
-def darFormatoFechaSinHora(fecha_str):
-    if not fecha_str:
-        return None
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
-    return fecha_formateada
-
-def darFormatoFechaSinHoraAlReves(fecha_str):
-    if not fecha_str:
-        return None
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    fecha_formateada = fecha_datetime.strftime("%Y-%m-%d")
-    return fecha_formateada
+from utils.date_formatting import *
 
 def listarInscripcion():
     lista_inscripciones = select(f'''
@@ -49,30 +28,12 @@ def listarInscripcion():
         left join academico.tipo_matricula tm on tm.tipmatrid = m.tipmatrid
         order by i.insid desc;
     ''')
-    # print("lista_inscripciones: ", lista_inscripciones)
     for curso in lista_inscripciones:
         curso["insfecreg"] = darFormatoFechaConHora(curso["insfecreg"])
         curso["insfecmod"] = darFormatoFechaConHora(curso["insfecmod"])
         curso["curmatfecini"] = darFormatoFechaSinHora(curso["curmatfecini"])
         curso["curmatfecfin"] = darFormatoFechaSinHora(curso["curmatfecfin"])
-    # print(lista_inscripciones)
     return lista_inscripciones
-
-       
-    
-# def listarComboCursoMateria():
-#     lista_comboCursoMateria = select(f'''
-#         SELECT distinct  
-#         cm.curmatid,
-#         c.curnombre || ' - ' || m.matnombre || ' - ' || cm.curmatfecini || ' a ' || cm.curmatfecfin AS curmatdescripcion
-#         FROM academico.curso_materia cm
-#         LEFT JOIN academico.curso c ON c.curid = cm.curid 
-#         LEFT JOIN academico.materia m ON m.matid = cm.matid;
-#     ''')
-#     for cursoCombo in lista_comboCursoMateria:
-#         cursoCombo["curmatfecini"] = darFormatoFechaSinHora(cursoCombo["curmatfecini"])
-#         cursoCombo["curmatfecfin"] = darFormatoFechaSinHora(cursoCombo["curmatfecfin"])
-#     return lista_comboCursoMateria
    
 def listarComboCursoMateria():
     lista_comboCursoMateria = select('''
@@ -93,11 +54,9 @@ def listarComboCursoMateria():
         curmatdescripcion = f'{cursoCombo["curnombre"]} - {cursoCombo["matnombre"]} - { darFormatoFechaSinHora(cursoCombo["curmatfecini"])} a { darFormatoFechaSinHora(cursoCombo["curmatfecfin"])}'
         resultado.append({"curmatid": cursoCombo["curmatid"], "curmatdescripcion": curmatdescripcion})
 
-    # Ordenar la lista por curmatdescripcion
     resultado.sort(key=lambda x: x["curmatdescripcion"])
     return resultado
 
-# Consulta para obtener la matriculas de un estudiante 
 def listarComboMatriculaEstudiante(data):
     return select(f'''
     select m.matrid, m.tipmatrid, tm.tipmatrgestion, m.peridestudiante, p.pernomcompleto, p.perfoto
@@ -108,7 +67,6 @@ def listarComboMatriculaEstudiante(data):
     and m.matrestado = 1    
     order by tm.tipmatrgestion;
     ''')
-
 
 def listarComboMatricula():
     return select(f'''
@@ -126,16 +84,12 @@ def obtenerCursoMateria(data):
     and cm.matid = {data['matid']}
     ''')
     
-
-
 def insertarInscripcion(data):
-    # print("Insertar Inscripcion: ", data)
-    
     if data['pagid'] is not None:
         pagid = data['pagid']
     else:
         pagid = 'null'
-    
+
     return execute_function(f'''
     SELECT academico.insertar_inscripcion(
           {data['matrid']}, 
@@ -148,7 +102,6 @@ def insertarInscripcion(data):
     ''')
 
 def modificarInscripcion(data):
-    # print("Modificar Inscripcion: ", data)
     if data['pagid'] is not None:
         pagid = data['pagid']
     else:
@@ -166,7 +119,6 @@ def modificarInscripcion(data):
     ''')  
 
 def eliminarInscripcion(data):
-    # print("Eliminar Inscripcion: ", data)
     return execute_function(f'''
     SELECT academico.eliminar_inscripcion(
         {data['insid']})  as valor;                      

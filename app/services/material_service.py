@@ -1,5 +1,5 @@
 from core.database import select, execute, execute_function, execute_response
-from utils.date_formatting import darFormatoFechaConHora
+from utils.date_formatting import *
 
 def listarMaterial():
     return select('''
@@ -9,15 +9,12 @@ def listarMaterial():
         inner join academico.materia m on m.matid = mt.matid 
     ''')
 
-
 def listarTexto():
     return select('''
         SELECT texid, texnombre, textipo, texdocumento, texusureg, texfecreg, texusumod, texfecmod, texestado FROM academico.texto order by texid desc;
     ''')
     
-# Insertar texto
 def insertarTexto(data):
-    # print("Data_insertarTexto: ", data)
     res = execute_function(f'''
        SELECT academico.f_texto_insertar (  
                 \'{data['texnombre']}\', 
@@ -26,10 +23,7 @@ def insertarTexto(data):
                 \'{data['texusureg']}\'
                 ) as valor;
     ''')
-    # print("insertarTexto: ", res)
     return res
-
-
 
 def listarMateriaTexto():
     lista_materia_texto = select(f'''
@@ -44,9 +38,6 @@ def listarMateriaTexto():
         materia_texto["mattexfecmod"] = darFormatoFechaConHora(materia_texto["mattexfecmod"])
     return lista_materia_texto
     
-    
-    
-    
 def listarTextoCombo():
     return select(f'''
         select distinct t.texid, t.texnombre 
@@ -54,7 +45,6 @@ def listarTextoCombo():
         where t.texestado = 1
         order by t.texnombre       
         ''')
-    
     
 def insertarMateriaTexto(data):
     res = execute_function(f'''

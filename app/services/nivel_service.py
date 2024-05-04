@@ -1,21 +1,7 @@
 from core.database import select, as_string, execute, execute_function
 from psycopg2 import sql
 from flask import jsonify, make_response
-from datetime import datetime
-
-def darFormatoFechaConHora(fecha_str):
-    if fecha_str is None:
-       return None
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y %H:%M:%S")
-    return fecha_formateada
-
-def darFormatoFechaSinHora(fecha_str):
-    if not fecha_str:
-        return None
-    fecha_datetime = datetime.strptime(fecha_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
-    return fecha_formateada
+from utils.date_formatting import *
 
 def listarNivel():
     lista_niveles = select(f'''
@@ -23,13 +9,11 @@ def listarNivel():
     FROM academico.curso
     order by curid desc;
     ''')
-    # print("Lista_niveles: ", lista_niveles)
     for nivel in lista_niveles:
         nivel["curfchini"] = darFormatoFechaSinHora(nivel["curfchini"])
         nivel["curfchfin"] = darFormatoFechaSinHora(nivel["curfchfin"])
         nivel["curfecreg"] = darFormatoFechaConHora(nivel["curfecreg"])
         nivel["curfecmod"] = darFormatoFechaConHora(nivel["curfecmod"])
-    # print(lista_niveles)
     return lista_niveles
 
 
@@ -91,9 +75,6 @@ def eliminarNivel(data):
         print("response_data: ",response_data)    
 
     return make_response(jsonify(response_data), status_code)
-
-
-    
 
 def gestionarNivelEstado(data):
     return execute_function(f'''

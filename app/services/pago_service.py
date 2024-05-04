@@ -1,29 +1,9 @@
-from core.database import select, execute, execute_function, execute_response
-from web.wsrrhh_service import *
-from flask import Flask, request, jsonify, make_response
-from datetime import datetime
-from model.pago_model import modelPago
-from utils.date_formatting import darFormatoFechaConHora, darFormatoFechaSinHora
+from core.database import select, execute_function
+from flask import jsonify, make_response
+from utils.date_formatting import *
+from models.pago import modelPago
 
-def getPayments():
-    pagos = modelPago.query.all()
-    pagos_json = []
-    for pago in pagos:
-        pago_dict = {
-            'pagid': pago.pagid,
-            'pagdescripcion': pago.pagdescripcion,
-            'pagmonto': float(pago.pagmonto) if pago.pagmonto is not None else None,
-            'pagarchivo': pago.pagarchivo,
-            'pagrusureg': pago.pagusureg,
-            'pagrfecreg': pago.pagfecreg.isoformat(),
-            'pagrusumod': pago.pagusumod,
-            'pagrfecmod': pago.pagfecmod.isoformat() if pago.pagfecmod else None,
-            'pagestado': pago.pagestado,
-            'pagfecha': pago.pagfecha.isoformat() if pago.pagfecha else None,
-            'pagtipo': pago.pagtipo
-        }
-        pagos_json.append(pago_dict)
-    return make_response(jsonify(pagos_json), 200)
+
 
 def listarPago():
     return select('''
@@ -46,9 +26,7 @@ def gestionarPago(data):
                 {data['pagestado']}) as valor;
     ''')
     
-# Insertar pago
 def insertarPago(data):
-    # print("Data_insertarPago: ", data)
     res = execute_function(f'''
        SELECT academico.f_pago_insertar (  
                 \'{data['pagdescripcion']}\', 
@@ -59,12 +37,9 @@ def insertarPago(data):
                 {data['pagtipo']}
                 ) as valor;
     ''')
-    # print("insertarPago: ", res)
     return res
 
-# Modificar pago
 def modificarPago(data):
-    # print("DatamodificarPago: ", data)
     res = execute_function(f'''
        SELECT academico.f_pago_modificar (  
                   {data['pagid']}, 
@@ -77,10 +52,8 @@ def modificarPago(data):
                   {data['archivobol']}
                 ) as valor;
     ''')
-    # print("modificarPago: ", res)
     return res
 
-# Asignar pago a inscripcion
 def asignarPagoInscripcion(data):
     res = execute_function(f'''
        SELECT academico.f_pago_asignar_a_inscripcion (  
@@ -91,7 +64,6 @@ def asignarPagoInscripcion(data):
     ''')
     return res
 
-# Asignar pago de matricula
 def asignarPagoMatricula(data):
     res = execute_function(f'''
        SELECT academico.f_pago_asignar_a_matricula (  
@@ -108,17 +80,6 @@ def obtenerUltimoPago():
        select pagid from academico.pago p where pagestado = 1 order by pagid desc limit 1
     ''') 
     
-# def listarPagoEstudiante(data):
-#     return select(f'''
-#         SELECT i.insid, i.matrid, cm.curid, c.curnombre, cm.matid, m.matnombre, i.peridestudiante, i.pagid, i.insusureg, i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
-#         FROM academico.inscripcion i
-#         left join academico.curso_materia cm on cm.curmatid = i.curmatid
-#         left join academico.curso c on c.curid = cm.curid
-#         left join academico.materia m on m.matid = cm.matid
-#         where i.peridestudiante = {data['perid']}
-#         order by c.curnombre, m.matnombre; 
-#     ''') 
-
 def listarPagoEstudiante(data):
     lista_pago_estudiante = select(f'''
          select distinct i.insid, i.matrid, cm.curid, 
@@ -179,9 +140,7 @@ def listarPagoCurso():
         pago["curmatfecfin"] = darFormatoFechaSinHora(pago["curmatfecfin"]) 
     return lista
     
-# Listar los pagos de los estudiantes por materia filtrado por curso y materia.
 def listarPagoEstudiantesMateria(data):
-    print("datos in", data)
     lista = select(f'''
         SELECT distinct i.insid, i.curmatid, i.peridestudiante, 
                     i.pagid, m.matrid, tm.tipmatrgestion, c.curnombre, m2.matnombre, p2.pernomcompleto, 
@@ -198,16 +157,18 @@ def listarPagoEstudiantesMateria(data):
         where cm.curid = {data['curid']}
         and cm.matid = {data['matid']}
     ''')
-    # print(lista)
-    # print("listarPagoEstudiantesMateria: ", lista)
     for pago in lista:
         pago["pagfecreg"] = darFormatoFechaConHora(pago["pagfecreg"])
         pago["pagfecmod"] = darFormatoFechaConHora(pago["pagfecmod"])
         pago["pagfecha"] = darFormatoFechaConHora(pago["pagfecha"])
-    print(lista)
     return lista 
     
 def tipoPago():
     return select(f'''
    select tp.tpagid, tp.tpagnombre from academico.tipo_pago tp              
     ''')    
+
+def getPayments():
+    pagos = modelPago.query.all()
+    pagos_json = [pago.to_dict() for pago in pagos]
+    return make_response(jsonify(pagos_json), 200)

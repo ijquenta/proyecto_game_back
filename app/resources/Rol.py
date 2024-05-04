@@ -1,12 +1,10 @@
 from flask_restful import Resource, reqparse
-from flask import session, request
-from client.responses import clientResponses as messages
 from core.auth import *
-from http import HTTPStatus
-from services.beneficio_service import *
-from services.rol_service import *
-from functools import wraps
-from flask import request
+from services.rol_service import * # Servicio de rol
+
+class ListarRoles(Resource):
+  def get(self):
+      return listarRoles()
 
 parseGestionarRol = reqparse.RequestParser()
 parseGestionarRol.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
@@ -28,10 +26,6 @@ class GestionarRolEstado(Resource):
   def post(self):  
     data = parseGestionarRolEstado.parse_args()
     return gestionarRolEstado(data)
-
-class ListarRoles(Resource):
-  def get(self):
-      return listarRoles()
 
 parseCrearRol = reqparse.RequestParser()
 parseCrearRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nombre del rol', required = True)

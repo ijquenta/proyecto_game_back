@@ -1,18 +1,12 @@
 from flask_restful import Resource, reqparse
-from flask import session, request
-from client.responses import clientResponses as messages
+from services.pago_service import * # Servicio de pago
 # from core.auth import require_token
-from http import HTTPStatus
-# from services.beneficio_service import *
-from services.pago_service import getPayments, listarPago, listarPagoEstudiante, listarPagoEstudianteMateria, listarPagoCurso, listarPagoEstudiantesMateria, gestionarPago, tipoPago, insertarPago, asignarPagoInscripcion, obtenerUltimoPago, modificarPago, asignarPagoMatricula
-#import services.beneficio_service as beneficio
-from flask import jsonify, make_response
 # from resources.Autenticacion import token_required
 
 class GetPayments(Resource):
     def get(self):
         paymests_data = getPayments()
-        print("paymests_data:",paymests_data)
+        # print("paymests_data:",paymests_data)
         return paymests_data
 
 class ListarPago(Resource):

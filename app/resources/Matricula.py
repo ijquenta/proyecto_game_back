@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from services.matricula_service import *
+from services.matricula_service import * # Servicio de matricula
 
 class ListarMatricula(Resource):
   def get(self):

@@ -1,6 +1,5 @@
 from flask_restful import Resource, reqparse
-from services.curso_service import *
-
+from services.curso_service import * # Servicio de curso
 
 class ListarCursoMateria(Resource):
   def get(self):
@@ -60,7 +59,6 @@ class ListaPersonaDocenteCombo(Resource):
 class TipoRol(Resource):
   def get(self):
     return tipoRol()
-  
   
 parseGestionarCursoMateriaEstado = reqparse.RequestParser()
 parseGestionarCursoMateriaEstado.add_argument('tipo', type=int, help='Debe ingresar tipo', required = True)

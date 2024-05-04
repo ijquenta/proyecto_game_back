@@ -1,12 +1,6 @@
 from flask_restful import Resource, reqparse
-from flask import session, request
-from client.responses import clientResponses as messages
+from services.estudiante_service import * # Servicio de estudiante
 # from core.auth import require_token
-from http import HTTPStatus
-from services.beneficio_service import *
-from services.estudiante_service import *
-#import services.beneficio_service as beneficio
-
 # from resources.Autenticacion import token_required
 
 class ListarEstudiante(Resource):
@@ -16,18 +10,6 @@ class ListarEstudiante(Resource):
         return listarEstudiante()
         # return make_response(jsonify(listarUsuarios())), 200
       
-parseRegistrarPersona = reqparse.RequestParser()
-parseRegistrarPersona.add_argument('pernombres', type=str, help='Nombres de la persona', required=True)
-parseRegistrarPersona.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
-parseRegistrarPersona.add_argument('perapemat', type=str, help='Apellido materno de la persona', required=True)
-parseRegistrarPersona.add_argument('pertipodoc', type=int, help='Tipo de documento de la persona', required=True)
-parseRegistrarPersona.add_argument('pernrodoc', type=int, help='Número de documento de la persona', required=True)
-parseRegistrarPersona.add_argument('perusureg', type=str, help='Usuario que registró la persona', required=True)
-class RegistrarPersona(Resource):
-    # @token_required
-    def post(self):
-        data = parseRegistrarPersona.parse_args()
-        return registrarPersona(data)
 
 parseObtenerMateriasInscritas = reqparse.RequestParser()
 parseObtenerMateriasInscritas.add_argument('perid', type=int, help='Ingresar perid', required=True)

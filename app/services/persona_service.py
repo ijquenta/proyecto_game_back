@@ -1,6 +1,6 @@
 from core.database import select, execute, execute_function, execute_response, as_string
 from psycopg2 import sql
-from utils.date_formatting import darFormatoFechaNacimiento, darFormatoFechaSinHora, darFormatoFechaConHora
+from utils.date_formatting import *
 
 
 def listarPersona():
@@ -135,5 +135,4 @@ def listarUsuarios():
     SELECT id, nombre_usuario, contrasena, nombre_completo, rol
     FROM public.usuarios;
     ''')
-    print ("listUsers: ", listUsers)
     return listUsers

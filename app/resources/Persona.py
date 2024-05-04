@@ -1,12 +1,7 @@
 from flask_restful import Resource, reqparse
-from flask import session, request
-from client.responses import clientResponses as messages
+from services.persona_service import * # servicio de persona
 # from core.auth import require_token
-from http import HTTPStatus
-from services.beneficio_service import *
-from services.persona_service import *
 # from resources.Autenticacion import token_required
-
 
 class ListarPersona(Resource):
   # @token_required
@@ -19,7 +14,27 @@ class ListarUsuarios(Resource):
     def get(self):
         return listarUsuarios()
         # return make_response(jsonify(listarUsuarios())), 200
-      
+        
+class TipoDocumento(Resource):
+  def get(self):
+    return tipoDocumento()
+  
+class TipoGenero(Resource):
+  def get(self):
+    return tipoGenero()
+  
+class TipoPais(Resource):
+  def get(self):
+    return tipoPais()
+
+class TipoCiudad(Resource):
+  def get(self):
+    return tipoCiudad()
+  
+class TipoEstadoCivil(Resource):
+  def get(self):
+    return tipoEstadoCivil()
+
 parseRegistrarPersona = reqparse.RequestParser()
 parseRegistrarPersona.add_argument('pernombres', type=str, help='Nombres de la persona', required=True)
 parseRegistrarPersona.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
@@ -68,24 +83,3 @@ class EliminarPersona(Resource):
     def post(self):
         data = parseEliminarPersona.parse_args()
         return eliminarPersona(data)
-
-class TipoDocumento(Resource):
-  def get(self):
-    return tipoDocumento()
-  
-class TipoGenero(Resource):
-  def get(self):
-    return tipoGenero()
-  
-class TipoPais(Resource):
-  def get(self):
-    return tipoPais()
-
-class TipoCiudad(Resource):
-  def get(self):
-    return tipoCiudad()
-  
-class TipoEstadoCivil(Resource):
-  def get(self):
-    return tipoEstadoCivil()
-  

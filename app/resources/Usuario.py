@@ -1,14 +1,9 @@
 from flask_restful import Resource, reqparse
-from flask import session, request
-from client.responses import clientResponses as messages
 from core.auth import *
-from http import HTTPStatus
-from services.beneficio_service import *
-from services.usuario_service import *
-from functools import wraps
+from services.usuario_service import * # Servicio de usuario
 from flask import request
+
 # from resources.Autenticacion import token_required
-#import services.beneficio_service as beneficio
 
 # @app.route('/register', methods=['POST'])
 # parseLogin = reqparse.RequestParser()
@@ -28,6 +23,18 @@ from flask import request
 #         return validate_token(token, output=False)
 #     return wrapper
 
+class ListaUsuario(Resource):
+  def get(self):
+    return listaUsuario()
+  
+class TipoPersona(Resource):
+  def get(self):
+    return tipoPersona()
+
+class ListarRoles(Resource):
+  def get(self):
+      return listarRoles()
+
 parseGestionarUsuario = reqparse.RequestParser()
 parseGestionarUsuario.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
 parseGestionarUsuario.add_argument('usuid', type=int, help='Debe elegir usuId')
@@ -46,7 +53,6 @@ class GestionarUsuario(Resource):
     data = parseGestionarUsuario.parse_args()
     return gestionarUsuario(data)
   
-  
 parseGestionarUsuarioEstado = reqparse.RequestParser()
 parseGestionarUsuarioEstado.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
 parseGestionarUsuarioEstado.add_argument('usuid', type=int, help='Debe elegir usuid', required=True)
@@ -56,7 +62,6 @@ class GestionarUsuarioEstado(Resource):
     data = parseGestionarUsuarioEstado.parse_args()
     return gestionarUsuarioEstado(data)
 
-
 parseGestionarUsuarioPassword = reqparse.RequestParser()
 parseGestionarUsuarioPassword.add_argument('usuid', type=int, help='Debe elegir usuid', required=True)
 parseGestionarUsuarioPassword.add_argument('usupassword', type=str, help='Debe elegir usupassword', required=True)
@@ -65,19 +70,6 @@ class GestionarUsuarioPassword(Resource):
   def post(self):
     data = parseGestionarUsuarioPassword.parse_args()
     return gestionarUsuarioPassword(data)
-  
-  
-class ListaUsuario(Resource):
-  def get(self):
-    return listaUsuario()
-  
-class TipoPersona(Resource):
-  def get(self):
-    return tipoPersona()
-
-class ListarRoles(Resource):
-  def get(self):
-      return listarRoles()
     
 parsePerfil = reqparse.RequestParser()
 parsePerfil.add_argument('usuid', type=int, help = 'Debe elegir el usuid', required = True)

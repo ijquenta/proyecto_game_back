@@ -1,574 +1,180 @@
-from flask import Flask, request, jsonify, make_response, send_file, session
-from flask_cors import CORS
-from flask_restful import Api
-from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy # Base de datos
-from flask_mail import Mail, Message # importamos para el servicio de correo
-from logging.handlers import RotatingFileHandler
-from core import configuration
-from datetime import datetime, timedelta
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from functools import wraps
-# import jwt
-import logging
-import os # impotamos para obtener las variables de entorno
-import random
-import string
-# Client
-from client.responses import clientResponses as messages
-from client.routes import Routes as routes
-# Models
-from model.pago_model import modelPago
-# Resources
-import resources.Reportes as Report
-# import resources.Usuario as Usuario
-import resources.Autenticacion as Autenticacion
-import resources.Rol as Rol
-import resources.Estudiante as Estudiante
-import resources.Docente as Docente
-import resources.Asistencia as Asistencia
-import resources.Contabilidad as Contabilidad
-import services.nivel_service as NivelService
-import resources.Principal as Principal
-# imports utils
-from utils.optimize_image import optimize_image
-from PIL import Image
+# Importamos los módulos necesarios de Flask y otras librerías
+from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS  # Para permitir solicitudes CORS (Cross-Origin Resource Sharing)
+from flask_restful import Api  # Para crear APIs RESTful
+from flask_jwt_extended import JWTManager  # Para la gestión de tokens JWT
+from flask_sqlalchemy import SQLAlchemy  # Para interactuar con la base de datos a través de SQLAlchemy
+from flask_mail import Mail, Message  # Para el servicio de correo electrónico
+from logging.handlers import RotatingFileHandler  # Para el manejo de registros rotativos
+from core import configuration  # Importa la configuración central del sistema
 
+# Importamos módulos de JWT
+import logging  # Para el registro de eventos
+import os
+
+# Importamos las respuestas y rutas del cliente
+from client.responses import clientResponses as messages  # Respuestas predefinidas para el cliente
+# from client.routes import Routes as routes  # Rutas predefinidas para el cliente
+
+# Importamos las rutas de los diferentes recursos de la aplicación
+from routes.usuario_routes import usuario_routes  # Rutas relacionadas con los usuarios
+from routes.reporte_routes import reporte_routes  # Rutas relacionadas con los reportes
+from routes.rol_routes import rol_routes  # Rutas relacionadas con los roles de usuario
+from routes.persona_routes import persona_routes  # Rutas relacionadas con las personas
+from routes.materia_routes import materia_routes  # Rutas relacionadas con las materias
+from routes.cursomateria_routes import cursomateria_routes  # Rutas relacionadas con los cursos y materias
+from routes.nivel_routes import nivel_routes  # Rutas relacionadas con los niveles educativos
+from routes.inscripcion_routes import inscripcion_routes  # Rutas relacionadas con las inscripciones
+from routes.matricula_routes import matricula_routes  # Rutas relacionadas con las matrículas
+from routes.nota_routes import nota_routes  # Rutas relacionadas con las notas
+from routes.pago_routes import pago_routes  # Rutas relacionadas con los pagos
+from routes.material_routes import material_routes  # Rutas relacionadas con los materiales de estudio
+from routes.estudiante_routes import estudiante_routes  # Rutas relacionadas con los estudiantes
+from routes.docente_routes import docente_routes  # Rutas relacionadas con los docentes
+from routes.contabilidad_routes import contabilidad_routes  # Rutas relacionadas con la contabilidad
+from routes.principal_routes import principal_routes  # Rutas principales de la aplicación
+from routes.asistencia_routes import asistencia_routes  # Rutas relacionadas con la asistencia
+
+# Define el nombre del archivo de registro y configura el nivel de registro
 LOG_FILENAME = 'aplication.log'
-logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+
+# Obtiene el logger predeterminado y establece su nivel de registro
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+
+# Configura un manejador de archivos rotativo para el registro
 handler = RotatingFileHandler(LOG_FILENAME, maxBytes=40000000, backupCount=40)
 logger.addHandler(handler)
+
+# Crea una instancia de la aplicación Flask
 app = Flask(__name__)
+
+# Configura la clave secreta para la aplicación Flask
 app.config['SECRET_KEY'] = '67fcaee1a58b4bc7a0ff30c9d0036b5e'
+
+# Configura JWT para la gestión de tokens JWT en la aplicación
 jwt = JWTManager(app)
+
+# Configura CORS para permitir solicitudes desde otros dominios
 CORS(app)
-# app.config['SECRET_KEY'] = os.environ.get("APP_SECRET_KEY")
+
+# Configuración del servicio de correo electrónico
 app.config["MAIL_SERVER"] = "smtp.gmail.com"
 app.config["MAIL_PORT"] = 465
 app.config["MAIL_USERNAME"] = os.environ.get("EMAIL_HOST_USER")
 app.config["MAIL_PASSWORD"] = os.environ.get("EMAIL_HOST_PASSWORD")
 app.config["MAIL_USE_TLS"] = False
 app.config["MAIL_USE_SSL"] = True
+
+# Configuración de la base de datos SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
+# Crea una instancia del servicio de correo electrónico
 mail = Mail(app)
+
+# Crea una instancia de la clase Api de Flask-RESTful
 api = Api(app)
+
+# Crea una instancia de la clase SQLAlchemy para interactuar con la base de datos
 db = SQLAlchemy(app)
 
-
+# Manejador para el error 404 (Página no encontrada)
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found():
     return messages._404, 404
 
+# Manejador para el error 500 (Error interno del servidor)
 @app.errorhandler(500)
-def page_not_found(error):
+def page_not_found():
     return messages._500, 500
 
-api = Api(app)
+# Configura la clave secreta de la aplicación
 app.secret_key = configuration.APP_SECRET_KEY
 
-# API Usuarios
-from routes.usuario import usuario_routes
-usuario_routes(api=api)
-# Reporte Prueba
-api.add_resource(Report.rptTotalesSigma, routes.rptTotalesSigma)
-api.add_resource(Report.rptCursoMateriaContabilidad, routes.rptCursoMateriaContabilidad)
-# Roles
-api.add_resource(Rol.ListarRoles, routes.listarRoles)
-api.add_resource(Rol.GestionarRol, routes.gestionarRol)
-api.add_resource(Rol.GestionarRolEstado, routes.gestionarRolEstado)
-#Persona
-from routes.persona import persona_routes
-persona_routes(api=api)
-# Materia
-from routes.materia import materia_routes
-materia_routes(api=api)
-# Curso - Materia
-from routes.cursomateria import cursomateria_routes
-cursomateria_routes(api=api)
-# Nivel
-from routes.nivel import nivel_routes
-nivel_routes(api=api)
-# Inscripción
-from routes.inscripcion import inscripcion_routes
-inscripcion_routes(api=api)
-# Matricula
-from routes.matricula import matricula_routes
-matricula_routes(api=api)
-# Estudiante
-api.add_resource(Estudiante.ListarEstudiante, routes.listarEstudiante)
-api.add_resource(Estudiante.ObtenerMateriasInscritas, routes.obtenerMateriasInscritas)
-# Contabilidad
-api.add_resource(Contabilidad.ListarCursoMateriaContabilidad, routes.listarCursoMateriaContabilidad)
-# Principal
-api.add_resource(Principal.ListarCantidades, routes.listarCantidades)
-api.add_resource(Principal.ListarEstudiantesMateria, routes.listarEstudiantesMateria)
-api.add_resource(Principal.ListarEstudiantesNivel, routes.listarEstudiantesNivel)
-# Docente
-api.add_resource(Docente.ListarDocente, routes.listarDocente)
-api.add_resource(Docente.ObtenerMateriasAsignadas, routes.obtenerMateriasAsignadas)
-api.add_resource(Docente.ListarMateriaEstudianteCurso, routes.listarMateriaEstudianteCurso)
-# Nota
-from routes.nota import nota_routes
-nota_routes(api=api)
-# Pago
-from routes.pago import pago_routes
-pago_routes(api=api)
-# Asistencia
-api.add_resource(Asistencia.ListarAsistencia, routes.listarAsistencia)
-# Material
-from routes.material import material_routes
-material_routes(api=api)
 
-
-# from model.persona import Persona as Persona
-class Persona(db.Model):
-    __tablename__ = 'persona'
-    __table_args__ = {'schema': 'academico'}
-    perid = db.Column(db.Integer, primary_key=True)
-    pernomcompleto = db.Column(db.String)
-    pernombres = db.Column(db.String(100), nullable=False)
-    perapepat = db.Column(db.String(100))
-    perapemat = db.Column(db.String(100))
-    pertipodoc = db.Column(db.Integer)
-    pernrodoc = db.Column(db.Integer)
-    perfecnac = db.Column(db.Date)
-    perdirec = db.Column(db.Text)
-    peremail = db.Column(db.String(100))
-    percelular = db.Column(db.String(20))
-    pertelefono = db.Column(db.String(20))
-    perpais = db.Column(db.Integer)
-    perciudad = db.Column(db.Integer)
-    pergenero = db.Column(db.Integer)
-    perestcivil = db.Column(db.Integer)
-    perfoto = db.Column(db.String)
-    perestado = db.Column(db.SmallInteger, default=1)
-    perobservacion = db.Column(db.String(255))
-    perusureg = db.Column(db.String(50))
-    perfecreg = db.Column(db.TIMESTAMP, default=db.func.now())
-    perusumod = db.Column(db.String(50))
-    perfecmod = db.Column(db.TIMESTAMP)
-# from model.rol import Rol as Rol
-class Rol(db.Model):
-    __tablename__ = 'rol'
-    __table_args__ = {'schema': 'academico'}
-    rolid = db.Column(db.Integer, primary_key=True)
-    rolnombre = db.Column(db.String(50), nullable=False)
-    roldescripcion = db.Column(db.String(255))
-    rolusureg = db.Column(db.String(50))
-    rolfecreg = db.Column(db.TIMESTAMP, default=db.func.now())
-    rolusumod = db.Column(db.String(50))
-    rolfecmod = db.Column(db.TIMESTAMP)
-    rolestado = db.Column(db.SmallInteger, default=1)
-# from model.usuario import Usuario
-class Usuario(db.Model):
-    __tablename__ = 'usuario'
-    __table_args__ = {'schema': 'academico'}
-    usuid = db.Column(db.Integer, primary_key=True)
-    perid = db.Column(db.Integer, db.ForeignKey('academico.persona.perid'))
-    rolid = db.Column(db.Integer, db.ForeignKey('academico.rol.rolid'))
-    usuname = db.Column(db.String(50), nullable=False)
-    usupassword = db.Column(db.String(100), nullable=False)
-    usupasswordhash = db.Column(db.String, nullable=False)
-    usuemail = db.Column(db.String(100), nullable=False)
-    usuimagen = db.Column(db.String(255))
-    usudescripcion = db.Column(db.String(255))
-    usuestado = db.Column(db.SmallInteger, default=1)
-    usuusureg = db.Column(db.String(50))
-    usufecreg = db.Column(db.TIMESTAMP, default=db.func.now())
-    usuusumod = db.Column(db.String(50))
-    usufecmod = db.Column(db.TIMESTAMP)
-    
-    persona = db.relationship('Persona', backref=db.backref('usuarios', lazy=True))
-    rol = db.relationship('Rol', backref=db.backref('usuarios', lazy=True))
-    
-    @classmethod
-    def get_by_id(cls, user_id):
-        return cls.query.get(user_id)
-
-from resources.Autenticacion import TokenGenerator
-
-import jwt
-def token_required(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            token = None
-            if "Authorization" in request.headers:
-                token = request.headers["Authorization"].split(" ")[1]
-            if not token:
-                return {
-                    "message": "Authentication Token is missing",
-                    "error": "Unauthorized"
-                }, 401
-            try:
-                data=jwt.decode(token, os.environ.get("APP_SECRET_KEY"), algorithms=["HS256"])
-                # data=TokenGenerator.decode_token(token)
-                current_user=Usuario().get_by_id(data["sub"])
-                if current_user is None:
-                    return {
-                    "message": "Invalid Authentication token",
-                    "error": "Unauthorized"
-                }, 401
-            except Exception as e:
-                return {
-                    "message": "An error Occured",
-                    "error": str(e)
-                }, 401
-            return f(*args, **kwargs)
-        return decorated
-
-@app.route('/academico_api/register', methods=['POST'])
-def register_user():
-    user_data = request.get_json()
-    user = Usuario.query.filter_by(usuname = user_data['usuname']).first()
-    if not user:
-        try: 
-            hashed_password = generate_password_hash(user_data['usupassword'])
-            user_new = Usuario(usuname = user_data['usuname'], usupassword = hashed_password, perid = user_data['perid'], rolid = user_data['rolid'])
-            db.session.add(user_new)
-            db.session.commit()
-            resp = {
-                "status":"success",
-                "message":"User successfully registered",
-            }
-            return make_response(jsonify(resp)),201
-        except Exception as e:
-            # print(e)
-            resp = {
-                "status" :"Error",
-                "message" :" Error occured, user registration failed"
-            }
-            return make_response(jsonify(resp)),401
-    else:
-        resp = {
-            "status":"error",
-            "message":"User already exists"
-        }
-        return make_response(jsonify(resp)),202
-        
-@app.route('/academico_api/login', methods=['POST'])
-def login():
-    user_data = request.get_json()
-    
-    # Verificar si los campos requeridos están presentes en la solicitud
-    if 'usuname' not in user_data or 'usupassword' not in user_data:
-        return jsonify({"status": "Error", "message": "Missing username or password"}), 400
-
-    # recuperar el usuario de la base de datos
-    try:
-        user = Usuario.query.filter_by(usuname=user_data['usuname']).first()
-        
-        # Verificar si el usuario existe y la contraseña es correcta
-        if user and check_password_hash(user.usupassword, user_data['usupassword']):
-            rol = Rol.query.get(user.rolid)
-            auth_token = TokenGenerator.encode_token(user.usuid, rol.rolnombre)
-            resp = {
-                "status": "success",
-                "message": "Successfully logged in",
-                'auth_token': auth_token,
-                "usuario": user.usuid,
-                "rol": rol.rolnombre,
-            }
-            return jsonify(resp), 200
-        else:
-            return jsonify({"status": "Error", "message": "Invalid username or password"}), 401
-    
-    # Capturar cualquier excepción que pueda ocurrir durante la ejecución
-    except Exception as e:
-        print(e)
-        return jsonify({"status": "Error", "message": "Internal server error"}), 500
-
-@app.route('/protected', methods=['GET'])
+# Apis generales
+@app.route('/protected', methods=['GET']) # Api para verificar el decorador token_required
 # @token_required 
 def protected():
    resp = {"message": "Tienes acceso a esta API"}
    return make_response(jsonify(resp)), 200
 
  
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET']) # Api para verificar si existe una correcta conexión
 def index():
    resp = {"message": "Estas en la API de academico_api"}
    return make_response(jsonify(resp)), 200
 
+# Asociación de rutas de API con funciones definidas en otros archivos
 
+# Cada línea invoca una función que define las rutas de API en un archivo específico
+usuario_routes(api=api)  # Rutas relacionadas con los usuarios
+reporte_routes(api=api)  # Rutas relacionadas con los reportes
+rol_routes(api=api)  # Rutas relacionadas con los roles de usuario
+persona_routes(api=api)  # Rutas relacionadas con las personas
+materia_routes(api=api)  # Rutas relacionadas con las materias
+cursomateria_routes(api=api)  # Rutas relacionadas con los cursos y materias
+nivel_routes(api=api)  # Rutas relacionadas con los niveles educativos
+inscripcion_routes(api=api)  # Rutas relacionadas con las inscripciones
+matricula_routes(api=api)  # Rutas relacionadas con las matrículas
+nota_routes(api=api)  # Rutas relacionadas con las notas
+pago_routes(api=api)  # Rutas relacionadas con los pagos
+material_routes(api=api)  # Rutas relacionadas con los materiales de estudio
+estudiante_routes(api=api)  # Rutas relacionadas con los estudiantes
+docente_routes(api=api)  # Rutas relacionadas con los docentes
+contabilidad_routes(api=api)  # Rutas relacionadas con la contabilidad
+principal_routes(api=api)  # Rutas principales de la aplicación
+asistencia_routes(api=api)  # Rutas relacionadas con la asistencia
 
-EXTENSIONS_PDF = {'pdf'}
-EXTENSIONS_IMG = {'png', 'jpg', 'jpeg', 'gif'}
+# Importamos funciones para registro y login de usuarios
+from routes.auth_routes import f_login_usuario, f_register_usuario
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in EXTENSIONS_PDF
+@app.route('/academico_api/register', methods=['POST'])
+def register_usuario():
+    return f_register_usuario()
+        
+@app.route('/academico_api/login', methods=['POST'])
+def login_usuario():
+    return f_login_usuario()
 
-def allowed_file_img(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in EXTENSIONS_IMG
-
-def stringAleatorio(length=10):
-    letters = string.ascii_letters
-    random_string = ''.join(random.choice(letters) for _ in range(length))
-    return random_string
-
-# import urllib.request
-# from werkzeug.utils import secure_filename # pip install Werkzeug
-# import os
-# UPLOAD_FOLDER = 'static/uploads'
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-# app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-# ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
-# def allowed_file(filename):
-#     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-# @app.route('/academico_api/fotoPerfil/upload', methods=['POST'])
-# def upload_file():
-#     if 'files[]' not in request.files:
-#         resp=jsonify({
-#             "message": 'No hay archivo en la respuesta',
-#             "status": 'failed'
-#         })
-#         resp.status_code = 400
-#         return resp
-#     files = request.files.getlist('files[]')
-#     errors = {}
-#     success = False
-#     for file in files: 
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#             success = True
-#         else: 
-#             resp = jsonify({
-#                 "message": 'Tipo de archivo no es permitido.',
-#                 "status": 'failed'
-#             })
-#             return resp
-#     if success and errors:
-#         errors['message'] = 'Archivos subidos correctamente'
-#         errors['status'] = 'failed'
-#         resp = jsonify(errors)
-#         resp.status_code = 500
-#         return resp
-#     if success: 
-#         resp = jsonify({
-#             "message": 'Archivo subido correctamente',
-#             "status": 'success'
-#         })
-#         resp.status_code = 201
-#         return resp
-#     else:
-#         resp = jsonify(errors)
-#         resp.status_code = 500
-#         return resp
-
+# Importamos funciones para subida y descarga de archivos
+from routes.subir_archivos_routes import f_upload_file_foto_perfil, f_upload_file_pago, f_upload_file_texto, f_registrarArchivo, f_download_file, f_download_file_texto, f_listarArchivos, f_eliminarArchivo
 
 @app.route('/academico_api/fotoPerfil/upload', methods=['POST'])
 def upload_file_foto_perfil():
-    if 'files[]' not in request.files:
-        return jsonify({"message": 'No hay imagenes en la solicitud', "status": 'failed'}), 400
-
-    files = request.files.getlist('files[]')
-    errors = []
-    success = False
-
-    for file in files:
-        if file and allowed_file_img(file.filename):
-            basepath = os.path.dirname(__file__)
-            upload_directory = os.path.join(basepath, 'static', 'files_fotoperfil')
-
-            if not os.path.exists(upload_directory):
-                os.makedirs(upload_directory)
-
-            filename = secure_filename(file.filename)
-            upload_path = os.path.join(upload_directory, filename)
-            
-            # Guardar la imagen usando optimización
-            try:
-                optimize_image(file, upload_path)
-                success = True
-            except Exception as e:
-                errors.append({'filename': file.filename, 'message': str(e)})
-
-        else:
-            errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
-
-    if success:
-        if errors:
-            status_code = 207  # Código de estado HTTP para respuesta parcial
-            message = 'Algunos archivos no se pudieron subir correctamente.'
-        else:
-            status_code = 201
-            message = 'Todos los archivos subidos correctamente.'
-    else:
-        status_code = 400
-        message = 'Ningún archivo subido correctamente.'
-
-    return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
-
+    f_upload_file_foto_perfil()
 
 @app.route('/academico_api/pago/upload', methods=['POST'])
 def upload_file_pago():
-    if 'files[]' not in request.files:
-        return jsonify({"message": 'No hay archivos en la solicitud', "status": 'failed'}), 400
-    
-    files = request.files.getlist('files[]')
-    errors = []
-    success = False
-    
-    for file in files:
-        if file and allowed_file(file.filename):
-            basepath = os.path.dirname(__file__)
-            upload_directory = os.path.join(basepath, 'static', 'files_pago')
-
-            if not os.path.exists(upload_directory):
-                os.makedirs(upload_directory)
-
-            filename = secure_filename(file.filename)
-            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
-            upload_path = os.path.join(upload_directory, filename)
-
-            file.save(upload_path)
-            success = True
-        else:
-            errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
-
-    if success:
-        if errors:
-            status_code = 207  # Código de estado HTTP para respuesta parcial
-            message = 'Algunos archivos no se pudieron subir.'
-        else:
-            status_code = 201
-            message = 'Todos los archivos subidos correctamente.'
-    else:
-        status_code = 400
-        message = 'Ningún archivo subido correctamente.'
-
-    return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
+    return f_upload_file_pago()
 
 @app.route('/academico_api/texto/upload', methods=['POST'])
 def upload_file_texto():
-    if 'files[]' not in request.files:
-        return jsonify({"message": 'No hay archivos en la solicitud', "status": 'failed'}), 400
-    
-    files = request.files.getlist('files[]')
-    errors = []
-    success = False
-    
-    for file in files:
-        if file and allowed_file(file.filename):
-            basepath = os.path.dirname(__file__)
-            upload_directory = os.path.join(basepath, 'static', 'files_texto')
-
-            if not os.path.exists(upload_directory):
-                os.makedirs(upload_directory)
-
-            filename = secure_filename(file.filename)
-            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
-            upload_path = os.path.join(upload_directory, filename)
-
-            file.save(upload_path)
-            success = True
-        else:
-            errors.append({'filename': file.filename, 'message': 'Tipo de archivo no permitido.'})
-
-    if success:
-        if errors:
-            status_code = 207  # Código de estado HTTP para respuesta parcial
-            message = 'Algunos archivos no se pudieron subir.'
-        else:
-            status_code = 201
-            message = 'Todos los archivos subidos correctamente.'
-    else:
-        status_code = 400
-        message = 'Ningún archivo subido correctamente.'
-
-    return jsonify({"message": message, "errors": errors, "status": 'success' if success else 'failed'}), status_code
-
-@app.route('/academico_api/pago/download/<file_name>')
-def download_file(file_name):
-    archivo_path = 'static/files_pago/' + file_name
-    return send_file(archivo_path, as_attachment=True)
-
-@app.route('/academico_api/texto/download/<file_name>')
-def download_file_texto(file_name):
-    archivo_path = 'static/files_texto/' + file_name
-    return send_file(archivo_path, as_attachment=True)
+    return f_upload_file_texto()
 
 @app.route('/registrar-archivo', methods=['POST'])
 def registrarArchivo():
-    try:
-        if 'archivo' not in request.files:
-            raise ValueError("No se proporcionó ningún archivo en la solicitud.")
+    return f_registrarArchivo()
 
-        file = request.files['archivo']
+@app.route('/academico_api/pago/download/<file_name>')
+def download_file(file_name):
+    return f_download_file(file_name)
 
-        if file.filename == '':
-            raise ValueError("Nombre de archivo vacío.")
-
-        if file and allowed_file(file.filename):
-            basepath = os.path.dirname(__file__)
-            upload_directory = os.path.join(basepath, 'static', 'archivos')
-
-            if not os.path.exists(upload_directory):
-                os.makedirs(upload_directory)
-
-            filename = secure_filename(file.filename)
-            nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
-            upload_path = os.path.join(upload_directory, nuevo_nombre_file)
-
-            file.save(upload_path)
-
-            resp = {
-                "status": "success",
-                "message": "Archivo subido correctamente",
-                "filename": nuevo_nombre_file  # Puedes enviar el nuevo nombre del archivo si es necesario
-            }
-            return jsonify(resp), 200
-        else:
-            raise ValueError("Tipo de archivo no permitido.")
-
-    except Exception as e:
-        resp = {
-            "status": "error",
-            "message": f"Error al subir el archivo: {str(e)}"
-        }
-        return jsonify(resp), 500
+@app.route('/academico_api/texto/download/<file_name>')
+def download_file_texto(file_name):
+    return f_download_file_texto(file_name)
 
 @app.route('/listar-archivos', methods=['GET'])
 def listarArchivos():
-    basepath = os.path.dirname(__file__)
-    upload_directory = os.path.join(basepath, 'static', 'archivos')
-
-    if not os.path.exists(upload_directory):
-        return jsonify({"archivos": []})
-
-    archivos = os.listdir(upload_directory)
-    return jsonify({"archivos": archivos})
+    return f_listarArchivos()
 
 @app.route('/eliminar-archivo/<filename>', methods=['DELETE'])
 def eliminarArchivo(filename):
-    try:
-        basepath = os.path.dirname(__file__)
-        upload_directory = os.path.join(basepath, 'static', 'archivos')
+    return f_eliminarArchivo(filename)
 
-        file_path = os.path.join(upload_directory, filename)
-
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            resp = {
-                "status": "success",
-                "message": f"Archivo {filename} eliminado correctamente"
-            }
-            return jsonify(resp), 200
-        else:
-            raise FileNotFoundError(f"El archivo {filename} no existe.")
-
-    except Exception as e:
-        resp = {
-            "status": "error",
-            "message": f"Error al eliminar el archivo: {str(e)}"
-        }
-        return jsonify(resp), 500
-
+# Api para Envio de correo 
 @app.route('/enviar-correo', methods=['POST'])
 def enviar_correo():
     data = request.get_json()
@@ -578,18 +184,15 @@ def enviar_correo():
     if not destinatario or not asunto or not mensaje:
         return jsonify({'mensaje': 'Faltan datos requeridos'}), 400
     try:
-        # Crear el mensaje de correo
-        msg = Message(sender = os.environ.get("EMAIL_HOST_USER"),
+        
+        msg = Message(sender = os.environ.get("EMAIL_HOST_USER"), # Crear el mensaje de correo
                       subject=asunto,
                       recipients=[destinatario],
                       body=mensaje)
-        # Enviar el mensaje de correo
-        mail.send(msg)
+        mail.send(msg) # Enviar el mensaje de correo
         return jsonify({'mensaje': 'Correo enviado correctamente'}), 200
     except Exception as e:
         return jsonify({'mensaje': f'Error al enviar el correo: {str(e)}'}), 500
-    
-
     
 if __name__ == '__main__':
 	HOST = configuration.SERVER_HOST

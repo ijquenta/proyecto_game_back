@@ -1,4 +1,6 @@
-from app import db
+from . import db
+from models.persona import Persona
+from models.rol import Rol
 
 class Usuario(db.Model):
     __tablename__ = 'usuario'

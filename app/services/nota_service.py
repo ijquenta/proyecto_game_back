@@ -1,8 +1,7 @@
 from core.database import select, execute, execute_function, execute_response
-from web.wsrrhh_service import *
 from core.rml.report_generator import Report
 from flask import make_response
-from utils.date_formatting import darFormatoFechaConHora, darFormatoFechaSinHora
+from utils.date_formatting import *
 
 def make(pdf):
     response = make_response(pdf)
@@ -69,8 +68,6 @@ def listarNotaDocente(data):
     
     return lista_nota_docente
     
-
-    
 def listarNotaEstudianteMateria(data):
     return select(f'''
         SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
@@ -107,7 +104,6 @@ def listarNotaEstudianteCurso(data):
 
 
 def rptNotaEstudianteMateria(data):
-    print("data", data)
     params = select(f'''
         SELECT n.notid, n.insid, n.not1, n.not2, n.not3,
                n.notfinal, 
@@ -125,7 +121,6 @@ def rptNotaEstudianteMateria(data):
         where i.peridestudiante = {data['perid']}
         order by c.curnombre, m.matnombre
     ''')
-    # print("params", params)
     return make(Report().RptNotaEstudianteMateria(params, data['usuname']))
 
 

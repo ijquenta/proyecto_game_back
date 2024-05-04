@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from services.inscripcion_service import *
+from services.inscripcion_service import * # Servicio de inscripcion
 
 class ListarInscripcion(Resource):
   def get(self):

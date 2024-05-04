@@ -1,12 +1,62 @@
-import preppy
-from io import BytesIO
-from core.rml.util.to_pdf import generatePdf
+import preppy  # Manipulación de plantillas preppy para generar informes, documentos, etc.
+from io import BytesIO  # Operaciones con datos en memoria como archivos binarios
+from core.rml.util.to_pdf import generatePdf  # Generación de archivos PDF a partir de datos usando RML
 
+# Ruta de los repotes .prep
 PATH = 'core/rml/templates/'
 class Report():    
-    def RptHaberesDescuentos(self, data, partida, idGestion, user):
+   
+    def RptCursoMateriaContabilidad(self, data, data2, data3):
+        try:
+            templateTs = preppy.getModule(PATH+'rptCursoMateriaContabilidad.prep')
+            with BytesIO(bytes(templateTs.get(data, data2, data3), 'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            return pdf_out
+        except Exception as e:
+            print("Error rpt CursoMateriaContabilidad: ", e)
+    
+    def RptNotaEstudianteMateria(self, data, user):    
+        try:
+            templateTS = preppy.getModule(PATH+'rptNotaEstudianteMateria.prep')        
+            with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            return pdf_out
+        except Exception as e:
+            print("Error rpt NotaEstudianteMateria: ", e)
+       
+    def RptNotaCursoMateria(self, data, user):
+        try:
+            templateTS = preppy.getModule(PATH+'rptNotaCursoMateria.prep')        
+            with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            return pdf_out
+        except Exception as e:
+            print("Error rpt NotaCursoMateria: ", e)
+    
+    def RptTotalesSigma(self, data, user):
+        templateTS = preppy.getModule(PATH+'rptTotalesSigma.prep')        
+        with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
+            with BytesIO() as output:
+                generatePdf(buffer, output)
+                pdf_out = output.getvalue()
+        return pdf_out
+
+
+
+
+
+
+# Reportes de ejemplo
+
+"""
+ def RptHaberesDescuentos(self, data, partida, idGestion, user):
         template = preppy.getModule(PATH+'rptHaberesDescuentos.prep')
-        # print(data)
         with BytesIO(bytes(template.get(data, idGestion, partida, user),'utf-8')) as buffer:
             with BytesIO() as output:
                 generatePdf(buffer, output)
@@ -69,60 +119,4 @@ class Report():
                 pdf_out = output.getvalue()         
         print(f'enviando archivo rptHaberesAportes - {idMes}')
         return pdf_out
-    
-    def RptTotalesSigma(self, data, user):
-        # print("report -----------")
-        # print(data)
-        # print("--->>>>>>>>")
-        # print(PATH)
-        templateTS = preppy.getModule(PATH+'rptTotalesSigma.prep')        
-        with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
-            with BytesIO() as output:
-                generatePdf(buffer, output)
-                pdf_out = output.getvalue()
-        # print('Enviandos archivo rptTotalSimga')
-        return pdf_out
-    
-    def RptCursoMateriaContabilidad(self, data, data2, data3):
-        # print("Reporte Curso Materia Contabilidad: ", data)
-        templateTs = preppy.getModule(PATH+'rptCursoMateriaContabilidad.prep')
-        with BytesIO(bytes(templateTs.get(data, data2, data3), 'utf-8')) as buffer:
-            with BytesIO() as output:
-                generatePdf(buffer, output)
-                pdf_out = output.getvalue()
-        return pdf_out
-    
-    def RptNotaEstudianteMateria(self, data, user):    
-        try:
-            print("Entrando en la función RptNotaEstudianteMateria")
-            print("datos", data)
-            print("PATCH: ",PATH)
-            templateTS = preppy.getModule(PATH+'rptNotaEstudianteMateria.prep')        
-            with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
-                with BytesIO() as output:
-                    generatePdf(buffer, output)
-                    pdf_out = output.getvalue()
-            print('Enviandos archivo rptNotaEstudianteMateria')
-            return pdf_out
-            # Resto del código...
-        except Exception as e:
-            print("Error en la función RptNotaEstudianteMateria:", e)
-            # Manejar el error de alguna manera
-       
-    
-    def RptNotaCursoMateria(self, data, user):
-        try:
-            print("Entrando en la función RptNotaCursoMateria")
-            print("datos", data)
-            print("PATCH: ", PATH   )
-            templateTS = preppy.getModule(PATH+'rptNotaCursoMateria.prep')        
-            with BytesIO(bytes(templateTS.get(data, user),'utf-8')) as buffer:
-                with BytesIO() as output:
-                    generatePdf(buffer, output)
-                    pdf_out = output.getvalue()
-            print('Enviado archivo rptNotaCursoMateria')
-            return pdf_out
-        except Exception as e:
-            print("Error en la función RptNotaCursoMateria:", e)
-            # Manejar el error de alguna manera
-       
+"""

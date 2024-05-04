@@ -128,6 +128,12 @@ ENV/
 env.bak/
 venv.bak/
 
+.vscode
+vscode/
+.vscode/
+.settings.json
+
+
 # Static
 static/
 
@@ -255,3 +261,4 @@ pip-selfcheck.json
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,flask,venv,virtualenv
+

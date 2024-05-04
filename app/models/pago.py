@@ -1,7 +1,19 @@
-from core.config import db
+from . import db
 from datetime import datetime
+from sqlalchemy.orm import validates
 
-class modelPago(db.Model):
+class ToDictMixin:
+    @validates('*')
+    def to_dict_impl(self, key, value):
+        if isinstance(value, datetime.date):
+            return value.isoformat()
+        return value
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class modelPago(db.Model, ToDictMixin):
     __tablename__ = 'pago'
     __table_args__ = {'schema': 'academico'}
     pagid = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -13,5 +25,5 @@ class modelPago(db.Model):
     pagusumod = db.Column(db.String(50))
     pagfecmod = db.Column(db.DateTime)
     pagestado = db.Column(db.SmallInteger)
-    pagfecha = db.Column(db.Date)  # Ajuste: Corregido el orden de la columna pagfecha
+    pagfecha = db.Column(db.Date)  
     pagtipo = db.Column(db.SmallInteger)

@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from services.nivel_service import *
+from services.nivel_service import * # Servicio de nivel
 
 class ListarNivel(Resource):
   def get(self):

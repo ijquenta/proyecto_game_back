@@ -1,6 +1,7 @@
 from PIL import Image
-import piexif
+# import piexif
 
+# Función para optimizar las imagenes subidas al sistema
 def optimize_image(file_stream, output_path, max_size=(200, 200), quality=85):
     image = Image.open(file_stream)
     image.thumbnail(max_size, Image.LANCZOS)
@@ -14,5 +15,4 @@ def optimize_image(file_stream, output_path, max_size=(200, 200), quality=85):
     elif original_format == 'PNG':
         image.save(output_path, 'PNG', optimize=True)
     else:
-        # Guardar en el formato original si no es ni JPEG ni PNG
-        image.save(output_path, original_format)
+        image.save(output_path, original_format) # Guardar en el formato original si no es ni JPEG ni PNG

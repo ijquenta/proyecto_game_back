@@ -1,10 +1,6 @@
 from flask_restful import Resource, reqparse
-from flask import session, request
-from client.responses import clientResponses as messages
-from http import HTTPStatus
-# from services.beneficio_service import *
+from services.material_service import * # Servicio de material de apoyo
 # from resources.Autenticacion import token_required
-from services.material_service import listarMaterial, listarTexto, insertarTexto, listarMateriaTexto, listarTextoCombo, insertarMateriaTexto, modificarMateriaTexto
 
 class ListarMaterial(Resource):
     # @token_required

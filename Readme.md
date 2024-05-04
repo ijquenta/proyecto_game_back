@@ -1,8 +1,6 @@
-# Administrador de tokens para los distintos microservicios.
+# Sistema de Gestión y Seguimiento Académico
 
-# Servicio de Calculo de Beneficios Sociales
-
-Servicio que calcula el monto de beneficios 
+Este sistema se encarga de realizar la gestión académica del instituto IBCI
 
 # Ejecucion
 

@@ -1,12 +1,7 @@
-#obtener datos con los parametros
-#enviar data al generador de reportes
-#devolver el reporte generado
-
 from flask import make_response
 from core.rml.report_generator import Report
 from core.database import select
-from utils.date_formatting import darFormatoFechaSinHora
-
+from utils.date_formatting import *
 import pandas as pd
 
 def make(pdf):
@@ -15,6 +10,36 @@ def make(pdf):
     response.mimetype = 'application/pdf'
     return response
     
+def rptCursoMateriaContabilidad(data):
+    params_descuentos = data['descuentos']
+    params_resumen = data["resumen"]
+    params = select(f'''
+                    SELECT 
+                    cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, 
+                    cm.periddocente, p.pernomcompleto, p.perfoto, cm.curmatfecini, cm.curmatfecfin, cm.curmatcosto, t1.numest as numero_estudiantes
+                    FROM academico.curso_materia cm
+                    JOIN ( SELECT curmatid, count(peridestudiante) as numest FROM 
+                            academico.inscripcion  WHERE insestado = 1 GROUP BY curmatid
+                    ) as t1 ON t1.curmatid = cm.curmatid
+                    LEFT JOIN academico.curso c ON c.curid = cm.curid
+                    LEFT JOIN academico.materia m ON m.matid = cm.matid
+                    left JOIN academico.persona p on p.perid = cm.periddocente
+                    WHERE cm.curmatfecini > '{data['fecini']}' AND cm.curmatfecfin < '{data['fecfin']}'
+                    and cm.curmatestado = 1
+                    ''')
+    for p in params:
+        p['curmatfecini'] = darFormatoFechaSinHora(p['curmatfecini'])
+        p['curmatfecfin'] = darFormatoFechaSinHora(p['curmatfecfin'])   
+    return make(Report().RptCursoMateriaContabilidad(params, params_descuentos, params_resumen))
+
+# Reportes de ejemplo
+def rptTotalesSigma():
+    params = select(f'''
+        SELECT id, nombre_usuario, contrasena, nombre_completo, rol
+        FROM public.usuarios;
+    ''')
+    return make(Report().RptTotalesSigma(params, 1))
+"""
 def rptBeneficoSocial(idGestion, idMes, codDocente, nroLiquidacion):
     params = select(f'''
         SELECT *
@@ -57,43 +82,4 @@ def rptConsolidadoBeneficoSocial(idGestion, idMes, codDocente, nroLiquidacion):
     params3 = select(f''' SELECT * FROM p_bsocial.bs_reporte_benef_tipos_docente({idGestion},{idMes}, '{codDocente}','{nroLiquidacion}') AS (orden integer, descripcion varchar, cantidad text, monto text, total text) order by orden ;  ''')
     params4 = select(f''' select * from p_bsocial.t_beneficio_firma tbf where estado = 1 ''')
     return make(Report().RptConsolidadoBeneficioSocial(params, params2, params3, params4, 1, idGestion, 1))
-
-
-def rptTotalesSigma():
-    # print("sql")
-    params = select(f'''
-        SELECT id, nombre_usuario, contrasena, nombre_completo, rol
-        FROM public.usuarios;
-    ''')
-    # print("params", params)
-    return make(Report().RptTotalesSigma(params, 1))
-    # return select(f'''
-    #     SELECT da, ue, pg, proy, act, denominacion, total_indemnizacion FROM p_bsocial.bs_reporte_totales_sigma2(\'{fechaInicio}\', \'{fechaFin}\') AS 
-    #     (da varchar, ue varchar, pg varchar, proy varchar, act varchar, denominacion varchar, total_indemnizacion numeric)
-    # ''')
-
-def rptCursoMateriaContabilidad(data):
-    print("con list descuentos: ",data)
-    params_descuentos = data['descuentos']
-    params_resumen = data["resumen"]
-    print("params_descuentos", params_descuentos)
-    print("params_resumen", params_resumen)
-    #  
-    params = select(f'''
-                    SELECT 
-                    cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, 
-                    cm.periddocente, p.pernomcompleto, p.perfoto, cm.curmatfecini, cm.curmatfecfin, cm.curmatcosto, t1.numest as numero_estudiantes
-                    FROM academico.curso_materia cm
-                    JOIN ( SELECT curmatid, count(peridestudiante) as numest FROM 
-                            academico.inscripcion  WHERE insestado = 1 GROUP BY curmatid
-                    ) as t1 ON t1.curmatid = cm.curmatid
-                    LEFT JOIN academico.curso c ON c.curid = cm.curid
-                    LEFT JOIN academico.materia m ON m.matid = cm.matid
-                    left JOIN academico.persona p on p.perid = cm.periddocente
-                    WHERE cm.curmatfecini > '{data['fecini']}' AND cm.curmatfecfin < '{data['fecfin']}'
-                    and cm.curmatestado = 1
-                    ''')
-    for p in params:
-        p['curmatfecini'] = darFormatoFechaSinHora(p['curmatfecini'])
-        p['curmatfecfin'] = darFormatoFechaSinHora(p['curmatfecfin'])   
-    return make(Report().RptCursoMateriaContabilidad(params, params_descuentos, params_resumen))
+"""
