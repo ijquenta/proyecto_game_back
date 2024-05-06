@@ -44,7 +44,6 @@ parseGestionarUsuario.add_argument('usuname', type=str, help='Debe elegir usuNam
 parseGestionarUsuario.add_argument('usupassword', type=str, help='Debe elegir usuPassword', required=True)
 parseGestionarUsuario.add_argument('usupasswordhash', type=str, help='Debe elegir usuPasswordHash', required=True)
 parseGestionarUsuario.add_argument('usuemail', type=str, help='Debe elegir usuEmail', required=True)
-parseGestionarUsuario.add_argument('usuimagen', type=str, help='Debe elegir usuImagen', required=True)
 parseGestionarUsuario.add_argument('usudescripcion', type=str, help='Debe elegir usuDescripcion', required=True)
 parseGestionarUsuario.add_argument('usuestado', type=int, help='Debe elegir estado', required=True)
 parseGestionarUsuario.add_argument('usuusureg', type=str, help='Debe elegir usuRe', required=True)

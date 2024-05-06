@@ -11,7 +11,7 @@ def gestionarUsuario(data):
         query = sql.SQL('''
             SELECT academico.f_gestionar_usuario(
                         {tipo}, {usuid}, {perid}, {rolid}, {usuname}, {usupassword}, {usupasswordhash}, 
-                        {usuemail}, {usuimagen}, {usudescripcion}, {usuestado}, {usuusureg});
+                        {usuemail}, {usudescripcion}, {usuestado}, {usuusureg});
             ''').format( tipo=sql.Literal(data['tipo']), 
                          usuid=sql.Literal(data['usuid']), 
                          perid=sql.Literal(data['perid']), 
@@ -19,7 +19,7 @@ def gestionarUsuario(data):
                          usuname=sql.Literal(data['usuname']), 
                          usupassword = sql.Literal(generate_password_hash(data['usupassword'])),  # Se hashea las contraseñas
                          usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])), 
-                         usuemail=sql.Literal(data['usuemail']), usuimagen=sql.Literal(data['usuimagen']), 
+                         usuemail=sql.Literal(data['usuemail']), 
                          usudescripcion=sql.Literal(data['usudescripcion']), 
                          usuestado=sql.Literal(data['usuestado']), usuusureg=sql.Literal(data['usuusureg']))
         result = execute(as_string(query))
@@ -77,7 +77,7 @@ def tipoPersona():
 
 def perfil(data):
     return select(f'''
-    SELECT u.usuid, u.perid, p.pernomcompleto, p.perfoto, u.rolid, r.rolnombre , u.usuname, u.usuemail, u.usuimagen 
+    SELECT u.usuid, u.perid, p.pernomcompleto, p.perfoto, u.rolid, r.rolnombre , u.usuname, u.usuemail 
     FROM academico.usuario u
     left join academico.persona p on p.perid = u.perid
     left join academico.rol r on r.rolid = u.rolid 

@@ -81,14 +81,14 @@ api = Api(app)
 db = SQLAlchemy(app)
 
 # Manejador para el error 404 (Página no encontrada)
-@app.errorhandler(404)
-def page_not_found():
-    return messages._404, 404
+# @app.errorhandler(404)
+# def page_not_found():
+#     return messages._404, 404
 
 # Manejador para el error 500 (Error interno del servidor)
-@app.errorhandler(500)
-def page_not_found():
-    return messages._500, 500
+# @app.errorhandler(500)
+# def page_not_found():
+#     return messages._500, 500
 
 # Configura la clave secreta de la aplicación
 app.secret_key = configuration.APP_SECRET_KEY
@@ -129,12 +129,93 @@ principal_routes(api=api)  # Rutas principales de la aplicación
 asistencia_routes(api=api)  # Rutas relacionadas con la asistencia
 
 # Importamos funciones para registro y login de usuarios
-from routes.auth_routes import f_login_usuario, f_register_usuario
-
+from routes.auth_routes import f_login_usuario # Importamos la función f_login_usuario
+from models.usuario import Usuario # Importamos el modelo Usuario
+from werkzeug.security import generate_password_hash # Importamos el generate_password_hash para generar contraseña hasheada
+from resources.Autenticacion import TokenGenerator # Importamos la clase TokenGenerator para utilizar sus diferentes opciones
 @app.route('/academico_api/register', methods=['POST'])
-def register_usuario():
-    return f_register_usuario()
-        
+def f_register_usuario(): # Función para regitrar un usuario
+    
+    user_data = request.get_json() # se recupera los datos enviados por el método post
+    
+    print("1. datos enviados: ", user_data)
+    
+    user = Usuario.query.filter_by(usuname=user_data['usuname']).first() # buscamos al usuario con el usuname igual
+    
+    if not user:
+        try: 
+            hashed_password = generate_password_hash(user_data['usupassword']) # Se genera la contraseña con el hash, para mayor seguridad
+            user_new = Usuario( usuname=user_data['usuname'], usupassword=hashed_password, usupasswordhash=hashed_password, perid=user_data['perid'], rolid=user_data['rolid'], usuemail=user_data['usuemail'], usudescripcion=user_data['usudescripcion'], usuusureg=user_data['usuusureg'], usuestado=user_data['usuestado'])
+            print("2. usuario nuevo:", user_new)
+            db.session.add(user_new) # Se adiciona el usuario con db.session.add(usuario_nuevo)
+            db.session.commit() # Se ejecuta la sentencia
+            # Genera el token de confirmación para enviar por email
+            confirmation_token = TokenGenerator.generate_confirmation_token(user_new.usuid, user_new.rolid) # en el token se enviara el usuid y el rolid
+            print("3. se genera el token: ", confirmation_token)
+            # Prepara el mensaje de email de confirmación
+            mensaje_correo = f'Por favor, haga clic en el siguiente enlace para confirmar su registro: http://localhost:4200/verified?token={confirmation_token}' # Aqui hay que cambiar el localhost:4200 por el dominio del frontend que se despliegue correctamente
+            print("4. se agrega el mensaje: ", mensaje_correo)
+            # Envía el correo electrónico de confirmación
+            if enviar_correo_verificar(user_data['usuemail'], 'Confirmación de registro', mensaje_correo): # se envia a la siguiente función el cual enviara el email enviar_correo_verificar
+                resp = {
+                    "status": "success",
+                    "message": "User successfully registered. Confirmation email sent."
+                }
+                return make_response(jsonify(resp)), 201
+            else:
+                resp = {
+                    "status": "Error",
+                    "message": "Error occurred while sending confirmation email"
+                }
+                return make_response(jsonify(resp)), 500
+        except Exception as e:
+            print(e)
+            resp = {
+                "status": "Error",
+                "message": "Error occurred, user registration failed"
+            }
+            return make_response(jsonify(resp)), 401
+    else:
+        resp = {
+            "status": "error",
+            "message": "User already exists"
+        }
+        return make_response(jsonify(resp)), 202
+
+from psycopg2 import sql
+from core.database import execute, as_string
+
+@app.route("/academico_api/confirmar-correo", methods=['POST'])
+def confirm_email():
+    
+    token = request.get_json()  # obtenemos el token con token['token']
+    print("token enviado: ", token)
+    
+    if not token: # Se verifica que se envien el token con este if
+        return jsonify({"status": "error", "message": "No se proporcionó ningún token de confirmación."}), 400
+
+    email = TokenGenerator.confirm_token(token['token']) # Se llama a un método para confirma el token se guarda en email el dato emial
+    
+    print("retorno de confirm_token: ", email)
+    
+    if email is None: # Se verifica la variable email
+        return jsonify({"status": "error", "message": "El enlace de confirmación es inválido o ha expirado."}), 400
+
+    usuid, rolid = TokenGenerator.extract_user_info_from_token(token['token']) # Se obtiene el usuid y rolid con el método extrac_user_info_from_token
+    
+    print("variable usuid: ", usuid)
+    
+    try: # Se realiza un try exception para validar errores
+        query = sql.SQL(''' SELECT academico.f_usuario_verificar({p_usuid});''').format(p_usuid=sql.Literal(usuid))
+        result = execute(as_string(query))
+        print("Resultado de la funcion f_usuari_verificar: ", result)
+        print("La transacción se ha confirmado correctamente")
+        return jsonify({"status": "success", "message": "¡Has confirmado tu cuenta exitosamente! ¡Gracias!"}), 200
+    except Exception as e:
+        print(f"Error al confirmar la transacción: {str(e)}")
+        db.session.rollback()  # Revertir la transacción en caso de error
+        return jsonify({"status": "error", "message": "Ocurrió un error al confirmar tu cuenta: {}".format(str(e))}), 500
+    
 @app.route('/academico_api/login', methods=['POST'])
 def login_usuario():
     return f_login_usuario()
@@ -144,7 +225,7 @@ from routes.subir_archivos_routes import f_upload_file_foto_perfil, f_upload_fil
 
 @app.route('/academico_api/fotoPerfil/upload', methods=['POST'])
 def upload_file_foto_perfil():
-    f_upload_file_foto_perfil()
+    return f_upload_file_foto_perfil(request)
 
 @app.route('/academico_api/pago/upload', methods=['POST'])
 def upload_file_pago():
@@ -193,6 +274,20 @@ def enviar_correo():
         return jsonify({'mensaje': 'Correo enviado correctamente'}), 200
     except Exception as e:
         return jsonify({'mensaje': f'Error al enviar el correo: {str(e)}'}), 500
+    
+    
+def enviar_correo_verificar(destinatario, asunto, mensaje):
+    print("esta es la variable de entorno de email: ",os.environ.get("EMAIL_HOST_USER") ) # Recuperamos la vairable de entorno email_host_user
+    try:
+        msg = Message(sender=os.environ.get("EMAIL_HOST_USER"),
+                      subject=asunto,
+                      recipients=[destinatario],
+                      body=mensaje)
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f'Error al enviar el correo: {str(e)}')
+        return False
     
 if __name__ == '__main__':
 	HOST = configuration.SERVER_HOST

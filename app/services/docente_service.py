@@ -43,7 +43,7 @@ def listarDocente():
         p.pergenero, tg.generonombre,
         p.perestcivil, te.estadocivilnombre,
         p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod,
-        u.usuid, u.usuname, u.usuemail, u.usuimagen  
+        u.usuid, u.usuname, u.usuemail  
         FROM academico.persona p
         left join academico.usuario u on u.perid = p.perid
         left join academico.rol r on r.rolid = u.rolid

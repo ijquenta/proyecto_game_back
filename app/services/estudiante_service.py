@@ -13,7 +13,7 @@ def listarEstudiante():
         p.perestcivil, te.estadocivilnombre,
         p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod, p.pernrohijos, p.perprofesion, p.perfeclugconversion,
         p.perbautismoaguas, p.perbautismoespiritu, p.pernomdiriglesia, p.pernompastor,
-        u.usuid, u.usuname, u.usuemail, u.usuimagen  
+        u.usuid, u.usuname, u.usuemail 
         FROM academico.persona p
         left join academico.usuario u on u.perid = p.perid
         left join academico.rol r on r.rolid = u.rolid

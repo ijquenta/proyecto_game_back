@@ -12,13 +12,14 @@ class Usuario(db.Model):
     usupassword = db.Column(db.String(100), nullable=False)
     usupasswordhash = db.Column(db.String, nullable=False)
     usuemail = db.Column(db.String(100), nullable=False)
-    usuimagen = db.Column(db.String(255))
     usudescripcion = db.Column(db.String(255))
     usuestado = db.Column(db.SmallInteger, default=1)
     usuusureg = db.Column(db.String(50))
     usufecreg = db.Column(db.TIMESTAMP, default=db.func.now())
     usuusumod = db.Column(db.String(50))
     usufecmod = db.Column(db.TIMESTAMP)
+    usuconfirmado = db.Column(db.SmallInteger)
+    usuconfirmadofecreg = db.Column(db.TIMESTAMP, nullable=True)  # Campo de marca de tiempo para fecha de confirmación
     
     persona = db.relationship('Persona', backref=db.backref('usuarios', lazy=True))
     rol = db.relationship('Rol', backref=db.backref('usuarios', lazy=True))

@@ -29,7 +29,7 @@ def registrarPersona(data):
         query = sql.SQL('''
             SELECT * FROM academico.registrar_persona
                 ({pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc},  {perusureg} 
+                 {pertipodoc}, {pernrodoc},  {perusureg}, {peremail} 
                 )
         ''').format(
             pernombres=sql.Literal(data['pernombres']),
@@ -37,7 +37,8 @@ def registrarPersona(data):
             perapemat=sql.Literal(data['perapemat']),
             pertipodoc=sql.Literal(data['pertipodoc']),
             pernrodoc=sql.Literal(data['pernrodoc']),
-            perusureg=sql.Literal(data['perusureg'])
+            perusureg=sql.Literal(data['perusureg']),
+            peremail=sql.Literal(data['peremail'])
         )
         result = execute_response(as_string(query)) 
     except Exception as err:

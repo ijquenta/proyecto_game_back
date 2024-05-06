@@ -42,6 +42,7 @@ parseRegistrarPersona.add_argument('perapemat', type=str, help='Apellido materno
 parseRegistrarPersona.add_argument('pertipodoc', type=int, help='Tipo de documento de la persona', required=True)
 parseRegistrarPersona.add_argument('pernrodoc', type=str, help='Número de documento de la persona', required=True)
 parseRegistrarPersona.add_argument('perusureg', type=str, help='Usuario que registró la persona', required=True)
+parseRegistrarPersona.add_argument('peremail', type=str, help='este campo es requerido peremail', required=True)
 class RegistrarPersona(Resource):
     # @token_required
     def post(self):
