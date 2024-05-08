@@ -16,7 +16,6 @@
             cartaH: pagesize="(27.9cm, 21.6cm)"
             cartaV: pagesize="(21.6cm, 27.9cm)"
     -->
-    <!-- <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social"> -->
     <template pagesize="(21.6cm, 27.9cm)" title="Reporte Nota Estudiante" author="Estudiante">
         <pageTemplate id="main">
             <pageGraphics>
@@ -31,42 +30,61 @@
                 curnombre = data[0]['curnombre']
                 matnombre = data[0]['matnombre']
                 numero_materias = len(data)
+                pernomcompletodocente = data[0]['pernomcompletodocente']
+                pernrodocdocente = data[0]['pernrodocdocente']
                 correlativo = 1
                 #se puede hacer lo que sea con la info
                 total = {
                     "liq": 0
                 }
+                cursos = {}
+                # Iteramos una clave basada en la combinación de los valores del nombre de curso y materia
+                for element in data:
+
+                    llave = str("Curso: " + element["curnombre"] + " - Materia: " + element["matnombre"])
+
+                    try:
+                        # Insertamos con esa clave creada todos los elementos relacionados 
+                        cursos[llave].append(element)
+                    
+                    except Exception:
+                        # Caso diferente, si la clave no existe se crea una nueva clave con ese registro
+                        l = [element]
+                        cursos.update({llave: l})
+
                 {{endscript}}
 
                 <!-- Imagen de la Institución -->
                 <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
                 <setFont name="Helvetica" size="11"/>
-                
                 <setFont name="Helvetica" size="9"/>
                 <setFont name="Helvetica-Bold" size="12"/>
-                <drawCentredString x="11.5cm" y="25.5cm">Notas por Materia</drawCentredString>
+                <drawCentredString x="11.5cm" y="25.5cm">Notas de {{ matnombre }}</drawCentredString>
                 <drawString x="7cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawString>
                 <setFont name="Helvetica-Bold" size="12"/>
                 <drawString x="7cm" y="26cm">Sistema de Gestión y Seguimiento Académico</drawString>
                 <setFont name="Helvetica" size="9"/>  <!-- Restablecer la fuente para el texto siguiente -->
 
-                <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
                 <drawRightString x="20cm" y="27cm">Fecha Emisión: {{ today }}</drawRightString>
-                <drawString x="1cm" y="25cm">Nombre del Curso: {{ curnombre }}</drawString>
-                <drawString x="1cm" y="24.7cm">Nombre de la Materia: {{ matnombre }}</drawString>
-                    <place x="0.5cm" y="16cm" width="33cm" height="7.5cm">
-                        <blockTable rowHeights="0.6cm, 0.0cm" colWidths="0.6cm, 6.5cm, 3.5cm, 4cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm" style="blocktablestyle1">
+                
+                <drawString x="1cm" y="25cm">Nombre del curso: {{ curnombre }}</drawString>
+                <drawString x="1cm" y="24.7cm">Nombre de la materia: {{ matnombre }}</drawString>
+                <drawString x="1cm" y="24.4cm">Nombre del docente: {{ pernomcompletodocente }}</drawString>
+                <drawString x="1cm" y="24.1cm">Número de documento: {{ pernrodocdocente }}</drawString>
+
+                   <place x="2.4cm" y="16cm" width="33cm" height="7.5cm">
+                        <blockTable rowHeights="0.6cm, 0.0cm" colWidths="0.6cm, 5.5cm, 2.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 2cm, 7cm" style="blocktablestyle1">
                             <tr>
                             </tr>
                             <tr>
-                                <td>Nro</td>
-                                <td>Nombre del Curso</td>
-                                <td>Nombre de la Materia</td>
-                                <td>Nombre del Estudiante</td>
+                                <td>N°</td>
+                                <td>Nombre</td>
+                                <td>Nro doc.</td>
                                 <td>1° Nota</td>
                                 <td>2° Nota</td>
                                 <td>3° Nota</td>
                                 <td>N. Final</td>
+                                <td>Estado</td>
                             </tr>
                         </blockTable>
                     </place>
@@ -96,59 +114,68 @@
             <blockSpan start="3,1" stop="4,1" />
         </blockTableStyle>
 
+        <blockTableStyle id="blocktablestyleDataFirma">
+            <!-- <blockLeading length="2cm"/> -->
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
 
         <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
         <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
         <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+         <paraStyle name="tableTexttd" alignment="left" fontSize="9"/>
+        <paraStyle name="tableTexttdv2" alignment="center" fontSize="9"/>
+        <paraStyle name="tableTextTitle" alignment="left" fontSize="9" fontName="Helvetica"/>
     </stylesheet>
    
-
-
     <story>
-       <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
-       {{for item in data}}
-       
-            <blockTable
-                style="blocktablestyleData"
-                rowHeights="0.5cm"
-                colWidths="0.6cm, 6.5cm, 3.5cm, 4cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm"
-            >
+       {{for curso, items in cursos.items()}}  
+            {{for item in items}}
+            <blockTable style="blocktablestyleData" rowHeights="0.7cm" colWidths="0.6cm, 5.5cm, 2.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 2cm, 7cm">
                 <tr>
                     <td>{{ correlativo }}</td>
-                    <td>{{ item['curnombre'] }}</td>
-                    <td>{{ item['matnombre'] }}</td>
-                    <td>{{ item['pernomcompleto'] }}</td>
+                    <td><para style="tableTextTitle">{{ item['pernomcompleto'] }}</para></td>
+                    <td>{{ item['pernrodoc'] }}</td>
                     <td>{{ item['not1'] }}</td>
                     <td>{{ item['not2'] }}</td>
                     <td>{{ item['not3'] }}</td>
                     <td>{{ item['notfinal'] }}</td>
-                    <!-- <td align="right">{{}}</td> -->
+                    <td>{{ item['estado'] }}</td>
                 </tr>
             </blockTable>
-            {{script}}
-                #total["liq"] = round(total["liq"] + item['notfinal'], 2)
-                correlativo = correlativo + 1
-            {{endscript}}
-       {{endfor}}
-       <illustration width="27cm" height="0cm">
+                {{script}}
+                    correlativo = correlativo + 1
+                {{endscript}}
+            {{endfor}} 
+                {{script}}
+                    correlativo = 1
+                {{endscript}}
+        {{endfor}}
+
+        <illustration width="27cm" height="0cm">
             <lineMode width="1" dash="3,3" />
             <lines>1cm 1cm 1cm 1cm </lines>
         </illustration>
-        <!-- <blockTable
-            style="blocktablestyleData"
-            rowHeights="0.5cm"
-            colWidths="18.5cm, 1.5cm"
-        > 
+
+        <blockTable rowHeights="0.7cm, 0cm" colWidths="1cm, 5cm, 5cm, 2cm" > 
+            <tr> <td><para></para> </td>  <td><para></para></td>  <td><para></para> </td>  <td><para></para></td>  </tr>
+            <tr> <td><para></para> </td>  <td><para></para></td>  <td><para></para> </td>  <td><para></para></td>  </tr>
+        </blockTable>
+
+         <blockTable style="blocktablestyleDataFirma" rowHeights="2cm" colWidths="12cm, 6cm"> 
              <tr>
-                 <td align="right">Promedio General: </td> 
-                 <td align="right">{{ total['liq'] / numero_materias }}</td> 
-            </tr>
-        </blockTable> -->
-        <!-- <illustration width="33cm" height="0.2cm">
-            <lineMode width="1" dash="3,3" />
-            <lines>1cm 0.1cm 32cm 0.1cm</lines>
-        </illustration> -->
-        <!--Variable para saber cuantas paginas tiene dejar al final para el total-->
+                 <td>
+                    <para>Fecha {{today}}.
+                    </para> 
+                 </td>
+                 <td align="center"><para align="center">{{pernomcompletodocente}}      Docente IBCI</para></td>
+             </tr>
+            
+             </blockTable>
+        
+
         <namedString id="lastPage"><pageNumber/></namedString>
     </story>
 </document>
