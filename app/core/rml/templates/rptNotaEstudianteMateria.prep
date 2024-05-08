@@ -120,13 +120,13 @@
        
             <blockTable
                 style="blocktablestyleData"
-                rowHeights="0.5cm"
-                colWidths="1cm, 6.5cm, 6.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm"
+                rowHeights="1.3cm"
+                colWidths="1cm, 7.5cm, 5.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 1cm"
             >
                 <tr>
                     <td>{{ item['notid'] }}</td>
-                    <td>{{ item['curnombre'] }}</td>
-                    <td>{{ item['matnombre'] }}</td>
+                    <td><para>{{ item['curnombre'] }}</para></td>
+                    <td><para>{{ item['matnombre'] }}</para></td>
                     <td>{{ item['not1'] }}</td>
                     <td>{{ item['not2'] }}</td>
                     <td>{{ item['not3'] }}</td>
@@ -144,12 +144,12 @@
         </illustration>
         <blockTable
             style="blocktablestyleData"
-            rowHeights="0.5cm"
+            rowHeights="1.3cm"
             colWidths="18.5cm, 1.5cm"
         > 
              <tr>
-                 <td align="right">Promedio General: </td> 
-                 <td align="right">{{ total['liq'] / numero_materias }}</td> 
+                 <td align="right"><para>Promedio General:</para> </td> 
+                 <td align="right"><para>{{ round((total['liq'] / numero_materias), 2) }}</para></td> 
             </tr>
         </blockTable>
         <!-- <illustration width="33cm" height="0.2cm">
