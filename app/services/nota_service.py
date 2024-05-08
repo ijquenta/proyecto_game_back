@@ -91,7 +91,7 @@ def listarNotaEstudianteMateria(data):
 
 def listarNotaEstudianteCurso(data):
     return select(f'''
-        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, p.perfoto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
+        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, p.pernrodoc, p.perfoto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
         FROM academico.inscripcion i
         left join academico.curso_materia cm on cm.curmatid = i.curmatid
         left join academico.curso c on c.curid = cm.curid 
@@ -126,28 +126,143 @@ def rptNotaEstudianteMateria(data):
 
 def rptNotaCursoMateria(data):
     params = select(f'''
-        SELECT i.insid, c.curnombre, m.matnombre, i.peridestudiante, p.pernomcompleto, p.perfoto, n.notid, n.not1, n.not2, n.not3, n.notfinal, n.notusureg, n.notfecreg, n.notusumod, n.notfecmod
+        SELECT 
+        i.insid, 
+        c.curnombre,
+        cm.periddocente, 
+        p2.pernomcompleto as pernomcompletodocente, 
+        p2.pernrodoc as pernrodocdocente,
+        m.matnombre, 
+        i.peridestudiante, 
+        p.pernomcompleto, 
+        p.perapepat,
+        p.perapemat,
+        p.pernombres,
+        p.pernrodoc,
+        p.perfoto, 
+        n.notid, 
+        n.not1, 
+        n.not2, 
+        n.not3, 
+        n.notfinal, 
+        n.notusureg, 
+        n.notfecreg, 
+        n.notusumod, 
+        n.notfecmod,
+        CASE
+                WHEN n.notfinal >= 70 THEN 'Aprobado'
+                ELSE 'Reprobado'
+        END AS estado
         FROM academico.inscripcion i
         left join academico.curso_materia cm on cm.curmatid = i.curmatid
         left join academico.curso c on c.curid = cm.curid 
         left join academico.materia m on m.matid = cm.matid 
         left join academico.persona p on p.perid = i.peridestudiante
+        left join academico.persona p2 on p2.perid = cm.periddocente
         left join academico.nota n on n.insid = i.insid
         where i.curmatid = {data['curmatid']}
         order by p.pernomcompleto;
     ''')
     return make(Report().RptNotaCursoMateria(params, data['usuname']))
 
+def rptNotaCursoMateriaGeneral(data):
+    params = select(f'''
+        SELECT
+            i.insid,
+            c.curnombre,
+            m.matnombre,
+            i.peridestudiante,
+            p.pernomcompleto,
+            p.perapepat,
+            p.perapemat,
+            p.pernombres,
+            p.pernrodoc,
+            p.perfoto,
+            n.notid,
+            n.not1,
+            n.not2,
+            n.not3,
+            n.notfinal,
+            n.notusureg,
+            n.notfecreg,
+            n.notusumod,
+            n.notfecmod,
+            CASE
+                WHEN n.notfinal >= 70 THEN 'Aprobado'
+                ELSE 'Reprobado'
+            END AS estado
+        FROM
+            academico.inscripcion i
+            LEFT JOIN academico.curso_materia cm ON cm.curmatid = i.curmatid
+            LEFT JOIN academico.curso c ON c.curid = cm.curid 
+            LEFT JOIN academico.materia m ON m.matid = cm.matid 
+            LEFT JOIN academico.persona p ON p.perid = i.peridestudiante
+            LEFT JOIN academico.nota n ON n.insid = i.insid
+        ORDER BY
+            c.curnombre,
+            m.matnombre,
+            p.pernomcompleto;
+            
+    ''')
+    return make(Report().RptNotaCursoMateriaGeneral(params, data['usuname']))
+
+
+def rptNotaCursoMateriaDocente(data):
+    params = select(f'''
+        SELECT
+            i.insid,
+            c.curnombre,
+            cm.periddocente, 
+            p2.pernomcompleto as pernomcompletodocente, 
+            p2.pernrodoc as pernrodocdocente,
+            m.matnombre,
+            i.peridestudiante,
+            p.pernomcompleto,
+            p.perapepat,
+            p.perapemat,
+            p.pernombres,
+            p.pernrodoc,
+            p.perfoto,
+            n.notid,
+            n.not1,
+            n.not2,
+            n.not3,
+            n.notfinal,
+            n.notusureg,
+            n.notfecreg,
+            n.notusumod,
+            n.notfecmod,
+            CASE
+                WHEN n.notfinal >= 70 THEN 'Aprobado'
+                ELSE 'Reprobado'
+            END AS estado
+        FROM
+            academico.inscripcion i
+            LEFT JOIN academico.curso_materia cm ON cm.curmatid = i.curmatid
+            LEFT JOIN academico.curso c ON c.curid = cm.curid 
+            LEFT JOIN academico.materia m ON m.matid = cm.matid 
+            LEFT JOIN academico.persona p ON p.perid = i.peridestudiante
+             left join academico.persona p2 on p2.perid = cm.periddocente
+            LEFT JOIN academico.nota n ON n.insid = i.insid
+        where cm.periddocente = {data['periddocente']}
+        ORDER BY
+            c.curnombre,
+            m.matnombre,
+            p.pernomcompleto;
+    ''')
+    return make(Report().RptNotaCursoMateriaDocente(params, data['usuname']))
+    
+    
 def listarNotaCurso():
     lista = select(f'''
         SELECT distinct cm.curmatid, cm.curid, c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto, p.perfoto,
         cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestadodescripcion, 
-        cm.curmatdescripcion 
+        cm.curmatdescripcion, cm.curmatestado 
         FROM academico.curso_materia cm
         left join academico.curso c on c.curid = cm.curid 
         left join academico.materia m on m.matid = cm.matid 
         left join academico.persona p on p.perid = cm.periddocente 
-        where cm.curmatestado = 1
+        --where cm.curmatestado = 1
         order by c.curnombre, m.matnombre;
     ''')  
     for pago in lista:
@@ -156,3 +271,5 @@ def listarNotaCurso():
         pago["curmatfecini"] = darFormatoFechaSinHora(pago["curmatfecini"])
         pago["curmatfecfin"] = darFormatoFechaSinHora(pago["curmatfecfin"]) 
     return lista
+
+

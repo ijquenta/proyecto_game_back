@@ -11,4 +11,6 @@ def nota_routes(api: Api):
     api.add_resource(Nota.ListarNotaEstudianteCurso, routes.listarNotaEstudianteCurso)
     api.add_resource(Nota.RptNotaEstudianteMateria, routes.rptNotaEstudianteMateria)
     api.add_resource(Nota.RptNotaCursoMateria, routes.rptNotaCursoMateria)
+    api.add_resource(Nota.RptNotaCursoMateriaGeneral, routes.rptNotaCursoMateriaGeneral)
+    api.add_resource(Nota.RptNotaCursoMateriaDocente, routes.rptNotaCursoMateriaDocente)
     api.add_resource(Nota.ListarNotaCurso, routes.listarNotaCurso)
