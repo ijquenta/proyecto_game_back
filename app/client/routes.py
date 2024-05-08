@@ -115,6 +115,8 @@ class Routes:
     listarNotaEstudianteCurso = apiVersion + '/listarNotaEstudianteCurso'
     rptNotaEstudianteMateria = apiVersion + '/rptNotaEstudianteMateria'
     rptNotaCursoMateria = apiVersion + '/rptNotaCursoMateria'
+    rptNotaCursoMateriaGeneral = apiVersion + '/rptNotaCursoMateriaGeneral'
+    rptNotaCursoMateriaDocente = apiVersion + '/rptNotaCursoMateriaDocente'
     listarNotaCurso = apiVersion + '/listarNotaCurso'
     
     # Pago
