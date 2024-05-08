@@ -179,7 +179,7 @@
                     <td><para style="tableTexttd">{{item['pernomcompleto']}}</para></td>
                     <td><para style="tableTexttd">{{item['numeroEstudiantes']}}</para></td>
                     <td><para style="tableTexttd">{{item['curmatcosto']}}</para></td>
-                    <td><para style="tableTexttd">{{item['numeroEstudiantes']*item['curmatcosto']}}</para></td>
+                    <td><para style="tableTexttd">{{item['numeroEstudiantes'] if item['numeroEstudiantes'] is not None else 0}}</para></td>
                 </tr>
             </blockTable>
             {{script}}
