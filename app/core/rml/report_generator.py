@@ -38,6 +38,29 @@ class Report():
             return pdf_out
         except Exception as e:
             print("Error rpt NotaCursoMateria: ", e)
+            
+    def RptNotaCursoMateriaGeneral(self, data, user):
+        try:
+            templateTS = preppy.getModule(PATH+'rptNotaCursoMateriaGeneral.prep')
+            with BytesIO(bytes(templateTS.get(data, user), 'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            return pdf_out
+        except Exception as e:
+            print("Error rpt NotaCursoMateriaGeneral", e)
+            
+    def RptNotaCursoMateriaDocente(self, data, user):
+        try:
+            templateTS = preppy.getModule(PATH+'rptNotaCursoMateriaDocente.prep')
+            with BytesIO(bytes(templateTS.get(data, user), 'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            return pdf_out
+        except Exception as e:
+            print("Error rpt NotaCursoMateriaDocente", e)
+        
     
     def RptTotalesSigma(self, data, user):
         templateTS = preppy.getModule(PATH+'rptTotalesSigma.prep')        
