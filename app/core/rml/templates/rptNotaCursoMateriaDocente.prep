@@ -1,0 +1,226 @@
+<!-- Parametros de entrada -->
+{{def(data, user)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ivan Quenta
+    Fecha: 09/12/2023 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="ReporteTotalesSigma.pdf">
+    <!-- 
+        pagesize:
+            oficioH: pagesize="(35.6cm, 21.6cm)",
+            oficioV: pagesize="(21.6cm, 35.6cm)",
+            cartaH: pagesize="(27.9cm, 21.6cm)"
+            cartaV: pagesize="(21.6cm, 27.9cm)"
+    -->
+    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Nota General" author="Estudiante">
+        <pageTemplate id="main">
+            <pageGraphics>
+                <!-- Header -->
+                {{script}}
+                import datetime
+                from core.rml.util.extras import getFecha
+                ev = ''
+                ev = 'P(titulo)'
+                today=datetime.datetime.today()
+                today=today.strftime("%d/%m/%y %H:%M")
+                curnombre = data[0]['curnombre']
+                matnombre = data[0]['matnombre']
+                numero_materias = len(data)
+                correlativo = 1
+                correlativo2 = 1
+                #se puede hacer lo que sea con la info
+                total = {
+                    "liq": 0
+                }
+
+                cursos = {}
+                # Iteramos una clave basada en la combinación de los valores del nombre de curso y materia
+                for element in data:
+
+                    llave = str("Curso: " + element["curnombre"] + " - Materia: " + element["matnombre"])
+
+                    try:
+                        # Insertamos con esa clave creada todos los elementos relacionados 
+                        cursos[llave].append(element)
+                    
+                    except Exception:
+                        # Caso diferente, si la clave no existe se crea una nueva clave con ese registro
+                        l = [element]
+                        cursos.update({llave: l})
+
+                # Diccionario para almacenar los totales de aprobados y reprobados por materia
+                totals = {}
+
+                # Procesar los datos para contar aprobados y reprobados
+                for curso, items in cursos.items():
+                    # Inicializar los contadores de aprobados y reprobados para la materia actual
+                    aprobados = 0
+                    reprobados = 0
+                    
+                    # Contar aprobados y reprobados para cada estudiante en la materia actual
+                    for item in items:
+                        if item['notfinal'] >= 70:
+                            aprobados += 1
+                        else:
+                            reprobados += 1
+                    
+                    # Guardar los totales en el diccionario
+                    totals[curso] = {'aprobados': aprobados, 'reprobados': reprobados}
+                print(totals)
+                {{endscript}}
+
+                <!-- Imagen de la Institución -->
+                <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
+                <setFont name="Helvetica" size="11"/>
+                
+                <setFont name="Helvetica" size="9"/>
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawCentredString x="11.5cm" y="25.5cm">Notas por Materia General</drawCentredString>
+                <drawString x="7cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawString>
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawString x="7cm" y="26cm">Sistema de Gestión y Seguimiento Académico</drawString>
+                <setFont name="Helvetica" size="9"/>  <!-- Restablecer la fuente para el texto siguiente -->
+
+                <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
+                <drawRightString x="20cm" y="27cm">Fecha Emisión: {{ today }}</drawRightString>
+                <!-- <drawString x="1cm" y="25cm">Nombre del Curso: {{ curnombre }}</drawString> -->
+                <!-- <drawString x="1cm" y="24.7cm">Nombre de la Materia: {{ matnombre }}</drawString> -->
+                    <place x="2.4cm" y="16cm" width="33cm" height="8.5cm">
+                        <blockTable rowHeights="0.6cm, 0.0cm" colWidths="0.6cm, 5.5cm, 2.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 2cm, 7cm" style="blocktablestyle1">
+                            <tr>
+                            </tr>
+                            <tr>
+                                <td>N°</td>
+                                <td>Nombre</td>
+                                <td>Nro doc.</td>
+                                <td>1° Nota</td>
+                                <td>2° Nota</td>
+                                <td>3° Nota</td>
+                                <td>N. Final</td>
+                                <td>Estado</td>
+                            </tr>
+                        </blockTable>
+                    </place>
+                <!-- Footer -->
+                <setFont name="Helvetica" size="8"/>
+
+                <drawRightString x="20cm" y="1cm"> Pag. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
+                
+                <drawString x="2cm" y="1cm">Usuario: {{user}}</drawString>
+                <!-- Footer -->
+            </pageGraphics>
+            <!-- Posicion de los datos -->
+            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="18.5cm" height="22.3cm"/>
+
+        </pageTemplate>
+    </template>
+
+    <stylesheet>
+        <!-- definicion de estilos -->
+        <blockTableStyle id="blocktablestyle1">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <!-- <lineStyle kind="GRID" colorName="green" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="blocktablestyleData">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="8"/>
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
+        <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+        <paraStyle name="tableTextTitle" alignment="left" fontSize="9" fontName="Helvetica"/>
+        <paraStyle name="tableTexttd" alignment="left" fontSize="9"/>
+        <paraStyle name="tableTexttdv2" alignment="center" fontSize="9"/>
+    </stylesheet>
+   
+    <story>
+        {{for curso, items in cursos.items()}}  
+        <para style="textstyle1"><u>{{curso}}</u></para>
+            {{for item in items}}
+            <blockTable style="blocktablestyleData" rowHeights="0.7cm" colWidths="0.6cm, 5.5cm, 2.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 2cm, 7cm">
+                <tr>
+                    <td>{{ correlativo }}</td>
+                    <td><para style="tableTextTitle">{{ item['pernomcompleto'] }}</para></td>
+                    <td>{{ item['pernrodoc'] }}</td>
+                    <td>{{ item['not1'] }}</td>
+                    <td>{{ item['not2'] }}</td>
+                    <td>{{ item['not3'] }}</td>
+                    <td>{{ item['notfinal'] }}</td>
+                    <td>{{ item['estado'] }}</td>
+                </tr>
+            </blockTable>
+                {{script}}
+                    correlativo = correlativo + 1
+                {{endscript}}
+            {{endfor}} 
+                {{script}}
+                    correlativo = 1
+                {{endscript}}
+        {{endfor}}
+      
+
+        <illustration width="27cm" height="0cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+
+         <blockTable rowHeights="1cm, 1cm" colWidths="1cm, 5cm, 5cm, 2cm" > 
+             <tr>
+                 <td><para></para> </td> 
+                 <td><para></para></td> 
+                 <td><para></para> </td> 
+                 <td><para></para></td> 
+            </tr>
+             <tr>
+                 <td><para></para> </td> 
+                 <td><para></para></td> 
+                 <td><para></para> </td> 
+                 <td><para></para></td> 
+            </tr>
+        </blockTable>
+    
+        <blockTable style="blocktablestyleData" rowHeights="0.7cm" colWidths="1cm, 14cm, 1cm, 1cm">
+            <tr>
+                <td><para style="tableTexttdv2">N</para></td>
+                <td><para style="tableTexttdv2">Nombre de Curso y Materia</para></td>
+                <td><para style="tableTexttdv2">A</para></td>
+                <td><para style="tableTexttdv2">R</para></td>
+            </tr>
+        </blockTable>
+        
+        <!-- <para style="tableTextTitle">Totales de Aprobados y Reprobados por Materia:</para> -->
+
+        {{script}}
+            correlativo2 = 1
+        {{endscript}}
+        
+        {{for materia, total in totals.items()}}
+            <blockTable style="blocktablestyleData" rowHeights="1cm" colWidths="1cm, 14cm, 1cm, 1cm">
+                <tr>
+                    <td><para style="tableTexttd">{{correlativo2}}</para></td>
+                    <td><para style="tableTexttd">{{ materia }}</para></td>
+                    <td><para style="tableTexttdv2">{{ total['aprobados'] }}</para></td>
+                    <td><para style="tableTexttdv2">{{ total['reprobados'] }}</para></td>
+                </tr>
+            </blockTable>
+            {{script}}
+                    correlativo2 = correlativo2 + 1
+            {{endscript}}
+       {{endfor}}
+
+       <namedString id="lastPage"><pageNumber/></namedString>
+</story>
+
+</document>
