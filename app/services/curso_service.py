@@ -9,7 +9,7 @@ def listarCursoMateria():
         p.pernomcompleto, p.perfoto, p.pernrodoc, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
         c.curnivel,
         cm.curmatfecini, cm.curmatfecfin, cm.curmatestado, cm.curmatestadodescripcion, 
-        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol as rolid, cm.curmatidroldes as rolnombre
+        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol as rolid, cm.curmatidroldes as rolnombre, cm.curmatcosto
         FROM academico.curso_materia cm
         inner join academico.curso c on c.curid  = cm.curid 
         inner join academico.materia m on m.matid = cm.matid 
@@ -45,20 +45,7 @@ def eliminarCursoMateria(data):
 def insertarCursoMateria(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
-        query = sql.SQL('''
-                        SELECT academico.insertar_curso_materia
-                        ({curid}, {matid}, {perid}, {fecini}, {fecfin}, {estado}, {estadodes}, {usureg}, {idrol}, {idroldes});''').format(
-                            curid = sql.Literal(data['curid']),
-                            matid = sql.Literal(data['matid']),
-                            perid = sql.Literal(data['periddocente']),
-                            fecini = sql.Literal(data['curmatfecini']),
-                            fecfin = sql.Literal(data['curmatfecfin']),
-                            estado = sql.Literal(data['curmatestado']),
-                            estadodes = sql.Literal(data['curmatestadodescripcion']),
-                            usureg = sql.Literal(data['curmatusureg']),
-                            idrol = sql.Literal(data['curmatidrol']),
-                            idroldes = sql.Literal(data['curmatidroldes'])
-                         )
+        query = sql.SQL(''' SELECT academico.insertar_curso_materia ({curid}, {matid}, {perid}, {fecini}, {fecfin}, {estado}, {estadodes}, {usureg}, {idrol}, {idroldes}, {costo});''').format( curid = sql.Literal(data['curid']), matid = sql.Literal(data['matid']), perid = sql.Literal(data['periddocente']), fecini = sql.Literal(data['curmatfecini']), fecfin = sql.Literal(data['curmatfecfin']), estado = sql.Literal(data['curmatestado']), estadodes = sql.Literal(data['curmatestadodescripcion']), usureg = sql.Literal(data['curmatusureg']), idrol = sql.Literal(data['curmatidrol']), idroldes = sql.Literal(data['curmatidroldes']), costo = sql.Literal(data['curmatcosto']) )
         result = execute(as_string(query))
     except Exception as err:
         print(err)
@@ -66,6 +53,10 @@ def insertarCursoMateria(data):
     return result
 
 def modificarCursoMateria(data):
+    print("Data original: ", data)
+    data['curmatfecini'] = volverAFormatoOriginal(data['curmatfecini']) 
+    data['curmatfecfin'] = volverAFormatoOriginal(data['curmatfecfin']) 
+    print("Fechas modificadas: ", data)
     resultado = execute_function(f'''
         SELECT academico.modificar_curso_materia(
               {data['curmatid']},
@@ -78,7 +69,8 @@ def modificarCursoMateria(data):
             \'{data['curmatestadodescripcion']}\',
             \'{data['curmatusumod']}\',
             \'{data['curmatidrol']}\',
-            \'{data['curmatidroldes']}\'
+            \'{data['curmatidroldes']}\',
+              {data['curmatcosto']}
         ) as valor;
          ''')
     return resultado

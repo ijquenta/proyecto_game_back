@@ -23,6 +23,7 @@ parseInsertarCursoMateria.add_argument('curmatestadodescripcion', type=str, help
 parseInsertarCursoMateria.add_argument('curmatusureg', type=str, help='Debe insersar curmatusureg', required = True)
 parseInsertarCursoMateria.add_argument('curmatidrol', type=int, help='Debe insersar curmatidrol', required = True)
 parseInsertarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe insersar curmatidroldes', required = True)
+parseInsertarCursoMateria.add_argument('curmatcosto', type=int, help='Debe insersar curmatcosto', required = True)
 class InsertarCursoMateria(Resource):
   def post(self):
       data = parseInsertarCursoMateria.parse_args()
@@ -40,6 +41,7 @@ parseModificarCursoMateria.add_argument('curmatestadodescripcion', type=str, hel
 parseModificarCursoMateria.add_argument('curmatusumod', type=str, help='Debe insersar curmatusumod', required = True)
 parseModificarCursoMateria.add_argument('curmatidrol', type=int, help='Debe insersar curmatidrol', required = True)
 parseModificarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe insersar curmatidroldes', required = True)
+parseModificarCursoMateria.add_argument('curmatcosto', type=int, help='Debe insersar curmatcosto', required = True)
 class ModificarCursoMateria(Resource):
   def post(self):
       data = parseModificarCursoMateria.parse_args()
