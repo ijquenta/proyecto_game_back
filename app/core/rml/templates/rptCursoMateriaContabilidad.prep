@@ -161,7 +161,7 @@
                                 <td><para style="tableTextTitle">Docente</para></td>
                                 <td><para style="tableTextTitle">Cant.</para></td>
                                 <td><para style="tableTextTitle">Couta</para></td>
-                                <td><para style="tableTextTitle">Total</para></td>
+                                <td><para style="tableTextTitle">SubTotal</para></td>
                             </tr>
         </blockTable>
        {{for item in data}}
@@ -179,7 +179,7 @@
                     <td><para style="tableTexttd">{{item['pernomcompleto']}}</para></td>
                     <td><para style="tableTexttd">{{item['numeroEstudiantes']}}</para></td>
                     <td><para style="tableTexttd">{{item['curmatcosto']}}</para></td>
-                    <td><para style="tableTexttd">{{item['numeroEstudiantes'] if item['numeroEstudiantes'] is not None else 0}}</para></td>
+                    <td><para style="tableTexttd">{{ item['numeroEstudiantes']*item['curmatcosto']if item['numeroEstudiantes'] is not None else 0}}</para></td>
                 </tr>
             </blockTable>
             {{script}}
@@ -237,7 +237,7 @@
          {{for d2 in data2}}
             <blockTable
                 style="blocktablestyleData"
-                rowHeights="0.7cm"
+                rowHeights="1cm"
                 colWidths="1cm, 5cm, 5cm, 2cm"
             >
                 <tr>
@@ -254,7 +254,7 @@
        {{endfor}}
        <blockTable
             style="blocktablestyleData"
-            rowHeights="0.5cm"
+            rowHeights="1cm"
             colWidths="11cm, 2cm"
         > 
              <tr>
