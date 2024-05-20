@@ -53,10 +53,10 @@ def insertarCursoMateria(data):
     return result
 
 def modificarCursoMateria(data):
-    print("Data original: ", data)
+    # print("Data original: ", data)
     data['curmatfecini'] = volverAFormatoOriginal(data['curmatfecini']) 
     data['curmatfecfin'] = volverAFormatoOriginal(data['curmatfecfin']) 
-    print("Fechas modificadas: ", data)
+    # print("Fechas modificadas: ", data)
     resultado = execute_function(f'''
         SELECT academico.modificar_curso_materia(
               {data['curmatid']},

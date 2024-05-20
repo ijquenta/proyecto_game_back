@@ -46,3 +46,20 @@ def obtenerMateriasInscritas(data):
         materia_inscrita["curmatfecfin"] = darFormatoFechaSinHora(materia_inscrita["curmatfecfin"])
     return lista_obtenerMateriasInscritas
 
+
+# Actualizar datos personales
+def actualizarDatosPersonales(data):
+    res = execute_function(f'''
+       SELECT academico.f_persona_actualizar_datos_personal (
+                {data['perid']},
+                \'{data['perusumod']}\',
+                {data['pernrohijos']},
+                \'{data['perprofesion']}\',
+                \'{data['perfeclugconversion']}\',
+                {data['perbautismoaguas']},
+                {data['perbautismoespiritu']},
+                \'{data['pernomdiriglesia']}\',
+                \'{data['pernompastor']}\'  
+                ) as valor;
+    ''')
+    return res

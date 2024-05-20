@@ -40,6 +40,7 @@ def insertarPago(data):
     return res
 
 def modificarPago(data):
+    data['pagfecha'] = volverAFormatoOriginal(data['pagfecha']) 
     res = execute_function(f'''
        SELECT academico.f_pago_modificar (  
                   {data['pagid']}, 
