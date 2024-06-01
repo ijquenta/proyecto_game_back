@@ -159,3 +159,17 @@ class Routes:
     listarCantidades = apiVersion + '/listarCantidades'
     listarEstudiantesMateria = apiVersion + '/listarEstudiantesMateria'
     listarEstudiantesNivel = apiVersion + '/listarEstudiantesNivel'
+    
+    #Permiso
+    listarPermiso = apiVersion + '/listarPermiso'
+    listarPermisoRol = apiVersion + '/listarPermisoRol'
+    getPermisos = apiVersion + '/getPermisos'
+    getRoles = apiVersion + '/getRoles'
+    getOperaciones = apiVersion + '/getOperaciones'
+    updatePermiso = apiVersion + '/updatePermiso'
+    addPermiso = apiVersion + '/addPermiso'
+    deletePermiso = apiVersion + '/deletePermiso'
+    
+    
+    #Operacion
+    getTipoOperacion = apiVersion + '/getTipoOperacion'
