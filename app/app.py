@@ -36,6 +36,7 @@ from routes.principal_routes import principal_routes  # Rutas principales de la 
 from routes.asistencia_routes import asistencia_routes  # Rutas relacionadas con la asistencia
 from routes.permiso_routes import permiso_routes # Rutas relacionada con permiso
 from routes.operacion_routes import operacion_routes
+from routes.acceso_routes import acceso_routes 
 
 # Define el nombre del archivo de registro y configura el nivel de registro
 LOG_FILENAME = 'aplication.log'
@@ -95,7 +96,7 @@ db = SQLAlchemy(app)
 # Configura la clave secreta de la aplicación
 app.secret_key = configuration.APP_SECRET_KEY
 
-from flask_swagger_ui import get_swaggerui_blueprint
+# from flask_swagger_ui import get_swaggerui_blueprint
 
 # SWAGGER_URL="/swagger"
 # API_URL="/static/swagger.json"
@@ -144,6 +145,8 @@ principal_routes(api=api)  # Rutas principales de la aplicación
 asistencia_routes(api=api)  # Rutas relacionadas con la asistencia
 permiso_routes(api=api) # Rutas relacionadas con permiso
 operacion_routes(api=api)
+acceso_routes(api=api)
+
 
 # Importamos funciones para registro y login de usuarios
 from routes.auth_routes import f_login_usuario # Importamos la función f_login_usuario
@@ -306,18 +309,18 @@ def enviar_correo_verificar(destinatario, asunto, mensaje):
         print(f'Error al enviar el correo: {str(e)}')
         return False
     
-SWAGGER_URL = '/swagger'
-API_URL = '/static/swagger.json'
+# SWAGGER_URL = '/swagger'
+# API_URL = '/static/swagger.json'
 
-swagger_ui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Access API"
-    }
-)
+# swagger_ui_blueprint = get_swaggerui_blueprint(
+#     SWAGGER_URL,
+#     API_URL,
+#     config={
+#         'app_name': "Access API"
+#     }
+# )
 
-app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
+# app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
    
     
 if __name__ == '__main__':
