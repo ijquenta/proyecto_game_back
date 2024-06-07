@@ -173,3 +173,11 @@ class Routes:
     
     #Operacion
     getTipoOperacion = apiVersion + '/getTipoOperacion'
+    
+    #Acceso
+    getAccesos = apiVersion + '/getAccesses'
+    getSubMenus = apiVersion + '/getSubMenus'
+    getSubMenuType = apiVersion + '/getSubMenuType'
+    createAccess = apiVersion + '/createAccess'
+    updateAccess = apiVersion + '/updateAccess/<int:accid>'
+    deleteAccess = apiVersion + '/deleteAccess/<int:accid>'
