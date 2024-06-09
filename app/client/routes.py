@@ -173,6 +173,10 @@ class Routes:
     
     #Operacion
     getTipoOperacion = apiVersion + '/getTipoOperacion'
+    getOperations = apiVersion + '/getOperations'
+    createOperation = apiVersion + '/createOperation'
+    updateOperation = apiVersion + '/updateOperation/<int:opeid>'
+    deleteOperation = apiVersion + '/deleteOperation/<int:opeid>'
     
     #Acceso
     getAccesos = apiVersion + '/getAccesses'
