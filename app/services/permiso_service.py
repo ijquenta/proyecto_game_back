@@ -3,7 +3,7 @@ from core.database import db, as_string, select, execute, execute_function, exec
 from utils.date_formatting import *
 from models.rol import Rol
 from models.permiso import Permiso
-from models.operacion import Operacion
+from models.operacion_model import Operacion
 
 def listarPermiso():
     data = select(f'''
@@ -68,7 +68,7 @@ def addPermiso(data):
             opeid=sql.Literal(data['opeid']),
             permactivo=sql.Literal(data['permactivo']),
             permusureg=sql.Literal(data['permusureg']),
-            permfecreg=sql.Literal(datetime.utcnow()),
+            permfecreg=sql.Literal(datetime.now()),
             permdescripcion=sql.Literal(data['permdescripcion']),
             permestado=sql.Literal(data['permestado'])
         )
