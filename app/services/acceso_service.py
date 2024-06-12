@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import jsonify, make_response
+from models.menu_model import Menu
 from core.database import db
 from models.rol import Rol
 from models.operacion_model import Operacion
@@ -7,6 +8,7 @@ from models.submenu_model import SubMenu
 from models.acceso_model import Acceso
 from sqlalchemy.exc import SQLAlchemyError
 from http import HTTPStatus
+from sqlalchemy.orm import aliased
 
 
 def getTipoOperacion():
@@ -45,20 +47,36 @@ def getAccesosv2():
         error_response = {"error": "Error en la base de datos.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-
 def list_all_accesses():
     try:
-        # Obtener todos los accesos de la base de datos
-        accesses = Acceso.query.all()
+        sm = aliased(SubMenu)
+        m = aliased(Menu)
+        a = aliased(Acceso)
+        
+        # Realizar la consulta con los joins necesarios
+        accesses = (db.session.query(a, m.menicono, m.mennombre)
+                    .outerjoin(sm, sm.submenid == a.submenid)
+                    .outerjoin(m, m.menid == sm.menid)
+                    .order_by(m.mennombre)
+                    .all())
+
         # Convertir los accesos en una lista de diccionarios
-        response = [access.to_dict() for access in accesses]
-        # Retornar la lista de accesos como una respuesta JSON
+        response = []
+        for access, menicono, mennombre in accesses:
+            access_dict = {col.name: getattr(access, col.name) for col in access.__table__.columns}
+            access_dict["menicono"] = menicono
+            access_dict["mennombre"] = mennombre
+            response.append(access_dict)
+
         return make_response(jsonify(response), HTTPStatus.OK)
+
     except SQLAlchemyError as e:
-        # En caso de error, devolver un mensaje de error con el código de estado correspondiente
+        db.session.rollback()
         error_response = {"error": "Error en la base de datos.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
+    finally:
+        db.session.close()
 
 def getSubMenus():
     try:
@@ -156,3 +174,35 @@ def deleteAccess(accid):
         db.session.rollback()
         error_response = {"error": "Error en la base de datos.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
+def getIconoNombre(submenid):
+    try:
+        sm = aliased(SubMenu)
+        m = aliased(Menu)
+        a = aliased(Acceso)
+        
+        result = (db.session.query(a.submenid, sm.menid, m.menicono)
+                  .join(sm, sm.submenid == a.submenid)
+                  .outerjoin(m, m.menid == sm.menid)
+                  .filter(a.submenid == submenid)
+                  .limit(1)
+                  .all())
+
+        # Convertir el resultado a una lista de diccionarios
+        result_dict = [
+            {
+                "submenid": row.submenid,
+                "menid": row.menid,
+                "menicono": row.menicono
+            } for row in result
+        ]
+
+        return make_response(jsonify(result_dict), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        error_response = {"error": "Error in getIconoNombre.", "message": str(e)}
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    finally:
+        db.session.close()

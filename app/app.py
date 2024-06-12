@@ -37,6 +37,8 @@ from routes.asistencia_routes import asistencia_routes  # Rutas relacionadas con
 from routes.permiso_routes import permiso_routes # Rutas relacionada con permiso
 from routes.operacion_routes import operacion_routes
 from routes.acceso_routes import acceso_routes 
+from routes.menu_routes import menu_routes
+from routes.tipoIcono_routes import tipoIcono_routes
 
 # Define el nombre del archivo de registro y configura el nivel de registro
 LOG_FILENAME = 'aplication.log'
@@ -146,6 +148,8 @@ asistencia_routes(api=api)  # Rutas relacionadas con la asistencia
 permiso_routes(api=api) # Rutas relacionadas con permiso
 operacion_routes(api=api)
 acceso_routes(api=api)
+menu_routes(api=api)
+tipoIcono_routes(api=api)
 
 
 # Importamos funciones para registro y login de usuarios

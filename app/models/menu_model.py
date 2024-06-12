@@ -7,6 +7,7 @@ class Menu(db.Model):
 
     menid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     mennombre = db.Column(db.String(50))
+    menicono = db.Column(db.String(50))
     menusureg = db.Column(db.String(50))
     menfecreg = db.Column(db.DateTime, default=datetime.utcnow)
     menusumod = db.Column(db.String(50))
@@ -21,6 +22,7 @@ class Menu(db.Model):
         return {
             'menid': self.menid,
             'mennombre': self.mennombre,
+            'menicono': self.menicono,
             'menusureg': self.menusureg,
             'menfecreg': self.menfecreg.isoformat() if self.menfecreg else None,
             'menusumod': self.menusumod,

@@ -5,6 +5,10 @@ class GetAccesos(Resource):
     def get(self):
         return list_all_accesses()
     
+class GetIconoNombre(Resource):
+    def get(self, submenid):
+        return getIconoNombre(submenid)
+
 class GetSubMenus(Resource):
     def get(self):
         return getSubMenus()

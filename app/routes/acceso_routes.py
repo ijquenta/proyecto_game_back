@@ -10,3 +10,4 @@ def acceso_routes(api: Api):
     api.add_resource(acceso.CreateAccess, routes.createAccess)
     api.add_resource(acceso.UpdateAccess, routes.updateAccess)
     api.add_resource(acceso.DeleteAccess, routes.deleteAccess)
+    api.add_resource(acceso.GetIconoNombre, routes.getIconoNombre)

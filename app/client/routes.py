@@ -185,3 +185,13 @@ class Routes:
     createAccess = apiVersion + '/createAccess'
     updateAccess = apiVersion + '/updateAccess/<int:accid>'
     deleteAccess = apiVersion + '/deleteAccess/<int:accid>'
+    getIconoNombre = apiVersion + '/getIconoNombre/<int:submenid>'
+    
+    #Menus
+    getMenus = apiVersion + '/getMenus'
+    createMenu = apiVersion + '/createMenu'
+    updateMenu = apiVersion + '/updateMenu/<int:menid>'
+    deleteMenu = apiVersion + '/deleteMenu/<int:menid>'
+    
+    #tipoIcono
+    getTipoIcono = apiVersion + '/getTipoIcono'
