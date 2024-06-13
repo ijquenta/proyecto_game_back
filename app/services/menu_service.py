@@ -6,7 +6,6 @@ from http import HTTPStatus
 # Icono Imports
 from models.tipo_icono_model import TipoIcono
 
-
 # Menu Imports
 from models.menu_model import Menu
 
@@ -22,6 +21,7 @@ def getTipoIcono():
             "message": str(e),
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 # Menu Fuctions 
 def getMenus():
@@ -38,6 +38,7 @@ def getMenus():
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 def createMenu(data):
+    print("Data introduced CreateMenu: ", data)
     try:
         existingMenu = db.session.query(Menu).filter_by(mennombre=data["mennombre"]).first()
         if existingMenu:
@@ -75,7 +76,7 @@ def createMenu(data):
             "message": str(e),
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
-        return make_response(jsonify(error_response))
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
     
     
 from models.menu_model import db, Menu
@@ -87,12 +88,12 @@ def updateMenu(data, menid):
         if menu is None:
             return make_response(jsonify({"error": "Menu no founded."}), HTTPStatus.NOT_FOUND)
 
-        menu.mennombre = data["openombre"]
+        menu.mennombre = data["mennombre"]
         menu.menicono  = data["menicono"]
-        menu.menusumod = data["opeusumod"]
+        menu.menusumod = data["menusumod"]
         menu.menfecmod = datetime.now()
-        menu.menestado = data["opeestado"]
-        menu.mendescripcion = data["opedescripcion"]
+        menu.menestado = data["menestado"]
+        menu.mendescripcion = data["mendescripcion"]
 
         db.session.commit()
         _data = menu.to_dict()
