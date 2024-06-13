@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import jsonify, make_response
+from models.tipo_icono_model import TipoIcono
 from core.database import db
 from sqlalchemy.exc import SQLAlchemyError
 from http import HTTPStatus
@@ -20,6 +21,21 @@ def getTipoMenu():
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+def findIdIcono(iconombre):
+    try: 
+        icono = TipoIcono.query.filter_by(iconombre=iconombre).first()
+        print("icono: ", icono)
+        if icono is None:
+            return make_response(jsonify({"error": "Icono no encontrado."}), HTTPStatus.NOT_FOUND)
+        response = make_response(jsonify(icono.to_dict()), HTTPStatus.OK)
+        return response
+    
+    except Exception as e:
+        error_response = {"error": "Error en la base de datos.", "message": str(e)}
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
 
 def createMenu(data):
     try:
