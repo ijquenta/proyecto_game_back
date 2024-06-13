@@ -196,3 +196,10 @@ class Routes:
     #tipoIcono
     getTipoIcono = apiVersion + '/getTipoIcono'
     findIdIcono = apiVersion + '/findIdIcono'
+
+    #SubMenu
+    getTipoMenu = apiVersion + '/getTipoMenu'
+    getListSubMenu = apiVersion + '/getListSubMenu'
+    createSubMenu = apiVersion + '/createSubMenu'
+    updateSubMenu = apiVersion + '/updateSubMenu/<int:submenid>'
+    deleteSubMenu = apiVersion + '/deleteSubMenu/<int:submenid>'
