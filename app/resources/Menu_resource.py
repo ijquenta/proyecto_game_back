@@ -11,7 +11,8 @@ class GetMenus(Resource):
         return getMenus()
     
 parseCreateMenu = reqparse.RequestParser()
-parseCreateMenu.add_argument('mennombre', type=str, help='Ingrese menombre', required=True)
+parseCreateMenu.add_argument('mennombre', type=str, help='Ingrese mennombre', required=True)
+parseCreateMenu.add_argument('menicono', type=str, help='Ingrese menicono', required=True)
 parseCreateMenu.add_argument('menusureg', type=str, help='Ingrese menusureg', required=True)
 parseCreateMenu.add_argument('mendescripcion', type=str, help='Ingrese mendescripcion', required=False)
 parseCreateMenu.add_argument('menestado', type=int, help='Ingrese mestado', required=True)
@@ -22,6 +23,7 @@ class CreateMenu(Resource):
     
 parseUpdateMenu = reqparse.RequestParser()
 parseUpdateMenu.add_argument('mennombre', type=str, help='Ingrese menombre', required=False)
+parseUpdateMenu.add_argument('menicono', type=str, help='Ingrese menicono', required=False)
 parseUpdateMenu.add_argument('menusumod', type=str, help='Ingrese menusumod', required=True)
 parseUpdateMenu.add_argument('mendescripcion', type=str, help='Ingrese mendescripcion', required=False)
 parseUpdateMenu.add_argument('menestado', type=int, help='Ingrese mestado', required=False)
