@@ -195,3 +195,4 @@ class Routes:
     
     #tipoIcono
     getTipoIcono = apiVersion + '/getTipoIcono'
+    findIdIcono = apiVersion + '/findIdIcono'
