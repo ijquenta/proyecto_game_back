@@ -7,6 +7,13 @@ class GetTipoIcono(Resource):
         return getTipoIcono()
 
 
+parseFindIdIcono = reqparse.RequestParser()
+parseFindIdIcono.add_argument('menicono', type=str, help='Ingrese menicono', required=True)
+class FindIdIcono(Resource):
+    def post(self):
+        data = parseFindIdIcono.parse_args()
+        return findIdIcono(data['menicono'])
+
 
 from services.menu_service import *
 from services.permiso_service import * # Servicio de permiso
