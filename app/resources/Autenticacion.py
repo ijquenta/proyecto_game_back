@@ -85,3 +85,23 @@ class TokenGenerator:
             return None, None
         
 token_generetor = TokenGenerator()
+
+from functools import wraps
+from flask import make_response, request, jsonify
+
+def token_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        
+        if not token: 
+            return make_response(jsonify({'message': 'Token is missing!'}), 401)
+        
+        token = token.split(" ")[1]  # Bearer <token>
+        
+        if TokenGenerator.check_token(token):
+            return func(*args, **kwargs)
+        else:
+            return make_response(jsonify({'message': 'Invalid token!'}), 401)
+        
+    return decorated_function
