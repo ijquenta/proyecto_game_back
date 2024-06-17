@@ -1,9 +1,39 @@
+from http import HTTPStatus
 from core.database import select, execute, execute_function, execute_response, as_string
 from psycopg2 import sql
 from utils.date_formatting import *
+from models.persona_model import Persona
+from models.tipo_documento_model import TipoDocumento
+from models.tipo_pais_model import TipoPais
+from models.tipo_ciudad_model import TipoCiudad
+from models.tipo_genero_model import TipoGenero
+from models.tipo_estado_civil_model import TipoEstadoCivil
+from core.config import db
+from sqlalchemy.exc import SQLAlchemyError
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, jsonify, make_response
+
+# app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://admin:123456@localhost:5432/db_ibci'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+# db = SQLAlchemy()
 
 
 def listarPersona():
+    try:
+        personas = db.session.query(Persona).all()
+        personas_dict = [persona.to_dict() for persona in personas]
+        return make_response(jsonify(personas_dict))
+    
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+def listarPersonav2():
     listPersons = select('''
      SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, p.pertipodoc, td.tipodocnombre, 
         p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, p.perpais, tp.paisnombre, 
@@ -19,9 +49,13 @@ def listarPersona():
     ''')
     for person in listPersons:
         person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
-        person["perfecreg"] = darFormatoFechaConHora(person["perfecreg"])
-        person["perfecmod"] = darFormatoFechaConHora(person["perfecmod"])
+    #     person["perfecreg"] = darFormatoFechaConHora(person["perfecreg"])
+    #     person["perfecmod"] = darFormatoFechaConHora(person["perfecmod"])
+
     return listPersons
+
+#nextval('academico.persona_perid_seq'::regclass)
+
 
 def registrarPersona(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
