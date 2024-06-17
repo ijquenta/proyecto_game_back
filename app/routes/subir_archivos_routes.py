@@ -9,13 +9,33 @@ from utils.update_files import allowed_file_img, allowed_file, stringAleatorio
 import os  # Para acceder a variables de entorno y operaciones del sistema
 from utils.optimize_image import optimize_image  # Para optimizar imágenes
 
+def f_delete_foto_perfil():
+    data = request.get_json()
+    filename = data.get('filename')
+    if not filename:
+        return jsonify({"message": "No se proporcionó el nombre del archivo.", "status": "failed"}), 400
+
+    try:
+        basepath = os.path.dirname(__file__)
+        filepath = os.path.join(basepath, '..', 'static', 'files_fotoperfil', filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            return jsonify({"message": "Archivo eliminado exitosamente.", "status": "success"}), 200
+        else:
+            return jsonify({"message": "Archivo no encontrado.", "status": "failed"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e), "status": "failed"}), 500
+
+
 def f_upload_file_foto_perfil(request):
     if 'files[]' not in request.files:
         return jsonify({"message": 'No hay imagenes en la solicitud', "status": 'failed'}), 400
 
     files = request.files.getlist('files[]')
+    
     errors = []
     success = False
+    
 
     for file in files:
         if file and allowed_file_img(file.filename):
