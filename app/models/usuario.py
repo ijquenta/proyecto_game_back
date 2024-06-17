@@ -1,5 +1,5 @@
 from . import db
-from models.persona import Persona
+from models.persona_model import Persona
 from models.rol import Rol
 
 class Usuario(db.Model):
