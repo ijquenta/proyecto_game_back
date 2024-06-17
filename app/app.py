@@ -158,7 +158,7 @@ submenu_routes(api=api)
 from routes.auth_routes import f_login_usuario # Importamos la función f_login_usuario
 from models.usuario import Usuario # Importamos el modelo Usuario
 from werkzeug.security import generate_password_hash # Importamos el generate_password_hash para generar contraseña hasheada
-from resources.Autenticacion import TokenGenerator # Importamos la clase TokenGenerator para utilizar sus diferentes opciones
+from resources.Autenticacion import TokenGenerator, token_required # Importamos la clase TokenGenerator para utilizar sus diferentes opciones
 @app.route('/academico_api/register', methods=['POST'])
 def f_register_usuario(): # Función para regitrar un usuario
     
@@ -247,11 +247,17 @@ def login_usuario():
     return f_login_usuario()
 
 # Importamos funciones para subida y descarga de archivos
-from routes.subir_archivos_routes import f_upload_file_foto_perfil, f_upload_file_pago, f_upload_file_texto, f_registrarArchivo, f_download_file, f_download_file_texto, f_listarArchivos, f_eliminarArchivo
+from routes.subir_archivos_routes import f_upload_file_foto_perfil, f_upload_file_pago, f_upload_file_texto, f_registrarArchivo, f_download_file, f_download_file_texto, f_listarArchivos, f_eliminarArchivo, f_delete_foto_perfil
 
-@app.route('/academico_api/fotoPerfil/upload', methods=['POST'])
+@app.route('/academico_api/profilePhoto/upload', methods=['POST'])
+@token_required
 def upload_file_foto_perfil():
     return f_upload_file_foto_perfil(request)
+
+@app.route('/academico_api/profilePhoto/delete', methods=['POST'])
+@token_required
+def delete_file_foto_perfil():
+    return f_delete_foto_perfil()
 
 @app.route('/academico_api/pago/upload', methods=['POST'])
 def upload_file_pago():
