@@ -1,10 +1,10 @@
 # Importamos librerias
-from psycopg2 import sql # 
+from psycopg2 import sql 
 from utils.date_formatting import *
-from core.database import select, execute, execute_function, as_string
-# Por seguridad, las contraseñas nunca deben ser almacenadas en la base de datos directamente. En lugar, se utilizar generate_password_hash() para hacer un hash seguro de la contraseña, y ese hash se almacena en la base de datos
-from werkzeug.security import generate_password_hash, check_password_hash
+from core.database import select, execute, as_string
+from werkzeug.security import generate_password_hash
 
+# Gestionar Usuario
 def gestionarUsuario(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
@@ -17,17 +17,19 @@ def gestionarUsuario(data):
                          perid=sql.Literal(data['perid']), 
                          rolid=sql.Literal(data['rolid']), 
                          usuname=sql.Literal(data['usuname']), 
-                         usupassword = sql.Literal(generate_password_hash(data['usupassword'])),  # Se hashea las contraseñas
+                         usupassword = sql.Literal(generate_password_hash(data['usupassword'])),
                          usupasswordhash= sql.Literal(generate_password_hash(data['usupassword'])), 
                          usuemail=sql.Literal(data['usuemail']), 
                          usudescripcion=sql.Literal(data['usudescripcion']), 
-                         usuestado=sql.Literal(data['usuestado']), usuusureg=sql.Literal(data['usuusureg']))
+                         usuestado=sql.Literal(data['usuestado']), 
+                         usuusureg=sql.Literal(data['usuusureg']))
         result = execute(as_string(query))
     except Exception as err:
         print(err)
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
 
+# Gestionar Usuario Estado
 def gestionarUsuarioEstado(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
@@ -39,6 +41,7 @@ def gestionarUsuarioEstado(data):
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
 
+# Gestionar Usuario Password(Contraseña)
 def gestionarUsuarioPassword(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
@@ -50,8 +53,8 @@ def gestionarUsuarioPassword(data):
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
 
+# Lista de Usuarios
 def listaUsuario():
-    # Se recupera todos los datos
     result = select(f'''
         SELECT 
         u.usuid, u.perid, p.pernomcompleto, p.pernrodoc, p.perfoto, u.rolid, r.rolnombre, u.usuname, 
@@ -61,11 +64,7 @@ def listaUsuario():
         inner join academico.persona p on p.perid = u.perid
         inner join academico.rol r on r.rolid = u.rolid 
         order by p.pernomcompleto 
-    ''')
-    # Se da el formato con esta funcion
-    for user in result:
-        user["usufecreg"] = darFormatoFechaConHora(user["usufecreg"])
-        user["usufecmod"] = darFormatoFechaConHora(user["usufecmod"])
+    ''')    
     return result
     
 def tipoPersona():

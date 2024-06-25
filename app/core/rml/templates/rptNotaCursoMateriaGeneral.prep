@@ -32,45 +32,44 @@
                 numero_materias = len(data)
                 correlativo = 1
                 correlativo2 = 1
+
                 #se puede hacer lo que sea con la info
                 total = {
                     "liq": 0
                 }
 
-                cursos = {}
-                # Iteramos una clave basada en la combinación de los valores del nombre de curso y materia
-                for element in data:
+                cursos = {} # lista de cursos
 
-                    llave = str("Curso: " + element["curnombre"] + " - Materia: " + element["matnombre"])
+                for d in data:
+                    curso = d["curnombre"].upper()
+                    materia = d["matnombre"].upper()
+                    llave = f"CURSO: {curso} - MATERIA: {materia}"
 
-                    try:
-                        # Insertamos con esa clave creada todos los elementos relacionados 
-                        cursos[llave].append(element)
-                    
-                    except Exception:
-                        # Caso diferente, si la clave no existe se crea una nueva clave con ese registro
-                        l = [element]
-                        cursos.update({llave: l})
+                    if llave not in cursos:
+                        cursos[llave] = []
 
-                # Diccionario para almacenar los totales de aprobados y reprobados por materia
-                totals = {}
+                    cursos[llave].append(d)
+                
+                totals = {} # Diccionario para almacenar los totales de aprobados y reprobados por materia
 
                 # Procesar los datos para contar aprobados y reprobados
                 for curso, items in cursos.items():
                     # Inicializar los contadores de aprobados y reprobados para la materia actual
                     aprobados = 0
                     reprobados = 0
+                    pendientes = 0
                     
                     # Contar aprobados y reprobados para cada estudiante en la materia actual
                     for item in items:
-                        if item['notfinal'] >= 70:
+                        if item['notfinal'] is None:
+                            pendientes += 1
+                        elif item['notfinal'] >= 70:
                             aprobados += 1
                         else:
                             reprobados += 1
                     
                     # Guardar los totales en el diccionario
-                    totals[curso] = {'aprobados': aprobados, 'reprobados': reprobados}
-                print(totals)
+                    totals[curso] = {'aprobados': aprobados, 'reprobados': reprobados, 'pendientes': pendientes}
                 {{endscript}}
 
                 <!-- Imagen de la Institución -->
@@ -191,12 +190,13 @@
             </tr>
         </blockTable>
     
-        <blockTable style="blocktablestyleData" rowHeights="0.7cm" colWidths="1cm, 14cm, 1cm, 1cm">
+        <blockTable style="blocktablestyleData" rowHeights="0.7cm" colWidths="1cm, 14cm, 1cm, 1cm, 1cm">
             <tr>
                 <td><para style="tableTexttdv2">N</para></td>
                 <td><para style="tableTexttdv2">Nombre de Curso y Materia</para></td>
                 <td><para style="tableTexttdv2">A</para></td>
                 <td><para style="tableTexttdv2">R</para></td>
+                <td><para style="tableTexttdv2">P</para></td>
             </tr>
         </blockTable>
         
@@ -207,12 +207,13 @@
         {{endscript}}
         
         {{for materia, total in totals.items()}}
-            <blockTable style="blocktablestyleData" rowHeights="1cm" colWidths="1cm, 14cm, 1cm, 1cm">
+            <blockTable style="blocktablestyleData" rowHeights="1.5cm" colWidths="1cm, 14cm, 1cm, 1cm, 1cm">
                 <tr>
-                    <td><para style="tableTexttd">{{correlativo2}}</para></td>
+                    <td><para style="tableTexttd">{{ correlativo2 }}</para></td>
                     <td><para style="tableTexttd">{{ materia }}</para></td>
                     <td><para style="tableTexttdv2">{{ total['aprobados'] }}</para></td>
                     <td><para style="tableTexttdv2">{{ total['reprobados'] }}</para></td>
+                    <td><para style="tableTexttdv2">{{ total['pendientes'] }}</para></td>
                 </tr>
             </blockTable>
             {{script}}

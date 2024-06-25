@@ -188,6 +188,7 @@ def rptNotaCursoMateriaGeneral(data):
             n.notusumod,
             n.notfecmod,
             CASE
+                WHEN n.notfinal IS NULL THEN 'Pendiente'
                 WHEN n.notfinal >= 70 THEN 'Aprobado'
                 ELSE 'Reprobado'
             END AS estado
@@ -201,9 +202,9 @@ def rptNotaCursoMateriaGeneral(data):
         ORDER BY
             c.curnombre,
             m.matnombre,
-            p.pernomcompleto;
-            
+            p.pernomcompleto;            
     ''')
+    # print("sql: ", params)
     return make(Report().RptNotaCursoMateriaGeneral(params, data['usuname']))
 
 

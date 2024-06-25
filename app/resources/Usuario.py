@@ -1,37 +1,20 @@
 from flask_restful import Resource, reqparse
+# from app.resources.Autenticacion import token_required
 from core.auth import *
-from services.usuario_service import * # Servicio de usuario
-from flask import request
-
-# from resources.Autenticacion import token_required
-
-# @app.route('/register', methods=['POST'])
-# parseLogin = reqparse.RequestParser()
-# parseLogin.add_argument('email', type=str, help = 'Debe elegir el email', required = True)
-# parseLogin.add_argument('password', type=str, help = 'Debe elegir la password', required = True)
-# class Login(Resource):
-#   print("login -->", parseLogin)
-#   def post(self):
-#       data = parseLogin.parse_args()
-#       return login(data)
-
-# def verify_token_middleware(func):
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         token = request.headers['Authorization'].split(" ")[1]
-#         print("token-verify-middleware-->", token)
-#         return validate_token(token, output=False)
-#     return wrapper
+from services.usuario_service import *
 
 class ListaUsuario(Resource):
+  # @token_required
   def get(self):
     return listaUsuario()
   
 class TipoPersona(Resource):
+  # @token_required
   def get(self):
     return tipoPersona()
 
 class ListarRoles(Resource):
+  # @token_required
   def get(self):
       return listarRoles()
 
@@ -48,6 +31,7 @@ parseGestionarUsuario.add_argument('usudescripcion', type=str, help='Debe elegir
 parseGestionarUsuario.add_argument('usuestado', type=int, help='Debe elegir estado', required=True)
 parseGestionarUsuario.add_argument('usuusureg', type=str, help='Debe elegir usuRe', required=True)
 class GestionarUsuario(Resource):
+  # @token_required
   def post(self):
     data = parseGestionarUsuario.parse_args()
     return gestionarUsuario(data)
@@ -57,6 +41,7 @@ parseGestionarUsuarioEstado.add_argument('tipo', type=int, help='Debe elegir tip
 parseGestionarUsuarioEstado.add_argument('usuid', type=int, help='Debe elegir usuid', required=True)
 parseGestionarUsuarioEstado.add_argument('usuusumod', type=str, help='Debe elegir usumod', required=True)
 class GestionarUsuarioEstado(Resource):
+  # @token_required
   def post(self):
     data = parseGestionarUsuarioEstado.parse_args()
     return gestionarUsuarioEstado(data)
