@@ -1,0 +1,304 @@
+<!-- Parametros de entrada -->
+{{def(usuname, data1, data2, data3, data4)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ivan Quenta
+    Fecha: 16/12/2023 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="ReporteAdmisión.pdf">
+    <template pagesize="(21.6cm, 27.9cm)" title="Reporte de Admisión" author="Ivan">
+        <pageTemplate id="main">
+            <pageGraphics>
+                {{script}}
+                from core.rml.util.extras import getFecha
+                import datetime
+                today=datetime.datetime.today()
+                today=today.strftime("%d/%m/%y %H:%M")
+                {{endscript}}
+
+                <!-- Top -->
+                <!-- Imagen de la Institución -->
+                <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawCentredString x="10.5cm" y="25.5cm">FICHA DE ADMISIÓN</drawCentredString>
+                <drawString x="6cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawString>
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawString x="6cm" y="26cm">Sistema de Gestión y Seguimiento Académico</drawString>
+                <setFont name="Helvetica" size="9"/>  
+                <drawRightString x="20cm" y="27cm">Fecha Emisión: {{ today }}</drawRightString>
+                <!-- Top -->
+
+                <!-- Footer -->
+                <setFont name="Helvetica" size="8"/>
+                <drawRightString x="20cm" y="1cm"> Pag. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
+                <drawString x="2cm" y="1cm">Usuario: {{usuname}}</drawString>
+                <!-- Footer -->
+            </pageGraphics>
+            <frame showBoundary="0" id="first" x1="1.55cm" y1="1.55cm" width="18.5cm" height="23.3cm"/>
+        </pageTemplate>
+    </template>
+
+    <stylesheet>
+        <blockTableStyle id="blocktablestyle1">
+            <!-- <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" /> -->
+            <!-- <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" /> -->
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="blocktablestyleData">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="6"/>
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
+        <blockTableStyle id="blocktablestyleDataFirma">
+            <!-- <blockLeading length="2cm"/> -->
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
+        <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
+        <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
+        <paraStyle name="tableTextTotal" alignment="right" fontSize="9" leading="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+        <paraStyle name="tableTexttd" alignment="left" fontSize="9"/>
+        <paraStyle name="tableTextTitle" alignment="center" fontSize="9" fontName="Helvetica"/>
+    </stylesheet>
+    <story>
+        <blockTable rowHeights="1cm" colWidths="19cm"> 
+            <tr>
+                <td><para style="tableTextTitle">I.- INFORMACION PERSONAL</para></td> 
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="0.6cm, 0.6cm" colWidths="5cm, 14cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">NOMBRE COMPLETO: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['pernomcompleto']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTextTitle">DIRECCIÓN: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['perdirec']}}</para></td>
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="0.6cm, 0.6cm, 0.6cm" colWidths="4.5cm, 5cm, 4.8cm, 4.7cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">FECHA de NACIMIENTO: </para></td>
+                <td><para style="tableTextTitle">{{ getFecha(data1[0]['perfecnac'])}}</para></td>
+                <td><para style="tableTextTitle">EDAD: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['peredad']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTextTitle">ESTADO CIVIL: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['estadocivilnombre']}}</para></td>
+                <td><para style="tableTextTitle">N° de HIJOS: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['pernrohijos']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTextTitle">PROFESIÓN: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['pronombre']}}</para></td>
+                <td><para style="tableTextTitle">CI: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['pernrodoc']}}</para></td>
+            </tr>
+        </blockTable>
+        
+        <blockTable rowHeights="1cm" colWidths="5cm, 14cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">FECHA Y LUGAR DE CONVERSIÓN: </para></td>
+                <td><para style="tableTextTitle">{{ getFecha(data1[0]['perfecconversion'])  + ' ' +  data1[0]['perlugconversion']}}</para></td>
+            </tr>
+        </blockTable>
+        
+        <blockTable rowHeights="0.6cm" colWidths="3.7cm, 1.1cm, 5.7cm, 1.1cm, 2.1cm, 5.3cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">BAUTIZO EN AGUAS: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['perbautizoagua']}}</para></td>
+                <td><para style="tableTextTitle">BAUTIZO EN EL ESPIRITU SANTO: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['perbautizoespiritu']}}</para></td>
+                <td><para style="tableTextTitle">TEL/CEL: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['pertelefono'] + ' ' + data1[0]['percelular']}} </para></td>
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="1cm, 0.6cm" colWidths="5cm, 14cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">NOMBRE Y DIRECCIÓN DE SU IGLESIA: </para></td>
+                <td><para style="tableTexttd">{{data1[0]['pernomiglesia'] + ' ' + data1[0]['perdiriglesia']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTextTitle">NOMBRE DE SU PASTOR: </para></td>
+                <td><para style="tableTexttd">{{data1[0]['pernompastor'] + ' ' + data1[0]['percelpastor']}}</para></td>
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="1cm" colWidths="19cm" > 
+            <tr>
+                 <td><para style="tableTextTitle">II.- INFORMACION ACADEMICA</para></td> 
+            </tr>
+        </blockTable>
+
+        <blockTable style="blocktablestyleData" rowHeights="1cm" colWidths="2.5cm, 6.5cm, 1.5cm, 4.25cm, 4.25cm" > 
+             <tr>
+                 <td><para style="tableTextTitle">EDUCACIÓN</para> </td> 
+                 <td><para style="tableTextTitle">NOMBRE Y DIRECCION DE LA INSTITUICION</para></td> 
+                 <td><para style="tableTextTitle">AÑOS</para> </td> 
+                 <td><para style="tableTextTitle">FECHAS</para></td> 
+                 <td><para style="tableTextTitle">TITULO OBTENIDO</para></td> 
+            </tr>
+        </blockTable>
+
+        {{for d2 in data2}}
+            <blockTable style="blocktablestyleData" rowHeights="1.5cm" colWidths="2.5cm, 6.5cm, 1.5cm, 4.25cm, 4.25cm" >
+                <tr>
+                    <td><para style="tableTexttd">{{d2['edunombre']}}</para></td>
+                    <td><para style="tableTexttd">{{d2['pernominstitucion'] + ' - ' + d2['perdirinstitucion']}}</para></td>
+                    <td><para style="tableTextTitle">{{d2['pergescursadas']}}</para></td>
+                    <td><para style="tableTexttd">{{d2['perfechas']}}</para></td>
+                    <td><para style="tableTexttd">{{d2['pertitulo']}}</para></td>
+                </tr>
+            </blockTable>
+        {{endfor}}
+
+        <blockTable rowHeights="1cm" colWidths="19cm" > 
+            <tr>
+                 <td><para style="tableTextTitle">III.- INFORMACION MINISTERIAL</para></td> 
+            </tr>
+        </blockTable>
+
+        <blockTable style="blocktablestyleData" rowHeights="0.6cm" colWidths="6.33cm, 6.33cm, 6.33cm" > 
+            <tr>
+                 <td><para style="tableTextTitle">IGLESIA</para> </td> 
+                 <td><para style="tableTextTitle">CARGO</para></td> 
+                 <td><para style="tableTextTitle">AÑO</para> </td> 
+            </tr>
+        </blockTable>
+
+        {{for d3 in data3}}
+            <blockTable style="blocktablestyleData" rowHeights="0.7cm" colWidths="6.33cm, 6.33cm, 6.33cm" >
+                <tr>
+                    <td><para style="tableTextTitle">{{d3['pernomiglesia']}}</para></td>
+                    <td><para style="tableTextTitle">{{d3['carnombre']}}</para></td>
+                    <td><para style="tableTextTitle">{{d3['pergestion']}}</para></td>
+                </tr>
+            </blockTable>
+        {{endfor}}
+
+        <blockTable rowHeights="0.6cm" colWidths="17cm, 2cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">AÑOS DE EXPERIENCIA EN EL MINISTERIO CRISTIANO: </para></td>
+                <td><para style="tableTextTitle">{{data1[0]['perexperiencia']}}</para></td>
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="1.5cm, 1.5cm" colWidths="9cm, 10cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTextTitle">MOTIVO POR EL CUAL QUIERE ESTUDIAR CON EL I.B.C.I: </para></td>
+                <td><para style="tableTexttd">{{data1[0]['permotivo']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTextTitle">CUALES SON SUS PLANES Y METAS FUTURAS PARA SU SERVICIO EN EL MINISTERIO: </para></td>
+                <td><para style="tableTexttd">{{data1[0]['perplanesmetas']}}</para></td>
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="1cm" colWidths="19cm" > 
+            <tr>
+                 <td><para style="tableTextTitle">IV.- DOCUMENTOS PRESENTADOS PARA ADMISION:</para></td> 
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="0.6cm, 0.6cm, 0.6cm, 0.6cm" colWidths="12cm, 7cm" style="blocktablestyle1">
+            <tr>
+                <td><para style="tableTexttd">1.- FOTO 4x4, a color: </para></td>
+                <td><para style="tableTextTitle">{{data4[0]['perfoto']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTexttd">2.- FOTOCOPIA C.I: </para></td>
+                <td><para style="tableTextTitle">{{data4[0]['perfotoci']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTexttd">3.- FOTOCOPIA TITULO BACHILLER: </para></td>
+                <td><para style="tableTextTitle">{{data4[0]['perfototitulo']}}</para></td>
+            </tr>
+            <tr>
+                <td><para style="tableTexttd">4.- CARTA de RECOMENDACIÓN del PASTOR: </para></td>
+                <td><para style="tableTextTitle">{{data4[0]['percartapastor']}}</para></td>
+            </tr>
+        </blockTable>
+        
+        <blockTable rowHeights="2cm, 0.5cm, 0.5cm, 1cm, 0.6cm, 2cm, 0.6cm, 0.6cm, 1cm" colWidths="6.33cm, 6.33cm, 6.33cm" > 
+            <tr>
+                 <td><para style="tableTextTitle"></para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle">{{data1[0]['pernomcompleto']}}</para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle">FIRMA DEL ALUMNO</para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle">FECHA de ADMISIÓN</para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle">{{today}}</para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle">CONFERIDO POR: </para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle"></para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle">Lic. Adolfo Flor Sainz</para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle"></para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle">COORDINADOR - LA PAZ</para> </td> 
+            </tr>
+            <tr>
+                 <td><para style="tableTextTitle">FIRMA del DIRECTOR NACIONAL </para> </td> 
+                 <td><para style="tableTextTitle"></para></td> 
+                 <td><para style="tableTextTitle"></para></td> 
+            </tr>
+        </blockTable>
+
+        <blockTable rowHeights="3cm" colWidths="19cm" > 
+            <tr>
+                 <td><para style="tableTextTitle">REMITIR ESTA/S HOJA/S A LAS OFICINAS DEL I.B.C.I</para></td> 
+            </tr>
+        </blockTable>
+
+        <illustration width="27cm" height="0cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+
+        <illustration width="27cm" height="0cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>

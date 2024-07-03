@@ -247,7 +247,7 @@ def login_usuario():
     return f_login_usuario()
 
 # Importamos funciones para subida y descarga de archivos
-from routes.subir_archivos_routes import f_upload_file_foto_perfil, f_upload_file_pago, f_upload_file_texto, f_registrarArchivo, f_download_file, f_download_file_texto, f_listarArchivos, f_eliminarArchivo, f_delete_foto_perfil
+from routes.subir_archivos_routes import *
 
 @app.route('/academico_api/profilePhoto/upload', methods=['POST'])
 @token_required
@@ -321,6 +321,8 @@ def enviar_correo_verificar(destinatario, asunto, mensaje):
         print(f'Error al enviar el correo: {str(e)}')
         return False
     
+
+
 # SWAGGER_URL = '/swagger'
 # API_URL = '/static/swagger.json'
 

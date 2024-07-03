@@ -20,7 +20,13 @@ class rptCursoMateriaContabilidad(Resource):
         data = parseRptCursoMateriaContabilidad.parse_args()
         return reporte.rptCursoMateriaContabilidad(data)
 
-
+parseRptInformacionAdmision = reqparse.RequestParser()
+parseRptInformacionAdmision.add_argument('perid', type=int, help='Este campo es requerido perid', required=True)
+parseRptInformacionAdmision.add_argument('usuname', type=str, help='Este campo es requerido usuname', required=True)
+class RptInformacionAdmision(Resource):
+    def post(self):
+        data = parseRptInformacionAdmision.parse_args()
+        return reporte.rptInformacionAdmision(data)
 
 """
 

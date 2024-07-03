@@ -149,6 +149,7 @@ class Routes:
     # Reportes
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
     rptCursoMateriaContabilidad = apiVersion + '/rptCursoMateriaContabilidad'
+    rptInformacionAdmision = apiVersion + '/rptInformacionAdmision'
     
     
     # Contabilidad
@@ -203,3 +204,37 @@ class Routes:
     createSubMenu = apiVersion + '/createSubMenu'
     updateSubMenu = apiVersion + '/updateSubMenu/<int:submenid>'
     deleteSubMenu = apiVersion + '/deleteSubMenu/<int:submenid>'
+    
+    # Persona Información Personal
+    informacionPersonal = apiVersion + '/informacionPersonal/<int:perid>'
+    personaInformacionPersonal = apiVersion + '/informacionPersonal'
+    
+    # Persona Información Académica
+    informacionAcademica = apiVersion + '/informacionAcademica/<int:perid>'
+    informacionAcademicav2 = apiVersion + '/informacionAcademica/<int:perinfoaca>'
+    personaInformacionAcademica = apiVersion + '/informacionAcademica'
+    
+    # Persona Información Ministerial
+    informacionMinisterial = apiVersion + '/informacionMinisterial/<int:perid>'
+    personaInformacionMinisterial = apiVersion + '/informacionMinisterial'
+    personaInformacionMinisterialv2 = apiVersion + '/informacionMinisterial/<int:perinfomin>'
+    
+    # Persona Documento Admisión
+    
+    documentoAdmision = apiVersion + '/documentoAdmision/<int:perid>'
+    personaDocumentoAdmision = apiVersion + '/documentoAdmision'
+    personaDocumentoAdmisionv2 = apiVersion + '/documentoAdmision/<int:perdocadm>'
+    documentoAdmisionv2 = apiVersion + '/documentoAdmision/<string:filename>'
+    # Tipo Profesión
+    tipoProfesion = apiVersion + '/tipoProfesion'
+    tipoProfesionv2 = apiVersion + '/tipoProfesion/<int:proid>'
+    
+    # Tipo Educación
+    tipoEducacion = apiVersion + '/tipoEducacion'
+    tipoEducacionv2 = apiVersion + '/tipoEducacion/<int:eduid>'
+    
+    # Tipo Cargo
+    tipoCargo = apiVersion + '/tipoCargo'
+    tipoCargov2 = apiVersion + '/tipoCargo/<int:carid>'
+    
+    

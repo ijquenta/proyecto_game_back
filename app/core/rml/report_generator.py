@@ -4,7 +4,18 @@ from core.rml.util.to_pdf import generatePdf  # Generación de archivos PDF a pa
 
 # Ruta de los repotes .prep
 PATH = 'core/rml/templates/'
-class Report():    
+class Report():
+    
+    def RptInformacionAdmision(self, usuname, data1, data2, data3, data4):
+        try:
+            templateTs = preppy.getModule(PATH+'rptInformacionAdmision.prep')
+            with BytesIO(bytes(templateTs.get(usuname, data1, data2, data3, data4), 'utf-8')) as buffer:
+                with BytesIO() as output:
+                    generatePdf(buffer, output)
+                    pdf_out = output.getvalue()
+            return pdf_out  
+        except Exception as e:
+            print("Error rpt InformacionAdmision: ", e)  
    
     def RptCursoMateriaContabilidad(self, data, data2, data3):
         try:

@@ -8,6 +8,8 @@ def make(pdf):
     response = make_response(pdf)
     response.headers["Content-Disposition"] = "attachment; filename={}".format("archivo.pdf")
     response.mimetype = 'application/pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte.pdf'
     return response
     
 def rptCursoMateriaContabilidad(data):
@@ -32,6 +34,92 @@ def rptCursoMateriaContabilidad(data):
         p['curmatfecfin'] = darFormatoFechaSinHora(p['curmatfecfin'])   
     return make(Report().RptCursoMateriaContabilidad(params, params_descuentos, params_resumen))
 
+def rptInformacionAdmision(data):
+    perid = data['perid']
+    usuname = data['usuname']
+    print("perid: ", perid)
+    print("usuname: ", usuname) 
+    
+    datos_informacion_personal = select(f'''
+                                        SELECT pip.perid, p.pernomcompleto, p.perfecnac, p.pernrodoc, p.perdirec, te.estadocivilnombre, p.percelular, p.pertelefono, pip.peredad, pip.pernrohijos, pip.perprofesion, tp.pronombre,pip.perfecconversion, pip.perlugconversion, 
+                                        CASE 
+                                            WHEN pip.perbautizoagua IS NOT NULL THEN 'Sí' 
+                                            ELSE 'No' 
+                                        END AS perbautizoagua,
+                                        CASE 
+                                            WHEN pip.perbautizoespiritu IS NOT NULL THEN 'Sí' 
+                                            ELSE 'No' 
+                                        END AS perbautizoespiritu,
+                                        
+                                        pip.pernomiglesia, pip.perdiriglesia, pip.pernompastor, pip.percelpastor,pip.perexperiencia, pip.permotivo, pip.perplanesmetas  
+                                        FROM academico.persona_info_personal pip
+                                        INNER JOIN academico.tipo_profesion tp on tp.proid = pip.perprofesion
+                                        left join academico.persona p on p.perid = pip.perid
+                                        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil
+                                        WHERE pip.perid = {perid};
+                                        ''')
+    if not datos_informacion_personal:
+        datos_informacion_personal = [{"pernomcompleto": "", "perdirec": "", "perfecnac": "", "peredad": "", "estadocivilnombre": "", "pernrohijos": "", "pronombre": "", "pernrodoc": "", "perfecconversion": "", "perlugconversion": "", "perbautizoagua": "", "perbautizoespiritu": "", "pertelefono": "", "percelular": "", "pernomiglesia": "", "perdiriglesia": "", "pernompastor": "", "percelpastor": "", "perexperiencia": "", "permotivo":"", "perplanesmetas":""}]
+    
+    datos_informacion_academica = select(f'''
+                                        SELECT pia.perinfoaca, pia.perid, pia.pereducacion,te.edunombre, pia.pernominstitucion, pia.perdirinstitucion, pia.pergescursadas, pia.perfechas, pia.pertitulo 
+                                        FROM academico.persona_info_academica pia
+                                        JOIN academico.tipo_educacion te on te.eduid = pia.pereducacion
+                                        WHERE perid = {perid}
+                                        order by te.edunombre;
+                                        ''')
+    if not datos_informacion_academica:
+        datos_informacion_academica = [{"perinfoaca": "", "pereducacion": "", "edunombre": "", "pernominstitucion": "", "perdirinstitucion": "", "pergescursadas": "", "perfechas": "", "pertitulo": ""}]
+    
+    datos_informacion_ministerial = select(f'''
+                                        SELECT pim.perinfomin, pim.perid, pim.pernomiglesia, pim.percargo,tc.carnombre, pim.pergestion
+                                        FROM academico.persona_info_ministerial pim
+                                        INNER JOIN academico.tipo_cargo tc on tc.carid = pim.percargo
+                                        WHERE perid = {perid}
+                                        order by pim.pernomiglesia;
+                                        ''')
+    if not datos_informacion_ministerial:
+        datos_informacion_ministerial = [{"perinfomin": "", "perid": "", "pernomiglesia": "", "percargo": "", "carnombre": "", "pergestion": ""}]
+    
+    datos_documentos_admision = select(f'''
+                                       SELECT 
+                                            perid, 
+                                            CASE 
+                                                WHEN perfoto IS NOT NULL THEN 'Sí' 
+                                                ELSE 'No' 
+                                            END AS perfoto,
+                                            CASE 
+                                                WHEN perfotoci IS NOT NULL THEN 'Sí' 
+                                                ELSE 'No' 
+                                            END AS perfotoci,
+                                            CASE 
+                                                WHEN perfototitulo IS NOT NULL THEN 'Sí' 
+                                                ELSE 'No' 
+                                            END AS perfototitulo,
+                                            CASE 
+                                                WHEN percartapastor IS NOT NULL THEN 'Sí' 
+                                                ELSE 'No' 
+                                            END AS percartapastor
+                                        FROM 
+                                            academico.persona_doc_admision
+                                        WHERE 
+                                            perid = {perid};
+                                       ''')
+    if not datos_documentos_admision:
+        datos_documentos_admision = [{"perid": perid, "perfoto": "No", "perfotoci": "No", "perfototitulo": "No", "percartapastor": "No"}]
+    
+    print("datos_informacion_personal: ", datos_informacion_personal)
+    print("datos_informacion_academica: ", datos_informacion_academica)
+    print("datos_informacion_ministerial: ", datos_informacion_ministerial)
+    print("datos_documentos_admision: ", datos_documentos_admision)
+
+    try:
+        pdf = Report().RptInformacionAdmision(usuname, datos_informacion_personal, datos_informacion_academica, datos_informacion_ministerial, datos_documentos_admision)
+        return make(pdf)
+    except Exception as e:
+        print("Error generating report: ", str(e))
+        return {"code": 0, "message": f"Error generating report: {str(e)}"}, 500
+    
 # Reportes de ejemplo
 def rptTotalesSigma():
     params = select(f'''
