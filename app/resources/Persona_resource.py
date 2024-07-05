@@ -93,11 +93,6 @@ class RegistrarPersona(Resource):
         data = parseRegistrarPersona.parse_args()
         return registrarPersona(data)
 
-
-      
-
-
-
 # Persona Información Personal
 
 class ListarInformacionPersonal(Resource):
@@ -378,3 +373,32 @@ class EliminarTipoCargo(Resource):
     @token_required
     def delete(self, carid):
         return eliminarTipoCargo(carid)
+    
+# Actualizar Perfil
+parseModificarPerfil = reqparse.RequestParser()
+parseModificarPerfil.add_argument('perid', type=int, help='se requiere perid', required=True)
+parseModificarPerfil.add_argument('pernombres', type=str, help='se requiere pernombres', required=True)
+parseModificarPerfil.add_argument('perapepat', type=str, help='se requiere perapepat', required=True)
+parseModificarPerfil.add_argument('perapemat', type=str, help='se requiere perapemat', required=True)
+parseModificarPerfil.add_argument('pertipodoc', type=int, help='se requiere pertipodoc', required=True)
+parseModificarPerfil.add_argument('pernrodoc', type=str, help='se requiere pernrodoc', required=True)
+parseModificarPerfil.add_argument('perfecnac', type=str, help='se requiere perfecnac', required=True)
+parseModificarPerfil.add_argument('perdirec', type=str, help='se requiere perdirec', required=True)
+parseModificarPerfil.add_argument('peremail', type=str, help='se requiere peremail', required=True)
+parseModificarPerfil.add_argument('percelular', type=str, help='se requiere percelular', required=True)
+parseModificarPerfil.add_argument('pertelefono', type=str, help='se requiere pertelefono', required=True)
+parseModificarPerfil.add_argument('perpais', type=int, help='se requiere perpais', required=True)
+parseModificarPerfil.add_argument('perciudad', type=int, help='se requiere perciudad', required=True)
+parseModificarPerfil.add_argument('pergenero', type=int, help='se requiere pergenero', required=True)
+parseModificarPerfil.add_argument('perestcivil', type=int, help='se requiere perestcivil', required=True)
+parseModificarPerfil.add_argument('perusumod', type=str, help='se requiere perusumod', required=True)
+class ModificarPerfil(Resource):
+    @token_required
+    def post(self):
+        data = parseModificarPerfil.parse_args()
+        return modificarPerfil(data, request)
+    
+class MostrarDatosPersona(Resource):
+    @token_required
+    def get(self, perid):
+        return mostrarDatosPersona(perid)

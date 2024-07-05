@@ -33,6 +33,32 @@ def darFormatoFechaNacimiento(fecha_str):
     fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
     return fecha_formateada 
 
+def darFormatoFechaNacimientov2(fecha_str):
+    if not fecha_str:   
+        return None
+
+    # Lista de formatos posibles
+    formatos_posibles = [
+        "%a %b %d %Y %H:%M:%S GMT%z (hora de Bolivia)",
+        "%Y-%m-%d",  # Formato '1999-01-30'
+        "%Y-%m-%dT%H:%M:%S.%fZ",  # Formato '2023-07-03T20:01:12.881757Z'
+        "%Y-%m-%d %H:%M:%S"  # Formato '2023-07-03 20:01:12'
+    ]
+
+    for formato in formatos_posibles:
+        try:
+            # Intentar convertir la fecha utilizando el formato actual
+            fecha_datetime = datetime.strptime(fecha_str, formato)
+            # Formatear la fecha en el formato deseado
+            fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
+            return fecha_formateada
+        except ValueError:
+            # Si ocurre un ValueError, continuar con el siguiente formato
+            continue
+
+    # Si ningún formato coincide, retornar None o lanzar una excepción
+    return None
+
 def darFormatoFechaSinHoraAlReves(fecha_str):
     if not fecha_str:
         return None

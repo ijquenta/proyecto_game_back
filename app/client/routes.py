@@ -21,6 +21,8 @@ class Routes:
     tipoCiudad = apiVersion + '/tipoCiudad'
     registrarPersona = apiVersion + '/registrarPersona'
     listarPersona = apiVersion + '/listarPersona'
+    modificarPerfil = apiVersion + '/modificarPerfil'
+    mostrarDatosPersona = apiVersion + '/mostrarDatosPersona/<int:perid>'
 
     # Usuario
     gestionarUsuario = apiVersion + '/gestionarUsuario'

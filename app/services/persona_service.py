@@ -1140,3 +1140,166 @@ def eliminarTipoCargo(carid):
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
+    
+# Actualizar perfil
+from models.persona_model import Persona
+def actualizarPerfil(data):
+    try:
+        persona = Persona.query.filter_by(perid=data["perid"]).first()
+        if not persona:
+            error_response = {
+                "error": "Not found",
+                "message": "The specified resource was not found.",
+                "code": HTTPStatus.NOT_FOUND
+            }
+            return make_response(jsonify(error_response), HTTPStatus.NOT_FOUND)
+
+        persona.perapepat = data["perapepat"]
+        persona.perapemat = data["perapemat"]
+        persona.pernombres = data["pernombres"]
+        persona.pertipodoc = data["pertipodoc"]
+        persona.pernrodoc = data["pernrodoc"]
+        persona.perfecnac = data["perfecnac"]
+        persona.perdirec = data["perdirec"]
+        persona.peremail = data["peremail"]
+        persona.percelular = data["percelular"]
+        persona.pertelefono = data["pertelefono"]
+        persona.perpais = data["perpais"]
+        persona.perciudad = data["perciudad"]
+        persona.pergenero = data["pergenero"]
+        persona.perestcivil = data["perestcivil"]
+        persona.perusumod = data["perusumod"]
+        persona.perfecmod = datetime.now()
+        persona.perfoto = data["perfoto"]
+
+        db.session.commit()
+        _data = persona.to_dict()
+        response_data = {
+                "message": "Perfil actualizado successfully",
+                "data": _data,
+                "code": HTTPStatus.OK
+        }
+        response = make_response(jsonify(response_data), HTTPStatus.CREATED)
+        return response
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+        
+def modificarPerfil(data, request):
+    try:
+        archivo_perfil = ['perfoto']
+        archivos = {}
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, '..', 'static', 'archivoPersona')
+        if not os.path.exists(upload_directory):
+            os.makedirs(upload_directory)
+
+        # Recuperar datos existentes usando perid
+        persona = Persona.query.filter_by(perid=data['perid']).first()
+
+        if not persona:
+            resp = {
+                "status": "error",
+                "message": "Persona no encontrado."
+            }
+            return make_response(jsonify(resp), HTTPStatus.NOT_FOUND)
+
+        # Manejar archivos subidos
+        for archivo in archivo_perfil:
+            if archivo in request.files:
+                file = request.files[archivo]
+                if file.filename == '':
+                    raise ValueError(f"Nombre de archivo vacío para {archivo}.")
+                if file and allowed_file(file.filename):
+
+                    file_hash = calculate_file_hash(file)
+                    filename = secure_filename(file.filename)
+                    file_extension = filename.rsplit('.', 1)[1].lower()
+                    unique_filename = f"{file_hash}.{file_extension}"
+                    upload_path = os.path.join(upload_directory, unique_filename)
+
+                    # verifica que el archivo ya exista
+                    if not os.path.exists(upload_path):
+                        file.save(upload_path)
+
+                    # Guardar la nueva ruta del archivo y eliminar el anterior
+                    archivo_path = getattr(persona, archivo, None)
+                    if archivo_path:
+                        full_path = os.path.join(upload_directory, archivo_path)
+                        if os.path.exists(full_path)        :
+                            os.remove(full_path)
+
+                    archivos[archivo] = unique_filename
+                else:
+                    raise ValueError(f"Tipo de archivo no permitido para {archivo}.")
+            else:
+                archivos[archivo] = getattr(persona, archivo)  # Mantener archivo existente
+
+        # Actualizar el registro existente
+        persona.perfoto = archivos['perfoto']
+        persona.pernomcompleto = data["perapepat"] + " " + data["perapemat"] + " " + data["pernombres"]
+        persona.perapepat = data["perapepat"]
+        persona.perapemat = data["perapemat"]
+        persona.pernombres = data["pernombres"]
+        persona.pertipodoc = data["pertipodoc"]
+        persona.pernrodoc = data["pernrodoc"]
+        persona.perfecnac = darFormatoFechaNacimientov2(data["perfecnac"])
+        persona.perdirec = data["perdirec"]
+        persona.peremail = data["peremail"]
+        persona.percelular = data["percelular"]
+        persona.pertelefono = data["pertelefono"]
+        persona.perpais = data["perpais"]
+        persona.perciudad = data["perciudad"]
+        persona.pergenero = data["pergenero"]
+        persona.perestcivil = data["perestcivil"]
+        persona.perusumod = data["perusumod"]
+        persona.perfecmod = datetime.now()
+
+        db.session.commit()
+
+        resp = {
+            "status": "success",
+            "message": "El perfil de la persona se ha actualizado correctamente.",
+            "perfoto": {k: v for k, v in archivos.items() if v}
+        }
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        resp = {
+            "status": "error",
+            "message": f"Error al modificar el documento de admisión: {str(e)}"
+        }
+        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+def mostrarDatosPersona(perid):
+    try:
+        persona = Persona.query.filter_by(perid=perid).first()
+        if not persona:
+            error_response = {
+                "error": "Not found",
+                "message": "The specified resource was not found.",
+                "code": HTTPStatus.NOT_FOUND
+            }
+            return make_response(jsonify(error_response), HTTPStatus.NOT_FOUND)
+
+        _data = persona.to_dict()
+        response_data = {
+            "message": "data recovered successfully",
+            "data": _data,
+            "code": HTTPStatus.OK
+        }
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)  
