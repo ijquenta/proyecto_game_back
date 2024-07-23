@@ -57,12 +57,23 @@ class TokenGenerator:
         }
         token = jwt.encode(payload, os.environ.get("APP_SECRET_KEY"), algorithm='HS256')
         return token.decode('utf-8')
+    
+    @staticmethod
+    def generate_confirmation_token_for_email(user_id, user_rol, user_email):
+        payload = {
+            'usuid': user_id,
+            'rolid': user_rol,
+            'usuemail': user_email
+            
+        }
+        token = jwt.encode(payload, os.environ.get("APP_SECRET_KEY"), algorithm='HS256')
+        return token.decode('utf-8')
 
     @staticmethod
     def confirm_token(token):
         try:
             payload = jwt.decode(token, os.environ.get("APP_SECRET_KEY"), algorithms=['HS256'])
-            return payload.get('usuid')
+            return payload.get('    ')
         except jwt.ExpiredSignatureError:
             # Token ha expirado
             return None

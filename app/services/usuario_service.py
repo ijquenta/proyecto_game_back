@@ -1,8 +1,58 @@
-# Importamos librerias
-from psycopg2 import sql 
+# Librerías de Flask y Werkzeug
+from flask import request, make_response, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# Librerías de PostgreSQL y SQLAlchemy
+from psycopg2 import sql
+from sqlalchemy import or_
+
+# Modelos de la aplicación
+from models.persona_model import Persona
+from models.rol import Rol
+
+# Recursos y servicios
+from resources.Autenticacion import TokenGenerator
+from services.email_service import EmailService
+
+# Utilidades y funciones auxiliares
 from utils.date_formatting import *
 from core.database import select, execute, as_string
-from werkzeug.security import generate_password_hash
+# from app.utils.email import send_reset_email  # Comentado temporalmente
+
+class UsuarioService:
+    def __init__(self, mail):
+        self.email_service = EmailService(mail)
+
+    def request_password_reset(self, data):
+        user = Usuario.query.filter_by(usuname=data['usuname'], usuemail=data['usuemail']).first()
+        if user:
+            token = TokenGenerator.generate_confirmation_token(user.usuid, user.rolid)
+            self.email_service.send_reset_email(user.usuemail, token)
+            return {"message": "A password reset email has been sent.", "code": 200}, 200
+        return {"message": "User not found."}, 404          
+
+    def reset_password(self, token, new_password):
+        try:
+            payload = TokenGenerator.confirm_token(token)
+            if not payload:
+                return {"message": "Invalid or expired token."}, 400
+            user_id = payload['usuid']
+            user = Usuario.query.get(user_id)
+            if user:
+                user.usupassword = generate_password_hash(new_password)
+                db.session.commit()
+                return {"message": "Password has been reset."}, 200
+            return {"message": "User not found."}, 404
+        except Exception as e:
+            return {"message": str(e)}, 500
+
+    def change_password(self, user_id, old_password, new_password):
+        user = Usuario.query.get(user_id)
+        if not user or not check_password_hash(user.usupassword, old_password):
+            return {"message": "Old password is incorrect."}, 400
+        user.usupassword = generate_password_hash(new_password)
+        db.session.commit()
+        return {"message": "Password has been changed."}, 200
 
 # Gestionar Usuario
 def gestionarUsuario(data):
@@ -153,3 +203,76 @@ def obtenerEmail(data):
     ''')
     return res
 
+# search User for name or email
+def buscarUsuario(data):
+    usuariosEncontrados = Usuario.query.join(
+        Rol, Usuario.rolid == Rol.rolid).join(Persona, Usuario.perid == Persona.perid).filter(
+        or_(Usuario.usuname == data.get('usuname'), 
+            Usuario.usuemail == data.get('usuemail')
+        )).all()
+    
+    _data = [usuario.to_dict_with_persona_rol() for usuario in usuariosEncontrados] if usuariosEncontrados else None
+    
+    data_response = {
+        "message": "Usuario encontrado" if _data else "Usuario no encontrado",
+        "data": _data if _data else [],
+        "code": 200 if _data else 404
+    } 
+    return make_response(jsonify(data_response), data_response["code"])
+    
+# Reset Password in "Forgot password"
+def resetPassword(token, data):
+    # Verificar si el token es válido
+    usuid = TokenGenerator.confirm_token(token)
+    if not usuid:
+        return {'message': 'The reset link is invalid or has expired.'}, 400
+    
+    # Buscar al usuario por su id
+    user = Usuario.query.filter_by(usuid=usuid).first()
+    if user:
+        try:
+            # Generar el hash de la nueva contraseña
+            hashed_password = generate_password_hash(data['usupassword'])
+            
+            # Actualizar los campos de la contraseña y de modificación
+            user.usupassword = hashed_password
+            user.usuusumod = data['usuname']
+            user.usufecmod = datetime.now()
+
+            # Guardar los cambios en la base de datos
+            db.session.commit()
+
+            return {'message': 'Your password has been updated successfully!'}, 200
+        
+        except Exception as err:
+            print(err)
+            return {'code': 0, 'message': 'Error: ' + str(err)}, 500
+
+    return {'message': 'User not found.'}, 404
+
+# Change Password of the user panel
+from models.usuario import Usuario, db
+def changePassword(data):
+    # Buscar al usuario por su nombre de usuario
+    user = Usuario.query.filter_by(usuname=data['usuname']).first()
+    
+    if user:
+        try:
+            # Generar el hash de la nueva contraseña
+            hashed_password = generate_password_hash(data['usupassword'])
+            
+            # Actualizar los campos de la contraseña y de modificación
+            user.usupassword = hashed_password
+            user.usuusumod = data['usuname']
+            user.usufecmod = datetime.now()
+
+            # Guardar los cambios en la base de datos
+            db.session.commit()
+
+            return {'message': 'Your password has been updated successfully!'}, 200
+        
+        except Exception as err:
+            print(err)
+            return {'code': 0, 'message': 'Error: ' + str(err)}, 500
+
+    return {'message': 'User not found.'}, 404

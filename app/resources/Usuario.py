@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-# from app.resources.Autenticacion import token_required
+from resources.Autenticacion import token_required
 from core.auth import *
 from services.usuario_service import *
 
@@ -58,7 +58,7 @@ class GestionarUsuarioPassword(Resource):
 parsePerfil = reqparse.RequestParser()
 parsePerfil.add_argument('usuid', type=int, help = 'Debe elegir el usuid', required = True)
 class Perfil(Resource):
-  # @token_required
+  @token_required
   def post(self):
       data = parsePerfil.parse_args()
       return perfil(data)
@@ -98,10 +98,58 @@ class ObtenerEmail(Resource):
   def post(self):
       data = parseObtenerEmail.parse_args()
       return obtenerEmail(data)
+    
+    
+# change password
+# Parser para cambiar la contraseña desde el perfil de usuario
+parseChangePassword = reqparse.RequestParser()
+parseChangePassword.add_argument('current_password', type=str, required=True, help='Current password cannot be blank')
+parseChangePassword.add_argument('new_password', type=str, required=True, help='New password cannot be blank')
+
+# Parser para solicitar el restablecimiento de la contraseña
+parseRequestPasswordReset = reqparse.RequestParser()
+parseRequestPasswordReset.add_argument('usuemail', type=str, required=True, help='Email cannot be blank')
 
 
+# Parser para restablecer la contraseña
+parseResetPassword = reqparse.RequestParser()
+parseResetPassword.add_argument('usuname', type=str, required=True, help='usuname cannot be blank')
+parseResetPassword.add_argument('usupassword', type=str, required=True, help='usupassword cannot be blank')
+class ResetPasswordResource(Resource):
+    def post(self, token):
+        data = parseResetPassword.parse_args()
+        return resetPassword(token, data)
+
+# from app.services.usuario_service import UsuarioService   
+
+parseChangePassword = reqparse.RequestParser()
+parseChangePassword.add_argument('usuname', type=str, help='Debe elegir el usuname', required=True)
+parseChangePassword.add_argument('usuemail', type=str, help='Debe elegir el usuemail', required=True)
+
+class RequestChangePassword(Resource):
+    def __init__(self, mail):
+        self.usuario_service = UsuarioService(mail)
+
+    def post(self):
+        data = parseChangePassword.parse_args()
+        return self.usuario_service.request_password_reset(data)  
 
 
-
-
-
+# Buscar al u suario por su nombre, email de usuario ó el número de documento
+parseBuscarUsuario = reqparse.RequestParser()
+parseBuscarUsuario.add_argument('usuname', type=str, help='Debe elegir el usuname', required=True)
+parseBuscarUsuario.add_argument('usuemail', type=str, help='Debe elegir el usuemail', required=True)
+class BuscarUsuario(Resource):
+    def post(self):
+        data = parseBuscarUsuario.parse_args()
+        return buscarUsuario(data)
+      
+# Resource para restablecer la contraseña
+parseChangePassword = reqparse.RequestParser()
+parseChangePassword.add_argument('usuname', type=str, required=True, help='usuname cannot be blank')
+parseChangePassword.add_argument('usupassword', type=str, required=True, help='usupassword cannot be blank')
+class ChangePasswordResource(Resource):
+    @token_required
+    def post(self):
+        data = parseChangePassword.parse_args()
+        return changePassword(data)

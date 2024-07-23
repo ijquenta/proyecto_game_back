@@ -33,9 +33,14 @@ class Routes:
     perfil = apiVersion + auth + '/perfil'
     listaUsuarios = apiVersion + '/listaUsuarios'
     obtenerEmail = apiVersion + '/obtenerEmail'
+    requestChangePassword = apiVersion + '/requestChangePassword'
+    requestPasswordReset = apiVersion + '/auth/request-password-reset'
+    resetPassword = apiVersion + '/auth/resetPassword/<string:token>'
+    buscarUsuario = apiVersion + '/buscarUsuario'
+    changePassword = apiVersion + '/changePassword'
 
     # Roles
-    listarRoles = apiVersion + '/listarRoles'
+    getRoles = apiVersion + '/getRoles'
     crearRol = apiVersion + '/crearRol'
     modificarRol = apiVersion + '/modificarRol'
     eliminarRol = apiVersion + '/eliminarRol'
@@ -95,8 +100,9 @@ class Routes:
     listarTipoPersonaEstudiante = apiVersion + '/listarTipoPersonaEstudiante'
    
     # Rol
-    gestionarRol = apiVersion + '/gestionarRol'
-    gestionarRolEstado = apiVersion + '/gestionarRolEstado'
+    getRoles = apiVersion + '/getRoles'
+    manageRole = apiVersion + '/manageRole'
+    manageRoleStatus = apiVersion + '/manageRoleStatus'
     
     # Estudiante
     listarEstudiante = apiVersion + '/listarEstudiante'
@@ -167,7 +173,7 @@ class Routes:
     listarPermiso = apiVersion + '/listarPermiso'
     listarPermisoRol = apiVersion + '/listarPermisoRol'
     getPermisos = apiVersion + '/getPermisos'
-    getRoles = apiVersion + '/getRoles'
+    
     getOperaciones = apiVersion + '/getOperaciones'
     updatePermiso = apiVersion + '/updatePermiso'
     addPermiso = apiVersion + '/addPermiso'

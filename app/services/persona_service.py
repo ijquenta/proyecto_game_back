@@ -1,11 +1,10 @@
 import hashlib
 from http import HTTPStatus
 import os
-import uuid
 from core.database import select, execute, execute_function, execute_response, as_string
 from psycopg2 import sql
 from utils.date_formatting import *
-from models.persona_model import Persona, PersonaDocAdmision, PersonaInfoAcademica, PersonaInfoMinisterial, PersonaInfoPersonal, TipoCargo, TipoProfesion, TipoEducacion
+from models.persona_model import *
 from core.config import db
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify, make_response, send_file, send_from_directory
@@ -24,6 +23,7 @@ def listarPersona():
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
 
 def listarPersonav2():
     listPersons = select('''
@@ -1195,7 +1195,7 @@ def modificarPerfil(data, request):
         archivo_perfil = ['perfoto']
         archivos = {}
         basepath = os.path.dirname(__file__)
-        upload_directory = os.path.join(basepath, '..', 'static', 'archivoPersona')
+        upload_directory = os.path.join(basepath, '..', 'static', 'fotoPerfilPersona')
         if not os.path.exists(upload_directory):
             os.makedirs(upload_directory)
 

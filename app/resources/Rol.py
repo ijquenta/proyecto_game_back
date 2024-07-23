@@ -1,56 +1,32 @@
 from flask_restful import Resource, reqparse
-from core.auth import *
-from services.rol_service import * # Servicio de rol
+from resources.Autenticacion import token_required
+from services.rol_service import *
 
-class ListarRoles(Resource):
+class GetRolesResource(Resource):
+  @token_required
   def get(self):
-      return listarRoles()
+      return getRoles()
 
-parseGestionarRol = reqparse.RequestParser()
-parseGestionarRol.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
-parseGestionarRol.add_argument('rolid', type=int, help='Debe elegir rolid', required=True)
-parseGestionarRol.add_argument('rolnombre', type=str, help='Debe elegir rolnombre', required=True)
-parseGestionarRol.add_argument('roldescripcion', type=str, help='Debe elegir roldescripcion', required=True)
-parseGestionarRol.add_argument('rolestado', type=int, help='Debe elegir rolestado', required=True)
-parseGestionarRol.add_argument('rolusureg', type=str, help='Debe elegir rolusureg', required=True)
-class GestionarRol(Resource):
+parseManageRole = reqparse.RequestParser()
+parseManageRole.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)
+parseManageRole.add_argument('rolid', type=int, help='Debe elegir rolid', required=True)
+parseManageRole.add_argument('rolnombre', type=str, help='Debe elegir rolnombre', required=True)
+parseManageRole.add_argument('roldescripcion', type=str, help='Debe elegir roldescripcion', required=True)
+parseManageRole.add_argument('rolestado', type=int, help='Debe elegir rolestado', required=True)
+parseManageRole.add_argument('rolusureg', type=str, help='Debe elegir rolusureg')
+parseManageRole.add_argument('rolusumod', type=str, help='Debe elegir rolusumod')
+class ManageRoleResource(Resource):
+  @token_required
   def post(self):
-    data = parseGestionarRol.parse_args()
-    return gestionarRol(data)
+    data = parseManageRole.parse_args()
+    return manageRole(data)
   
-parseGestionarRolEstado = reqparse.RequestParser()
-parseGestionarRolEstado.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)  
-parseGestionarRolEstado.add_argument('rolid', type=int, help='Debe elegir rolid', required=True)  
-parseGestionarRolEstado.add_argument('rolusumod', type=str, help='Debe elegir rolusumod', required=True)
-class GestionarRolEstado(Resource):
+parseManageRoleStatus = reqparse.RequestParser()
+parseManageRoleStatus.add_argument('tipo', type=int, help='Debe elegir tipo', required=True)  
+parseManageRoleStatus.add_argument('rolid', type=int, help='Debe elegir rolid', required=True)  
+parseManageRoleStatus.add_argument('rolusumod', type=str, help='Debe elegir rolusumod', required=True)
+class ManageRoleStatusResource(Resource):
+  @token_required
   def post(self):  
-    data = parseGestionarRolEstado.parse_args()
-    return gestionarRolEstado(data)
-
-parseCrearRol = reqparse.RequestParser()
-parseCrearRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nombre del rol', required = True)
-parseCrearRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
-parseCrearRol.add_argument('rolUsuReg', type=str, help = 'Debe elegir el usuario de registro')
-class CrearRol(Resource):
-  def post(self):
-      data = parseCrearRol.parse_args()
-      return crearRol(data)
-  
-parseModificarRol = reqparse.RequestParser()
-parseModificarRol.add_argument('rolId', type=int, help = 'Debe elegir el Id del rol', required = True)
-parseModificarRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nombre del rol', required = True)
-parseModificarRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
-parseModificarRol.add_argument('rolUsuMod', type=str, help = 'Debe elegir el usuario de registro', required = True)
-class ModificarRol(Resource):
-  def post(self):
-      data = parseModificarRol.parse_args()
-      return modificarRol(data)
-  
-parseEliminarRol = reqparse.RequestParser()
-parseEliminarRol.add_argument('rolid', type=str, help = 'Debe elegir el Id del rol', required = True)
-parseEliminarRol.add_argument('rolusumod', type=str, help = 'Debe elegir el usuario de registro', required = True)
-class EliminarRol(Resource):
-  def post(self):
-      data = parseEliminarRol.parse_args()
-      return eliminarRol(data)
-
+    data = parseManageRoleStatus.parse_args()
+    return manageRoleStatus(data)

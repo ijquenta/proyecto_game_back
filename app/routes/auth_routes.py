@@ -39,7 +39,7 @@ def f_register_usuario():
             print("3. se genera el token: ", confirmation_token)
 
             # Prepara el mensaje de correo electrónico de confirmación
-            mensaje_correo = f'Por favor, haga clic en el siguiente enlace para confirmar su registro: http://127.0.0.0:4200/confirmar-correo?token={confirmation_token}'
+            mensaje_correo = f'Por favor, haga clic en el siguiente enlace para confirmar su registro: http://127.0.0.0:4200/confirm-email?token={confirmation_token}'
 
             print("4. se agrega el mensaje: ", mensaje_correo)
 

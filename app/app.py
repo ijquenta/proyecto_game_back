@@ -129,7 +129,7 @@ def index():
 # Asociación de rutas de API con funciones definidas en otros archivos
 
 # Cada línea invoca una función que define las rutas de API en un archivo específico
-usuario_routes(api=api)  # Rutas relacionadas con los usuarios
+usuario_routes(api=api, mail=mail)  # Rutas relacionadas con los usuarios
 reporte_routes(api=api)  # Rutas relacionadas con los reportes
 rol_routes(api=api)  # Rutas relacionadas con los roles de usuario
 persona_routes(api=api)  # Rutas relacionadas con las personas
@@ -147,11 +147,11 @@ contabilidad_routes(api=api)  # Rutas relacionadas con la contabilidad
 principal_routes(api=api)  # Rutas principales de la aplicación
 asistencia_routes(api=api)  # Rutas relacionadas con la asistencia
 permiso_routes(api=api) # Rutas relacionadas con permiso
-operacion_routes(api=api)
-acceso_routes(api=api)
-menu_routes(api=api)
-tipoIcono_routes(api=api)
-submenu_routes(api=api)
+operacion_routes(api=api) # Rutas relacionadas con operación
+acceso_routes(api=api) # Rutas relacionadas con acceso
+menu_routes(api=api) # Rutas relacionadas con menu 
+tipoIcono_routes(api=api) # Rutas relacionadas con tipo icono
+submenu_routes(api=api) # Rutas relacionadas con submenu
 
 
 # Importamos funciones para registro y login de usuarios
@@ -211,7 +211,7 @@ def f_register_usuario(): # Función para regitrar un usuario
 from psycopg2 import sql
 from core.database import execute, as_string
 
-@app.route("/academico_api/confirmar-correo", methods=['POST'])
+@app.route("/academico_api/confirm-email", methods=['POST'])
 def confirm_email():
     
     token = request.get_json()  # obtenemos el token con token['token']

@@ -27,3 +27,34 @@ class Usuario(db.Model):
     @classmethod
     def get_by_id(cls, user_id):
         return cls.query.get(user_id)
+    
+    def to_dict(self):
+        return {
+            'usuid': self.usuid,
+            'perid': self.perid,
+            'rolid': self.rolid,
+            'usuname': self.usuname,
+            'usupassword': self.usupassword,
+            'usupasswordhash': self.usupasswordhash,
+            'usuemail': self.usuemail,
+            'usudescripcion': self.usudescripcion,
+            'usuestado': self.usuestado,
+            'usuusureg': self.usuusureg,
+            'usufecreg': self.usufecreg,
+            'usuusumod': self.usuusumod,
+            'usufecmod': self.usufecmod,
+            'usuconfirmado': self.usuconfirmado,
+            'usuconfirmadofecreg': self.usuconfirmadofecreg
+        }
+        
+    def to_dict_with_persona_rol(self):
+        return {
+            'usuid': self.usuid,
+            'perid': self.perid,
+            'rolid': self.rolid,
+            'rolnombre': self.rol.rolnombre,
+            'usuname': self.usuname,
+            'usuemail': self.usuemail,
+            'pernomcompleto': self.persona.pernomcompleto if self.persona else None,
+            'pernrodoc': self.persona.pernrodoc if self.persona else None,
+        }
