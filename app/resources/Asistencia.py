@@ -8,4 +8,3 @@ class ListarAsistencia(Resource):
     # @token_required
     def get(self):
         return listarAsistencia()
-        # return make_response(jsonify(listarUsuarios())), 200

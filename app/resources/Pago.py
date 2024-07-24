@@ -14,7 +14,6 @@ class ListarPago(Resource):
     # @token_required
     def get(self):
         return listarPago()
-        # return make_response(jsonify(listarUsuarios())), 200
       
 parsePagoEstudiante = reqparse.RequestParser()
 parsePagoEstudiante.add_argument('perid', type=int, help='Ingrese perid', required=True)

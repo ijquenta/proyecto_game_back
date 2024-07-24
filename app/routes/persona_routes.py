@@ -4,9 +4,9 @@ import resources.Estudiante as Estudiante
 from client.routes import Routes as routes
 
 def persona_routes(api: Api):
-    api.add_resource(Persona.ListarPersona, routes.listarPersona)
-    api.add_resource(Persona.GestionarPersona, routes.gestionarPersona)
-    api.add_resource(Persona.EliminarPersona, routes.eliminarPersona)
+    api.add_resource(Persona.GetPersons, routes.getPersons)
+    api.add_resource(Persona.ManagePerson, routes.managePerson)
+    api.add_resource(Persona.DeletePerson, routes.deletePerson)
     api.add_resource(Persona.TipoDocumento, routes.tipoDocumento)
     api.add_resource(Persona.TipoEstadoCivil, routes.tipoEstadoCivil)
     api.add_resource(Persona.TipoGenero, routes.tipoGenero)
@@ -14,9 +14,8 @@ def persona_routes(api: Api):
     api.add_resource(Persona.TipoCiudad, routes.tipoCiudad)
     api.add_resource(Persona.RegistrarPersona, routes.registrarPersona)
     api.add_resource(Estudiante.ActualizarDatosPersonales, routes.actualizarDatosPersonales)
-    
-    api.add_resource(Persona.ModificarPerfil, routes.modificarPerfil)
-    api.add_resource(Persona.MostrarDatosPersona, routes.mostrarDatosPersona)
+    api.add_resource(Persona.UpdateProfile, routes.updateProfile)
+    api.add_resource(Persona.ShowPersonData, routes.showPersonData)
     
     # Persona Información Personal
     api.add_resource(Persona.ListarInformacionPersonal, routes.informacionPersonal)

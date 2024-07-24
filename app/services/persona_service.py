@@ -1,16 +1,21 @@
-import hashlib
-from http import HTTPStatus
-import os
-from core.database import select, execute, execute_function, execute_response, as_string
-from psycopg2 import sql
-from utils.date_formatting import *
-from models.persona_model import *
-from core.config import db
-from sqlalchemy.exc import SQLAlchemyError
-from flask import jsonify, make_response, send_file, send_from_directory
+import os  # Para manejo del sistema de archivos
+import hashlib  # Para manejo de hashes
+from datetime import datetime  # Para manejo de fechas y tiempos
+from http import HTTPStatus  # Para códigos de estado HTTP estándar
 
+from flask import jsonify, make_response, send_file, send_from_directory  # Para respuestas HTTP y manejo de archivos
+from werkzeug.utils import secure_filename  # Para asegurar nombres de archivos subidos
+from sqlalchemy.exc import SQLAlchemyError  # Para manejo de errores de SQLAlchemy
 
-def listarPersona():
+from core.config import db  # Configuración de la base de datos
+from core.database import select, execute, execute_function, execute_response, as_string  # Funciones de base de datos personalizadas
+from models.persona_model import *  # Modelo de la entidad Persona
+from utils.date_formatting import *  # Funciones de formateo de fechas
+from psycopg2 import sql # Para realizar consultas a la base de datos
+
+# Section Person 
+
+def getPersons():
     try:
         personas = db.session.query(Persona).all()
         personas_dict = [persona.to_dict() for persona in personas]
@@ -22,93 +27,130 @@ def listarPersona():
             "message": str(e),
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
-        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)  
     
+# Manage person for create or update
+def managePerson(data, request):
+    if data['tipo'] == 1:
+        return createPerson(data, request)
+    elif data['tipo'] == 2: 
+        return updatePerson(data, request)
+    else:
+        return make_response(jsonify({"status": "error", "message": "Tipo de operación no soportada."}), HTTPStatus.BAD_REQUEST)
 
-def listarPersonav2():
-    listPersons = select('''
-     SELECT p.perid, p.pernomcompleto, p.pernombres, p.perapepat, p.perapemat, p.pertipodoc, td.tipodocnombre, 
-        p.pernrodoc, p.perfecnac, p.perdirec, p.peremail, p.percelular, p.pertelefono, p.perpais, tp.paisnombre, 
-        p.perciudad, tc.ciudadnombre, p.pergenero, tg.generonombre, p.perestcivil, te.estadocivilnombre,
-        p.perfoto, p.perestado, p.perobservacion, p.perusureg, p.perfecreg, p.perusumod, p.perfecmod 
-        FROM academico.persona p
-        left join academico.tipo_documento td on td.tipodocid = p.pertipodoc
-        left join academico.tipo_pais tp on tp.paisid = p.perpais
-        left join academico.tipo_ciudad tc on tc.ciudadid = p.perciudad
-        left join academico.tipo_genero tg on tg.generoid = p.pergenero
-        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil    
-        ORDER BY p.pernomcompleto; 
-    ''')
-    for person in listPersons:
-        person["perfecnac"] = darFormatoFechaNacimiento(person["perfecnac"])
-    #     person["perfecreg"] = darFormatoFechaConHora(person["perfecreg"])
-    #     person["perfecmod"] = darFormatoFechaConHora(person["perfecmod"])
-
-    return listPersons
-
-def registrarPersona(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+# Create a new person
+def createPerson(data, request):
     try:
-        query = sql.SQL('''
-            SELECT * FROM academico.registrar_persona
-                ({pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc},  {perusureg}, {peremail} 
-                )
-        ''').format(
-            pernombres=sql.Literal(data['pernombres']),
-            perapepat=sql.Literal(data['perapepat']),
-            perapemat=sql.Literal(data['perapemat']),
-            pertipodoc=sql.Literal(data['pertipodoc']),
-            pernrodoc=sql.Literal(data['pernrodoc']),
-            perusureg=sql.Literal(data['perusureg']),
-            peremail=sql.Literal(data['peremail'])
-        )
-        result = execute_response(as_string(query)) 
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
-    return result
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, '..', 'static', 'personProfilePhoto')
+        if not os.path.exists(upload_directory):
+            os.makedirs(upload_directory)
 
-def gestionarPersona(data):
-    result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
+        # Manage uploaded files
+        files = handle_uploaded_files(request, upload_directory)
+
+        # Create a new person record
+        persona = Persona(       
+            perfoto=files['perfoto'],
+            pernomcompleto=f"{data['perapepat']} {data['perapemat']} {data['pernombres']}",
+            perapepat=data["perapepat"],
+            perapemat=data["perapemat"],
+            pernombres=data["pernombres"],
+            pertipodoc=data["pertipodoc"],
+            pernrodoc=data["pernrodoc"],
+            perfecnac=formatDateBirth(data["perfecnac"]),
+            perdirec=data["perdirec"],
+            peremail=data["peremail"],
+            percelular=data["percelular"],
+            pertelefono=data["pertelefono"],
+            perpais=data["perpais"],
+            perciudad=data["perciudad"],
+            pergenero=data["pergenero"],
+            perestcivil=data["perestcivil"],
+            perusumod=data["perusumod"],
+            perfecmod=datetime.now(),
+            perobservacion=data["perobservacion"],
+            perestado=data["perestado"]
+        )
+
+        db.session.add(persona)
+        db.session.commit()
+
+        resp = {
+            "status": "success",
+            "message": "El perfil de la persona se ha creado correctamente.",
+            "perfoto": {k: v for k, v in files.items() if v}
+        }
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        resp = {
+            "status": "error",
+            "message": f"Error al crear el perfil de la persona: {str(e)}"
+        }
+        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+# Update a person
+def updatePerson(data, request):
     try:
-        query = sql.SQL('''
-            SELECT academico.f_gestionar_persona
-                ({tipo},{perid}, {pernombres}, {perapepat}, {perapemat}, 
-                 {pertipodoc}, {pernrodoc}, {perfecnac}, {perdirec}, {peremail}, 
-                 {percelular}, {pertelefono}, {perpais}, {perciudad}, {pergenero}, 
-                 {perestcivil}, {perfoto}, {perestado}, {perobservacion}, {perusureg}, 
-                 {perusumod})
-        ''').format(
-            tipo=sql.Literal(data['tipo']),
-            perid=sql.Literal(data['perid']),
-            pernombres=sql.Literal(data['pernombres']),
-            perapepat=sql.Literal(data['perapepat']),
-            perapemat=sql.Literal(data['perapemat']),
-            pertipodoc=sql.Literal(data['pertipodoc']),
-            pernrodoc=sql.Literal(data['pernrodoc']),
-            perfecnac=sql.Literal(data['perfecnac']),
-            perdirec=sql.Literal(data['perdirec']),
-            peremail=sql.Literal(data['peremail']),
-            percelular=sql.Literal(data['percelular']),
-            pertelefono=sql.Literal(data['pertelefono']),
-            perpais=sql.Literal(data['perpais']),
-            perciudad=sql.Literal(data['perciudad']),
-            pergenero=sql.Literal(data['pergenero']),
-            perestcivil=sql.Literal(data['perestcivil']),
-            perfoto=sql.Literal(data['perfoto']),
-            perestado=sql.Literal(data['perestado']),
-            perobservacion=sql.Literal(data['perobservacion']),
-            perusureg=sql.Literal(data['perusureg']),
-            perusumod=sql.Literal(data['perusumod']),
-        )
-        result = execute(as_string(query)) 
-    except Exception as err:
-        print(err)
-        return {'code': 0, 'message': 'Error: ' + str(err)}, 404
-    return result
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, '..', 'static', 'personProfilePhoto')
+        if not os.path.exists(upload_directory):
+            os.makedirs(upload_directory)
 
-def eliminarPersona(data):
+        # Recover existing data using perid
+        persona = Persona.query.filter_by(perid=data['perid']).first()
+        if not persona:
+            resp = {
+                "status": "error",
+                "message": "Persona no encontrada."
+            }
+            return make_response(jsonify(resp), HTTPStatus.NOT_FOUND)
+
+        # Manage uploaded files
+        files = handle_uploaded_files(request, upload_directory)
+
+        # Actualiza el registro existente
+        persona.perfoto = files['perfoto'] or persona.perfoto
+        persona.pernomcompleto = f"{data['perapepat']} {data['perapemat']} {data['pernombres']}"
+        persona.perapepat = data["perapepat"]
+        persona.perapemat = data["perapemat"]
+        persona.pernombres = data["pernombres"]
+        persona.pertipodoc = data["pertipodoc"]
+        persona.pernrodoc = data["pernrodoc"]
+        persona.perfecnac = formatDateBirth(data["perfecnac"])
+        persona.perdirec = data["perdirec"]
+        persona.peremail = data["peremail"]
+        persona.percelular = data["percelular"]
+        persona.pertelefono = data["pertelefono"]
+        persona.perpais = data["perpais"]
+        persona.perciudad = data["perciudad"]
+        persona.pergenero = data["pergenero"]
+        persona.perestcivil = data["perestcivil"]
+        persona.perusumod = data["perusumod"]
+        persona.perfecmod = datetime.now()
+        persona.perobservacion=data["perobservacion"]
+        persona.perestado=data["perestado"]
+        
+        db.session.commit()
+
+        resp = {
+            "status": "success",
+            "message": "El perfil de la persona se ha actualizado correctamente.",
+            "perfoto": {k: v for k, v in files.items() if v}
+        }
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        resp = {
+            "status": "error",
+            "message": f"Error al actualizar el perfil de la persona: {str(e)}"
+        }
+        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+def deletePerson(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
     try:
         query = sql.SQL('''
@@ -125,47 +167,124 @@ def eliminarPersona(data):
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
 
-def tipoDocumento():
-    return select('''
-        SELECT tipodocid, tipodocnombre
-        FROM academico.tipo_documento;
-    ''')
+# Section profile    
+# Manage profile
+from models.persona_model import Persona # Import person model 
+def updateProfile(data, request):
+    try:
+        archivo_perfil = ['perfoto']
+        archivos = {}
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, '..', 'static', 'personProfilePhoto')
+        if not os.path.exists(upload_directory):
+            os.makedirs(upload_directory)
 
-def tipoEstadoCivil():
-    return select('''
-        SELECT estadocivilid, estadocivilnombre
-        FROM academico.tipo_estadocivil
-        order by case when estadocivilid = 1 then 0 else 1 end, estadocivilnombre;
-    ''')
+        # Recover existing data using perid
+        persona = Persona.query.filter_by(perid=data['perid']).first()
 
-def tipoGenero():
-    return select('''
-        SELECT generoid, generonombre
-        FROM academico.tipo_genero
-        order by generoid;
-    ''')
+        if not persona:
+            resp = {
+                "status": "error",
+                "message": "Persona no encontrado."
+            }
+            return make_response(jsonify(resp), HTTPStatus.NOT_FOUND)
 
-def tipoPais():
-    return select('''
-        SELECT paisid, paisnombre
-        FROM academico.tipo_pais
-        ORDER BY CASE WHEN paisid = 1 THEN 0 ELSE 1 END, paisnombre;
-    ''')
+        # Manage uploaded files
+        for archivo in archivo_perfil:
+            if archivo in request.files:
+                file = request.files[archivo]
+                if file.filename == '':
+                    raise ValueError(f"Nombre de archivo vacío para {archivo}.")
+                if file and allowed_file(file.filename):
 
-def tipoCiudad():
-    return select('''
-        SELECT ciudadid, ciudadnombre, paisid
-        FROM academico.tipo_ciudad;
-    ''')
-    
-def listarUsuarios():
-    listUsers = select(f'''
-    SELECT id, nombre_usuario, contrasena, nombre_completo, rol
-    FROM public.usuarios;
-    ''')
-    return listUsers
+                    file_hash = calculate_file_hash(file)
+                    filename = secure_filename(file.filename)
+                    file_extension = filename.rsplit('.', 1)[1].lower()
+                    unique_filename = f"{file_hash}.{file_extension}"
+                    upload_path = os.path.join(upload_directory, unique_filename)
 
+                    # Verify that the file already exists
+                    if not os.path.exists(upload_path):
+                        file.save(upload_path)
 
+                    # Save the new file path and delete the old one
+                    archivo_path = getattr(persona, archivo, None)
+                    if archivo_path:
+                        full_path = os.path.join(upload_directory, archivo_path)
+                        if os.path.exists(full_path)        :
+                            os.remove(full_path)
+
+                    archivos[archivo] = unique_filename
+                else:
+                    raise ValueError(f"Tipo de archivo no permitido para {archivo}.")
+            else:
+                archivos[archivo] = getattr(persona, archivo)  # Keep existing file
+
+        # Update existing record
+        persona.perfoto = archivos['perfoto']
+        persona.pernomcompleto = data["perapepat"] + " " + data["perapemat"] + " " + data["pernombres"]
+        persona.perapepat = data["perapepat"]
+        persona.perapemat = data["perapemat"]
+        persona.pernombres = data["pernombres"]
+        persona.pertipodoc = data["pertipodoc"]
+        persona.pernrodoc = data["pernrodoc"]
+        persona.perfecnac = formatDateBirth(data["perfecnac"])
+        persona.perdirec = data["perdirec"]
+        persona.peremail = data["peremail"]
+        persona.percelular = data["percelular"]
+        persona.pertelefono = data["pertelefono"]
+        persona.perpais = data["perpais"]
+        persona.perciudad = data["perciudad"]
+        persona.pergenero = data["pergenero"]
+        persona.perestcivil = data["perestcivil"]
+        persona.perusumod = data["perusumod"]
+        persona.perfecmod = datetime.now()
+        
+        db.session.commit()
+
+        resp = {
+            "status": "success",
+            "message": "El perfil de la persona se ha actualizado correctamente.",
+            "perfoto": {k: v for k, v in archivos.items() if v}
+        }
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        resp = {
+            "status": "error",
+            "message": f"Error al modificar el documento de admisión: {str(e)}"
+        }
+        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+# Show person for profile
+def showPersonData(perid):
+    try:
+        persona = Persona.query.filter_by(perid=perid).first()
+        if not persona:
+            error_response = {
+                "error": "Not found",
+                "message": "The specified resource was not found.",
+                "code": HTTPStatus.NOT_FOUND
+            }
+            return make_response(jsonify(error_response), HTTPStatus.NOT_FOUND)
+
+        _data = persona.to_dict()
+        response_data = {
+            "message": "data recovered successfully",
+            "data": _data,
+            "code": HTTPStatus.OK
+        }
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)  
+        
 # Persona Información Personal
 
 def listarInformacionPersonal(perid: any):
@@ -313,7 +432,7 @@ def modificarInformacionPersonal(data, perid):
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-    
+
 # Persona Información Académica
 def listarInformacionAcademica(perid: any):
     try:
@@ -582,23 +701,6 @@ def listarDocumentoAdmision(perid: any):
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-
-from werkzeug.utils import secure_filename  # Para asegurar los nombres de archivo
-# Function to calculate the hash of a file
-def calculate_file_hash(file):
-    hasher = hashlib.md5()
-    buf = file.read(1024)
-    while buf:
-        hasher.update(buf)
-        buf = file.read(1024)
-    file.seek(0)  # Reset file pointer to the beginning
-    return hasher.hexdigest()
-
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def adicionarDocumentoAdmision(data, request):
     try:
@@ -987,7 +1089,7 @@ def modificarTipoEducacion(data, eduid):
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
- 
+
 def eliminarTipoEducacion(eduid):
     try:
         tipoEducacion = TipoEducacion.query.filter_by(eduid=eduid).first()
@@ -1014,7 +1116,7 @@ def eliminarTipoEducacion(eduid):
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-  
+
 # Tipo Cargo
 def listarTipoCargo():
     try:
@@ -1141,165 +1243,93 @@ def eliminarTipoCargo(carid):
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
     
+
+# Types
+def tipoDocumento():
+    return select('''
+        SELECT tipodocid, tipodocnombre
+        FROM academico.tipo_documento;
+    ''')
+
+def tipoEstadoCivil():
+    return select('''
+        SELECT estadocivilid, estadocivilnombre
+        FROM academico.tipo_estadocivil
+        order by case when estadocivilid = 1 then 0 else 1 end, estadocivilnombre;
+    ''')
+
+def tipoGenero():
+    return select('''
+        SELECT generoid, generonombre
+        FROM academico.tipo_genero
+        order by generoid;
+    ''')
+
+def tipoPais():
+    return select('''
+        SELECT paisid, paisnombre
+        FROM academico.tipo_pais
+        ORDER BY CASE WHEN paisid = 1 THEN 0 ELSE 1 END, paisnombre;
+    ''')
+
+def tipoCiudad():
+    return select('''
+        SELECT ciudadid, ciudadnombre, paisid
+        FROM academico.tipo_ciudad;
+    ''')
     
-# Actualizar perfil
-from models.persona_model import Persona
-def actualizarPerfil(data):
-    try:
-        persona = Persona.query.filter_by(perid=data["perid"]).first()
-        if not persona:
-            error_response = {
-                "error": "Not found",
-                "message": "The specified resource was not found.",
-                "code": HTTPStatus.NOT_FOUND
-            }
-            return make_response(jsonify(error_response), HTTPStatus.NOT_FOUND)
+    
 
-        persona.perapepat = data["perapepat"]
-        persona.perapemat = data["perapemat"]
-        persona.pernombres = data["pernombres"]
-        persona.pertipodoc = data["pertipodoc"]
-        persona.pernrodoc = data["pernrodoc"]
-        persona.perfecnac = data["perfecnac"]
-        persona.perdirec = data["perdirec"]
-        persona.peremail = data["peremail"]
-        persona.percelular = data["percelular"]
-        persona.pertelefono = data["pertelefono"]
-        persona.perpais = data["perpais"]
-        persona.perciudad = data["perciudad"]
-        persona.pergenero = data["pergenero"]
-        persona.perestcivil = data["perestcivil"]
-        persona.perusumod = data["perusumod"]
-        persona.perfecmod = datetime.now()
-        persona.perfoto = data["perfoto"]
+def listarUsuarios():
+    listUsers = select(f'''
+    SELECT id, nombre_usuario, contrasena, nombre_completo, rol
+    FROM public.usuarios;
+    ''')
+    return listUsers
 
-        db.session.commit()
-        _data = persona.to_dict()
-        response_data = {
-                "message": "Perfil actualizado successfully",
-                "data": _data,
-                "code": HTTPStatus.OK
-        }
-        response = make_response(jsonify(response_data), HTTPStatus.CREATED)
-        return response
-    except SQLAlchemyError as e:
-        error_response = {
-            "error": "Error in the database.",
-            "message": str(e),
-            "code": HTTPStatus.INTERNAL_SERVER_ERROR
-        }
-        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-        
-def modificarPerfil(data, request):
-    try:
-        archivo_perfil = ['perfoto']
-        archivos = {}
-        basepath = os.path.dirname(__file__)
-        upload_directory = os.path.join(basepath, '..', 'static', 'fotoPerfilPersona')
-        if not os.path.exists(upload_directory):
-            os.makedirs(upload_directory)
+# Other fuctions 
+    
+from models.persona_model import db, Persona  # Import person model
+# Handle uploaded files in manage person
+def handle_uploaded_files(request, upload_directory):
+    profilePhotoFile = ['perfoto']
+    files = {}
 
-        # Recuperar datos existentes usando perid
-        persona = Persona.query.filter_by(perid=data['perid']).first()
+    for archivo in profilePhotoFile:
+        if archivo in request.files:
+            file = request.files[archivo]
+            if file.filename == '':
+                raise ValueError(f"Nombre de archivo vacío para {archivo}.")
+            if file and allowed_file(file.filename):
+                file_hash = calculate_file_hash(file)
+                filename = secure_filename(file.filename)
+                file_extension = filename.rsplit('.', 1)[1].lower()
+                unique_filename = f"{file_hash}.{file_extension}"
+                upload_path = os.path.join(upload_directory, unique_filename)
 
-        if not persona:
-            resp = {
-                "status": "error",
-                "message": "Persona no encontrado."
-            }
-            return make_response(jsonify(resp), HTTPStatus.NOT_FOUND)
+                # Verify that the file does not exist
+                if not os.path.exists(upload_path):
+                    file.save(upload_path)
 
-        # Manejar archivos subidos
-        for archivo in archivo_perfil:
-            if archivo in request.files:
-                file = request.files[archivo]
-                if file.filename == '':
-                    raise ValueError(f"Nombre de archivo vacío para {archivo}.")
-                if file and allowed_file(file.filename):
-
-                    file_hash = calculate_file_hash(file)
-                    filename = secure_filename(file.filename)
-                    file_extension = filename.rsplit('.', 1)[1].lower()
-                    unique_filename = f"{file_hash}.{file_extension}"
-                    upload_path = os.path.join(upload_directory, unique_filename)
-
-                    # verifica que el archivo ya exista
-                    if not os.path.exists(upload_path):
-                        file.save(upload_path)
-
-                    # Guardar la nueva ruta del archivo y eliminar el anterior
-                    archivo_path = getattr(persona, archivo, None)
-                    if archivo_path:
-                        full_path = os.path.join(upload_directory, archivo_path)
-                        if os.path.exists(full_path)        :
-                            os.remove(full_path)
-
-                    archivos[archivo] = unique_filename
-                else:
-                    raise ValueError(f"Tipo de archivo no permitido para {archivo}.")
+                files[archivo] = unique_filename
             else:
-                archivos[archivo] = getattr(persona, archivo)  # Mantener archivo existente
+                raise ValueError(f"Tipo de archivo no permitido para {archivo}.")
+        else:
+            files[archivo] = None  # There is no file uploaded for this field
 
-        # Actualizar el registro existente
-        persona.perfoto = archivos['perfoto']
-        persona.pernomcompleto = data["perapepat"] + " " + data["perapemat"] + " " + data["pernombres"]
-        persona.perapepat = data["perapepat"]
-        persona.perapemat = data["perapemat"]
-        persona.pernombres = data["pernombres"]
-        persona.pertipodoc = data["pertipodoc"]
-        persona.pernrodoc = data["pernrodoc"]
-        persona.perfecnac = darFormatoFechaNacimientov2(data["perfecnac"])
-        persona.perdirec = data["perdirec"]
-        persona.peremail = data["peremail"]
-        persona.percelular = data["percelular"]
-        persona.pertelefono = data["pertelefono"]
-        persona.perpais = data["perpais"]
-        persona.perciudad = data["perciudad"]
-        persona.pergenero = data["pergenero"]
-        persona.perestcivil = data["perestcivil"]
-        persona.perusumod = data["perusumod"]
-        persona.perfecmod = datetime.now()
+    return files
 
-        db.session.commit()
+# Function to calculate the hash of a file
+def calculate_file_hash(file):
+    hasher = hashlib.md5()
+    buf = file.read(1024)
+    while buf:
+        hasher.update(buf)
+        buf = file.read(1024)
+    file.seek(0)  # Reset file pointer to the beginning
+    return hasher.hexdigest()
 
-        resp = {
-            "status": "success",
-            "message": "El perfil de la persona se ha actualizado correctamente.",
-            "perfoto": {k: v for k, v in archivos.items() if v}
-        }
-        return make_response(jsonify(resp), HTTPStatus.OK)
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 
-    except Exception as e:
-        db.session.rollback()
-        resp = {
-            "status": "error",
-            "message": f"Error al modificar el documento de admisión: {str(e)}"
-        }
-        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-def mostrarDatosPersona(perid):
-    try:
-        persona = Persona.query.filter_by(perid=perid).first()
-        if not persona:
-            error_response = {
-                "error": "Not found",
-                "message": "The specified resource was not found.",
-                "code": HTTPStatus.NOT_FOUND
-            }
-            return make_response(jsonify(error_response), HTTPStatus.NOT_FOUND)
-
-        _data = persona.to_dict()
-        response_data = {
-            "message": "data recovered successfully",
-            "data": _data,
-            "code": HTTPStatus.OK
-        }
-        return make_response(jsonify(response_data), HTTPStatus.OK)
-
-    except SQLAlchemyError as e:
-        error_response = {
-            "error": "Error in the database.",
-            "message": str(e),
-            "code": HTTPStatus.INTERNAL_SERVER_ERROR
-        }
-        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)  
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

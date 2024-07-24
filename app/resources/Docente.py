@@ -8,7 +8,6 @@ class ListarDocente(Resource):
     # @token_required
     def get(self):
         return listarDocente()
-        # return make_response(jsonify(listarUsuarios())), 200
 
 parseObtenerMateriasAsignadas = reqparse.RequestParser()
 parseObtenerMateriasAsignadas.add_argument('perid', type=int, help='Ingresar perid', required=True)

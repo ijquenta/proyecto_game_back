@@ -12,17 +12,17 @@ class Routes:
     register2 = apiVersion + '/register2'
 
     # Persona 
-    gestionarPersona = apiVersion + '/gestionarPersona'
-    eliminarPersona = apiVersion + '/eliminarPersona'
+    managePerson = apiVersion + '/managePerson'
+    deletePerson = apiVersion + '/deletePerson'
     tipoDocumento = apiVersion + '/tipoDocumento'
     tipoEstadoCivil = apiVersion + '/tipoEstadoCivil'
     tipoGenero = apiVersion + '/tipoGenero'
     tipoPais = apiVersion + '/tipoPais'
     tipoCiudad = apiVersion + '/tipoCiudad'
     registrarPersona = apiVersion + '/registrarPersona'
-    listarPersona = apiVersion + '/listarPersona'
-    modificarPerfil = apiVersion + '/modificarPerfil'
-    mostrarDatosPersona = apiVersion + '/mostrarDatosPersona/<int:perid>'
+    getPersons = apiVersion + '/getPersons'
+    updateProfile = apiVersion + '/updateProfile'
+    showPersonData = apiVersion + '/showPersonData/<int:perid>'
 
     # Usuario
     gestionarUsuario = apiVersion + '/gestionarUsuario'
