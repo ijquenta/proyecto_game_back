@@ -1,7 +1,9 @@
 from flask_restful import Resource, reqparse
+from resources.Autenticacion import token_required
 from services.permiso_service import * # Servicio de permiso
 
 class ListarPermiso(Resource):
+    @token_required
     def get(self):
         return listarPermiso()
 

@@ -32,17 +32,19 @@ class Usuario(db.Model):
         return {
             'usuid': self.usuid,
             'perid': self.perid,
+            'pernomcompleto': self.persona.pernomcompleto if self.persona else None,
+            'pernrodoc': self.persona.pernrodoc if self.persona else None,
+            'perfoto': self.persona.perfoto if self.persona else None,
             'rolid': self.rolid,
+            'rolnombre': self.rol.rolnombre if self.rol else None,
             'usuname': self.usuname,
-            'usupassword': self.usupassword,
-            'usupasswordhash': self.usupasswordhash,
             'usuemail': self.usuemail,
             'usudescripcion': self.usudescripcion,
             'usuestado': self.usuestado,
             'usuusureg': self.usuusureg,
-            'usufecreg': self.usufecreg,
+            'usufecreg': self.usufecreg.isoformat() if self.usufecreg else None,
             'usuusumod': self.usuusumod,
-            'usufecmod': self.usufecmod,
+            'usufecmod': self.usufecmod.isoformat() if self.usufecmod else None,
             'usuconfirmado': self.usuconfirmado,
             'usuconfirmadofecreg': self.usuconfirmadofecreg
         }

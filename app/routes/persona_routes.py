@@ -12,7 +12,7 @@ def persona_routes(api: Api):
     api.add_resource(Persona.TipoGenero, routes.tipoGenero)
     api.add_resource(Persona.TipoPais, routes.tipoPais)
     api.add_resource(Persona.TipoCiudad, routes.tipoCiudad)
-    api.add_resource(Persona.RegistrarPersona, routes.registrarPersona)
+    # api.add_resource(Persona.Regist   rarPersona, routes.registrarPersona)
     api.add_resource(Estudiante.ActualizarDatosPersonales, routes.actualizarDatosPersonales)
     api.add_resource(Persona.UpdateProfile, routes.updateProfile)
     api.add_resource(Persona.ShowPersonData, routes.showPersonData)

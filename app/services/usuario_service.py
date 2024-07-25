@@ -19,6 +19,9 @@ from utils.date_formatting import *
 from core.database import select, execute, as_string
 # from app.utils.email import send_reset_email  # Comentado temporalmente
 
+from sqlalchemy.exc import SQLAlchemyError  # Para manejo de errores de SQLAlchemy
+from http import HTTPStatus  # Para códigos de estado HTTP estándar
+
 class UsuarioService:
     def __init__(self, mail):
         self.email_service = EmailService(mail)
@@ -105,6 +108,20 @@ def gestionarUsuarioPassword(data):
 
 # Lista de Usuarios
 def listaUsuario():
+    try:
+        users = db.session.query(Usuario).all()
+        users_dict = [user.to_dict() for user in users]
+        return make_response(jsonify(users_dict))
+    
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)  
+    
+def listaUsuariov2():
     result = select(f'''
         SELECT 
         u.usuid, u.perid, p.pernomcompleto, p.pernrodoc, p.perfoto, u.rolid, r.rolnombre, u.usuname, 
@@ -112,7 +129,7 @@ def listaUsuario():
         u.usuestado, u.usuusureg, u.usufecreg, u.usuusumod, u.usufecmod
         FROM academico.usuario u
         inner join academico.persona p on p.perid = u.perid
-        inner join academico.rol r on r.rolid = u.rolid 
+        inner join academico.rol r on r.rolid = u.rolid         
         order by p.pernomcompleto 
     ''')    
     return result
