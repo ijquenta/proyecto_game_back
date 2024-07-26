@@ -103,6 +103,7 @@ class Routes:
     getRoles = apiVersion + '/getRoles'
     manageRole = apiVersion + '/manageRole'
     manageRoleStatus = apiVersion + '/manageRoleStatus'
+    deleteRole = apiVersion + '/deleteRole/<int:rolid>'
     
     # Estudiante
     listarEstudiante = apiVersion + '/listarEstudiante'
