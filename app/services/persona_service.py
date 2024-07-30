@@ -13,6 +13,43 @@ from models.persona_model import *  # Modelo de la entidad Persona
 from utils.date_formatting import *  # Funciones de formateo de fechas
 from psycopg2 import sql # Para realizar consultas a la base de datos
 
+    # Registrar persona desde el formulario register, con retorno del perid
+def createPersonForm(data):
+    if not data:
+        return make_response(jsonify({'message': 'No hay datos disponibles'}), HTTPStatus.BAD_REQUEST)
+
+    try:
+        persona = Persona(
+            pernomcompleto=data.get('perapepat') + ' ' + data.get('perapemat') + ' ' + data.get('pernombres'),
+            pernombres=data.get('pernombres'),
+            perapepat=data.get('perapepat'),
+            perapemat=data.get('perapemat'),
+            pertipodoc=data.get('pertipodoc'),
+            pernrodoc=data.get('pernrodoc'),
+            peremail=data.get('peremail'),
+            perusureg=data.get('perusureg'),
+            perusumod=data.get('perusureg'),
+            perfecreg=datetime.now(),
+            perfecmod=datetime.now(),
+            perestado=1,
+            perobservacion=data.get('perobservacion')
+        )
+        db.session.add(persona)
+        db.session.commit()
+
+        resp = {
+            "status": "success",
+            "message": "La persona se ha creado correctamente.",
+            "perid": persona.perid
+        }
+        
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return make_response(jsonify({'message': f'Error: {str(e)}'}), HTTPStatus.INTERNAL_SERVER_ERROR)      
+
 # Section Person 
 
 def getPersons():
@@ -35,6 +72,8 @@ def managePerson(data, request):
         return createPerson(data, request)
     elif data['tipo'] == 2: 
         return updatePerson(data, request)
+    elif data['tipo'] == 3:
+        return deletePerson(data)
     else:
         return make_response(jsonify({"status": "error", "message": "Tipo de operación no soportada."}), HTTPStatus.BAD_REQUEST)
 
@@ -166,6 +205,33 @@ def deletePerson(data):
         print(err)
         return {'code': 0, 'message': 'Error: ' + str(err)}, 404
     return result
+
+def deletePersonForm(perid):
+    try:
+        persona = Persona.query.filter_by(perid=perid).first()
+        if not persona:
+            error_response = {
+                "error": "Not found",
+                "message": "The specified resource was not found.",
+                "code": HTTPStatus.NOT_FOUND
+            }
+            return make_response(jsonify(error_response), HTTPStatus.NOT_FOUND)
+
+        db.session.delete(persona)
+        db.session.commit()
+        response_data = {
+            "message": "Person deleted successfully",
+            "code": HTTPStatus.OK
+        }
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 # Section profile    
 # Manage profile

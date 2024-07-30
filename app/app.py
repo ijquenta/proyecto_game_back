@@ -1,4 +1,5 @@
 # Importamos los módulos necesarios de Flask y otras librerías
+import datetime
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS  # Para permitir solicitudes CORS (Cross-Origin Resource Sharing)
 from flask_restful import Api  # Para crear APIs RESTful
@@ -159,30 +160,42 @@ from routes.auth_routes import f_login_usuario # Importamos la función f_login_
 from models.usuario import Usuario # Importamos el modelo Usuario
 from werkzeug.security import generate_password_hash # Importamos el generate_password_hash para generar contraseña hasheada
 from resources.Autenticacion import TokenGenerator, token_required # Importamos la clase TokenGenerator para utilizar sus diferentes opciones
+from datetime import datetime
 @app.route('/academico_api/register', methods=['POST'])
 def f_register_usuario(): # Función para regitrar un usuario
     
     user_data = request.get_json() # se recupera los datos enviados por el método post
-    
-    print("1. datos enviados: ", user_data)
-    
     user = Usuario.query.filter_by(usuname=user_data['usuname']).first() # buscamos al usuario con el usuname igual
     
     if not user:
         try: 
             hashed_password = generate_password_hash(user_data['usupassword']) # Se genera la contraseña con el hash, para mayor seguridad
-            user_new = Usuario( usuname=user_data['usuname'], usupassword=hashed_password, usupasswordhash=hashed_password, perid=user_data['perid'], rolid=user_data['rolid'], usuemail=user_data['usuemail'], usudescripcion=user_data['usudescripcion'], usuusureg=user_data['usuusureg'], usuestado=user_data['usuestado'])
-            print("2. usuario nuevo:", user_new)
+            
+            user_new = Usuario(
+                usuname=user_data['usuname'],
+                usupassword=hashed_password,
+                usupasswordhash=hashed_password,
+                perid=user_data['perid'],
+                rolid=user_data['rolid'],
+                usuemail=user_data['usuemail'],
+                usudescripcion=user_data['usudescripcion'],
+                usuusureg=user_data['usuusureg'],
+                usuusumod=user_data['usuusureg'],
+                usufecreg=datetime.now(),
+                usufecmod=datetime.now(),
+                usuestado=user_data['usuestado']
+            )
+            
             db.session.add(user_new) # Se adiciona el usuario con db.session.add(usuario_nuevo)
             db.session.commit() # Se ejecuta la sentencia
             # Genera el token de confirmación para enviar por email
             confirmation_token = TokenGenerator.generate_confirmation_token(user_new.usuid, user_new.rolid) # en el token se enviara el usuid y el rolid
-            print("3. se genera el token: ", confirmation_token)
+
             # Prepara el mensaje de email de confirmación
-            mensaje_correo = f'Por favor, haga clic en el siguiente enlace para confirmar su registro: http://localhost:4200/verified?token={confirmation_token}' # Aqui hay que cambiar el localhost:4200 por el dominio del frontend que se despliegue correctamente
-            print("4. se agrega el mensaje: ", mensaje_correo)
+            # mensaje_correo = f'Por favor, haga clic en el siguiente enlace para confirmar su registro: http://localhost:4200/verified?token={confirmation_token}' # Aqui hay que cambiar el localhost:4200 por el dominio del frontend que se despliegue correctamente
+
             # Envía el correo electrónico de confirmación
-            if enviar_correo_verificar(user_data['usuemail'], 'Confirmación de registro', mensaje_correo): # se envia a la siguiente función el cual enviara el email enviar_correo_verificar
+            if enviar_correo_verificar(user_data['usuemail'], confirmation_token): # se envia a la siguiente función el cual enviara el email enviar_correo_verificar
                 resp = {
                     "status": "success",
                     "message": "User successfully registered. Confirmation email sent."
@@ -200,7 +213,7 @@ def f_register_usuario(): # Función para regitrar un usuario
                 "status": "Error",
                 "message": "Error occurred, user registration failed"
             }
-            return make_response(jsonify(resp)), 401
+            return make_response(jsonify(resp)), 500
     else:
         resp = {
             "status": "error",
@@ -210,38 +223,38 @@ def f_register_usuario(): # Función para regitrar un usuario
 
 from psycopg2 import sql
 from core.database import execute, as_string
-
+from models.usuario import Usuario, db
 @app.route("/academico_api/confirm-email", methods=['POST'])
 def confirm_email():
-    
-    token = request.get_json()  # obtenemos el token con token['token']
-    print("token enviado: ", token)
-    
-    if not token: # Se verifica que se envien el token con este if
+    token = request.get_json().get('token')  # obtenemos el token
+    if not token:
         return jsonify({"status": "error", "message": "No se proporcionó ningún token de confirmación."}), 400
 
-    email = TokenGenerator.confirm_token(token['token']) # Se llama a un método para confirma el token se guarda en email el dato emial
-    
-    print("retorno de confirm_token: ", email)
-    
-    if email is None: # Se verifica la variable email
+    email = TokenGenerator.confirm_token(token)  # Confirma el token y obtiene el email
+    if email is None:
         return jsonify({"status": "error", "message": "El enlace de confirmación es inválido o ha expirado."}), 400
 
-    usuid, rolid = TokenGenerator.extract_user_info_from_token(token['token']) # Se obtiene el usuid y rolid con el método extrac_user_info_from_token
-    
-    print("variable usuid: ", usuid)
-    
-    try: # Se realiza un try exception para validar errores
-        query = sql.SQL(''' SELECT academico.f_usuario_verificar({p_usuid});''').format(p_usuid=sql.Literal(usuid))
-        result = execute(as_string(query))
-        print("Resultado de la funcion f_usuari_verificar: ", result)
-        print("La transacción se ha confirmado correctamente")
+    usuid, rolid = TokenGenerator.extract_user_info_from_token(token)  # Obtiene usuid y rolid del token
+
+    try:
+        user = Usuario.query.filter_by(usuid=usuid).first()
+        if user is None:
+            return jsonify({"status": "error", "message": "Usuario no encontrado."}), 404
+
+        if user.usuconfirmado:
+            return jsonify({"status": "already_confirmed", "message": "Tu cuenta ya ha sido confirmada previamente."}), 400
+
+        user.usuconfirmado = 1
+        user.usuconfirmadofecreg = datetime.now()
+        db.session.commit()
+
         return jsonify({"status": "success", "message": "¡Has confirmado tu cuenta exitosamente! ¡Gracias!"}), 200
     except Exception as e:
         print(f"Error al confirmar la transacción: {str(e)}")
         db.session.rollback()  # Revertir la transacción en caso de error
         return jsonify({"status": "error", "message": "Ocurrió un error al confirmar tu cuenta: {}".format(str(e))}), 500
-    
+
+
 @app.route('/academico_api/login', methods=['POST'])
 def login_usuario():
     return f_login_usuario()
@@ -308,13 +321,26 @@ def enviar_correo():
         return jsonify({'mensaje': f'Error al enviar el correo: {str(e)}'}), 500
     
     
-def enviar_correo_verificar(destinatario, asunto, mensaje):
+def enviar_correo_verificar(destinatario, confirmation_token):
     print("esta es la variable de entorno de email: ",os.environ.get("EMAIL_HOST_USER") ) # Recuperamos la vairable de entorno email_host_user
     try:
-        msg = Message(sender=os.environ.get("EMAIL_HOST_USER"),
-                      subject=asunto,
-                      recipients=[destinatario],
-                      body=mensaje)
+        msg = Message(
+            "CONFIRMACIÓN DE REGISTRO DE USUARIO",
+            sender=os.environ.get("EMAIL_HOST_USER"),
+            recipients=[destinatario],
+        )
+        confirmation_link = f"http://localhost:4200/verified?token={confirmation_token}" 
+        msg.html = f"""
+        <html>
+        <body>
+            <p>Para confirmar su registro, haga clic en el botón siguiente:</p>
+            <a href="{confirmation_link}" style="display: inline-block; padding: 10px 20px; font-size: 16px; font-family: Arial, sans-serif; color: white; background-color: #28a745; text-decoration: none; border-radius: 5px;">
+                Activar registro de usuario
+            </a>
+            <p>Si no realizó esta solicitud, simplemente ignore este correo electrónico y no se realizarán cambios.</p>
+        </body>
+        </html>
+        """         
         mail.send(msg)
         return True
     except Exception as e:

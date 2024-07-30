@@ -73,7 +73,7 @@ class TokenGenerator:
     def confirm_token(token):
         try:
             payload = jwt.decode(token, os.environ.get("APP_SECRET_KEY"), algorithms=['HS256'])
-            return payload.get('    ')
+            return payload.get('usuid')
         except jwt.ExpiredSignatureError:
             # Token ha expirado
             return None

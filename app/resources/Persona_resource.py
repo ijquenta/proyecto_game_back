@@ -1,10 +1,23 @@
 from flask_restful import Resource, reqparse  
 from flask import request  
-
 from services.persona_service import *  
 from resources.Autenticacion import token_required  
 
 # Section Person
+
+parseCreatePersonForm = reqparse.RequestParser()
+parseCreatePersonForm.add_argument('pernombres', type=str, help='Nombres de la persona', required=True)
+parseCreatePersonForm.add_argument('perapepat', type=str, help='Apellido paterno de la persona', required=True)
+parseCreatePersonForm.add_argument('perapemat', type=str, help='Apellido materno de la persona', required=True)
+parseCreatePersonForm.add_argument('pertipodoc', type=int, help='Tipo de documento de la persona', required=True)
+parseCreatePersonForm.add_argument('pernrodoc', type=str, help='Número de documento de la persona', required=True)
+parseCreatePersonForm.add_argument('peremail', type=str, help='este campo es requerido peremail', required=True)
+parseCreatePersonForm.add_argument('perusureg', type=str, help='este campo es requerido perusureg', required=True)
+parseCreatePersonForm.add_argument('perobservacion', type=str, help='este campo es requerido perobservacion', required=True)
+class CreatePersonForm(Resource):
+    def post(self):
+        data = parseCreatePersonForm.parse_args()
+        return createPersonForm(data)
 
 # Manage Person
 
@@ -37,7 +50,7 @@ parseDeletePerson.add_argument('perid', type=int, help='ID de la persona', requi
 parseDeletePerson.add_argument('perusumod', type=str, help='Usuario que modificó la persona', required=True)
 
 class GetPersons(Resource):
-    @token_required
+    # @     CreatePersonForm
     def get(self):
         return getPersons()
 
@@ -53,6 +66,9 @@ class DeletePerson(Resource):
         data = parseDeletePerson.parse_args()
         return deletePerson(data)               
     
+class DeletePersonForm(Resource):
+    def delete(self, perid):
+        return deletePersonForm(perid)
     
 # Sección Persona Información Personal
 
@@ -403,3 +419,5 @@ class ListarUsuarios(Resource):
     @token_required
     def get(self):
         return listarUsuarios() 
+
+
