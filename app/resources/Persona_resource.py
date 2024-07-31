@@ -420,4 +420,8 @@ class ListarUsuarios(Resource):
     def get(self):
         return listarUsuarios() 
 
+class GetUsers(Resource):
+    def get(self):
+        return getUsers() 
+
 

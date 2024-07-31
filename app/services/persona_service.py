@@ -1353,6 +1353,13 @@ def listarUsuarios():
     ''')
     return listUsers
 
+def getUsers():
+    listUsers = select(f'''
+    SELECT usuname
+    FROM academico.usuario;
+    ''')                                                        
+    return listUsers
+
 # Other fuctions 
     
 from models.persona_model import db, Persona  # Import person model

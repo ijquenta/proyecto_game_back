@@ -33,6 +33,7 @@ class Routes:
     tipoPersona = apiVersion +'/tipoPersona'
     perfil = apiVersion + auth + '/perfil'
     listaUsuarios = apiVersion + '/listaUsuarios'
+    getUsers = apiVersion + '/getUsers'
     obtenerEmail = apiVersion + '/obtenerEmail'
     requestChangePassword = apiVersion + '/requestChangePassword'
     requestPasswordReset = apiVersion + '/auth/request-password-reset'

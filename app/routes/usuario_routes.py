@@ -8,6 +8,7 @@ from client.routes import Routes as routes
 
 def usuario_routes(api: Api, mail: Mail):
     api.add_resource(Persona.ListarUsuarios, routes.listaUsuarios)
+    api.add_resource(Persona.GetUsers, routes.getUsers)
     api.add_resource(Usuario.GestionarUsuario, routes.gestionarUsuario)
     api.add_resource(Usuario.ListaUsuario, routes.listaUsuario)
     api.add_resource(Usuario.TipoPersona, routes.tipoPersona)
