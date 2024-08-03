@@ -2,8 +2,8 @@ from . import db
 # from . import mail  # Importa mail desde app.py
 from flask import request, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
-from models.usuario import Usuario
-from models.rol import Rol
+from models.usuario_model import Usuario
+from models.rol_model import Rol
 from resources.Autenticacion import TokenGenerator
 from flask_mail import Mail, Message  # Para el servicio de correo electrónico
 import os

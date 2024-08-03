@@ -1,8 +1,8 @@
 from flask import jsonify
 from core.database import db, as_string, select, execute, execute_function, execute_response, sql
 from utils.date_formatting import *
-from models.rol import Rol
-from models.permiso import Permiso
+from models.rol_model import Rol
+from models.permiso_model import Permiso
 from models.operacion_model import Operacion
 
 def listarPermiso():

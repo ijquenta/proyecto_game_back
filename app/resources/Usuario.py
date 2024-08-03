@@ -12,6 +12,11 @@ class TipoPersona(Resource):
   # @token_required
   def get(self):
     return tipoPersona()
+  
+class TipoPersonaDocente(Resource):
+  @token_required
+  def get(self):
+    return tipoPersonaDocente()
 
 class ListarRoles(Resource):
   # @token_required

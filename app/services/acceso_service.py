@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import jsonify, make_response
 from models.menu_model import Menu
 from core.database import db
-from models.rol import Rol
+from models.rol_model import Rol
 from models.operacion_model import Operacion
 from models.submenu_model import SubMenu
 from models.acceso_model import Acceso

@@ -1,6 +1,6 @@
 from psycopg2 import sql
 from core.database import select, execute, execute, as_string
-from models.rol import Rol
+from models.rol_model import Rol
 from flask import jsonify, make_response
 from sqlalchemy.exc import SQLAlchemyError
 from http import HTTPStatus
@@ -82,7 +82,7 @@ def createRole(data):
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-from models.rol import db, Rol
+from models.rol_model import db, Rol
 def updateRole(data, rolid):
     try:
         rol = Rol.query.filter_by(rolid=rolid).first()

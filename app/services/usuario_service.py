@@ -8,7 +8,7 @@ from sqlalchemy import or_
 
 # Modelos de la aplicación
 from models.persona_model import Persona
-from models.rol import Rol
+from models.rol_model import Rol
 
 # Recursos y servicios
 from resources.Autenticacion import TokenGenerator
@@ -140,6 +140,14 @@ def tipoPersona():
     where perestado = 1
     order by pernomcompleto;
     ''')
+    
+def tipoPersonaDocente():
+    return select(f'''
+    select p.perid, p.pernomcompleto, p.pernrodoc, p.perfoto 
+    from academico.persona p, academico.usuario u
+    where perestado = 1 and u.perid = p.perid and u.rolid = 3
+    order by p.pernomcompleto;
+    ''')
 
 def perfil(data):
     return select(f'''
@@ -268,7 +276,7 @@ def resetPassword(token, data):
     return {'message': 'User not found.'}, 404
 
 # Change Password of the user panel
-from models.usuario import Usuario, db
+from models.usuario_model import Usuario, db
 def changePassword(data):
     # Buscar al usuario por su nombre de usuario
     user = Usuario.query.filter_by(usuname=data['usuname']).first()

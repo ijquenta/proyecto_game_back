@@ -31,6 +31,7 @@ class Routes:
     gestionarUsuarioPassword = apiVersion + '/gestionarUsuarioPassword'
     listaUsuario = apiVersion + '/listaUsuario'
     tipoPersona = apiVersion +'/tipoPersona'
+    tipoPersonaDocente = apiVersion +'/tipoPersonaDocente'
     perfil = apiVersion + auth + '/perfil'
     listaUsuarios = apiVersion + '/listaUsuarios'
     getUsers = apiVersion + '/getUsers'

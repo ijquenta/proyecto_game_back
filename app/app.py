@@ -157,7 +157,7 @@ submenu_routes(api=api) # Rutas relacionadas con submenu
 
 # Importamos funciones para registro y login de usuarios
 from routes.auth_routes import f_login_usuario # Importamos la función f_login_usuario
-from models.usuario import Usuario # Importamos el modelo Usuario
+from models.usuario_model import Usuario # Importamos el modelo Usuario
 from werkzeug.security import generate_password_hash # Importamos el generate_password_hash para generar contraseña hasheada
 from resources.Autenticacion import TokenGenerator, token_required # Importamos la clase TokenGenerator para utilizar sus diferentes opciones
 from datetime import datetime
@@ -223,7 +223,7 @@ def f_register_usuario(): # Función para regitrar un usuario
 
 from psycopg2 import sql
 from core.database import execute, as_string
-from models.usuario import Usuario, db
+from models.usuario_model import Usuario, db
 @app.route("/academico_api/confirm-email", methods=['POST'])
 def confirm_email():
     token = request.get_json().get('token')  # obtenemos el token

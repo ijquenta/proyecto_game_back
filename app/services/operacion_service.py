@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import jsonify, make_response
 from core.database import db
-from models.rol import Rol
+from models.rol_model import Rol
 from models.submenu_model import SubMenu
 from models.acceso_model import Acceso
 from sqlalchemy.exc import SQLAlchemyError
