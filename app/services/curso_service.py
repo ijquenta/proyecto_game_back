@@ -1,3 +1,5 @@
+from http import HTTPStatus
+from models.curso_model import Curso
 from core.database import select, as_string, execute, execute_function, execute_response
 from psycopg2 import sql
 from flask import jsonify, make_response
@@ -118,3 +120,33 @@ def gestionarCursoMateriaEstado(data):
         print(err)
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
+
+def getCursoById(curid):
+    try:
+        # Buscar el curso por ID
+        curso = Curso.query.get(curid)
+        
+        # Si no se encuentra el curso, devolver un error 404
+        if curso is None:
+            return make_response(jsonify({"error": "Curso no encontrado"}), HTTPStatus.NOT_FOUND)
+        
+        # Convertir el objeto `Curso` a un diccionario
+        curso_data = curso.to_dict()
+        
+        # Crear la respuesta con el objeto `Curso`
+        response_data = {
+            "message": "Curso obtenido con éxito",
+            "data": curso_data,
+            "code": HTTPStatus.OK
+        }
+        
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+    
+    except Exception as e:
+        # Manejar cualquier error inesperado
+        error_response = {
+            "error": "Error en la base de datos",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)

@@ -1,6 +1,13 @@
+import hashlib
 from http import HTTPStatus
+import os
+
+import pytz
+from models.matricula_model import Matricula
+from models.tipo_matricula_model import TipoMatricula
 from core.database import select, execute_function
 from flask import jsonify, make_response
+from dateutil import parser
 from utils.date_formatting import *
 from models.pago_model import Pago
 from models.persona_model import Persona
@@ -12,6 +19,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.exc import SQLAlchemyError
 from core.database import db
 from sqlalchemy.sql import func
+from werkzeug.utils import secure_filename
 def listarPago():
     return select('''
         SELECT pagid, pagdescripcion, pagmonto, pagarchivo, pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagfecha, pagtipo FROM academico.pago WHERE pagestado = 1;
@@ -27,18 +35,20 @@ def listarPago():
 # parseGestionarPago.add_argument('pagestadodescripcion', type=str, help='Ingrese pagestadodescripcion')
 # parseGestionarPago.add_argument('pagestado', type=int, help='Ingrese pagestado')
 
-def manage_pago(data):
+def manage_pago(data, request):
     tipo = data.get('tipo')
     if tipo == 1:
-        return create_pago(data)
+        return create_pago(data, request)
     elif tipo == 2:
-        return update_pago(data)
+        return update_pago(data, request)
     elif tipo == 3:
         return delete_pago(data)
     else:
         return {"status": "error", "message": "Tipo de operación no soportada."}, HTTPStatus.BAD_REQUEST
 
 from models.inscripcion_model import Inscripcion, db
+
+"""
 def create_pago(data):
     try:
         pago = Pago(
@@ -64,7 +74,167 @@ def create_pago(data):
     except Exception as e:
         db.session.rollback()
         return {"status": "error", "message": f"Error al crear el pago: {str(e)}"}, HTTPStatus.INTERNAL_SERVER_ERROR
+"""
 
+def create_pago(data, request):
+    try:
+        # Configuración inicial
+        archivos_permitidos = ['pagarchivo']
+        archivos = {}
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, '..', 'static', 'files_pago')
+        os.makedirs(upload_directory, exist_ok=True)
+
+        # Recuperar el documento existente si se proporciona un pagid
+        pago_existente = Pago.query.filter_by(pagid=data.get('pagid')).first()
+
+        if pago_existente:
+            # Eliminar archivos existentes
+            for archivo_key in archivos_permitidos:
+                archivo_path = getattr(pago_existente, archivo_key, None)
+                if archivo_path:
+                    full_path = os.path.join(upload_directory, archivo_path)
+                    if os.path.exists(full_path):
+                        os.remove(full_path)
+
+        # Procesar archivos recibidos
+        for archivo_key in archivos_permitidos:
+            archivo = request.files.get(archivo_key)
+            if archivo:
+                if archivo.filename == '':
+                    raise ValueError(f"Nombre de archivo vacío para {archivo_key}.")
+                if allowed_file(archivo.filename):
+                    # Calcular un nombre de archivo único utilizando un hash
+                    file_hash = calculate_file_hash(archivo)
+                    extension = archivo.filename.rsplit('.', 1)[1].lower()
+                    unique_filename = f"{file_hash}.{extension}"
+                    upload_path = os.path.join(upload_directory, unique_filename)
+
+                    # Guardar el archivo si no existe
+                    if not os.path.exists(upload_path):
+                        archivo.save(upload_path)
+                    archivos[archivo_key] = unique_filename
+                else:
+                    raise ValueError(f"Tipo de archivo no permitido para {archivo_key}.")
+            else:
+                archivos[archivo_key] = None  # No se proporciona archivo para esta clave
+
+        
+        # Crear un nuevo registro de pago
+        nuevo_pago = Pago(
+            pagdescripcion=data['pagdescripcion'],
+            pagmonto=data['pagmonto'],              
+            pagfecha=data['pagfecha'],
+            pagusureg=data['pagusureg'],
+            pagusumod=data['pagusureg'],
+            pagtipo=data['pagtipo'],
+            pagarchivo=archivos['pagarchivo'],
+            pagestado=1,
+            pagfecreg=datetime.now(),
+            pagfecmod=datetime.now()
+        )
+        db.session.add(nuevo_pago)
+
+        # Actualizar la inscripción con el nuevo ID de pago
+        inscripcion = Inscripcion.query.get(data['insid'])
+        if inscripcion:
+            inscripcion.pagid = nuevo_pago.pagid
+
+        db.session.commit()
+
+        # Respuesta exitosa
+        resp = {
+            "status": "success",
+            "message": "El pago fue creado correctamente.",
+            "filenames": {k: v for k, v in archivos.items() if v}
+        }
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        resp = {
+            "status": "error",
+            "message": f"Error al subir los archivos: {str(e)}"
+        }
+        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+def update_pago(data, request):
+    try:
+        # Configuración inicial
+        archivos_permitidos = ['pagarchivo']
+        archivos = {}
+        basepath = os.path.dirname(__file__)
+        upload_directory = os.path.join(basepath, '..', 'static', 'files_pago')
+        os.makedirs(upload_directory, exist_ok=True)
+
+        # Recuperar el registro de pago existente
+        pago_existente = Pago.query.filter_by(pagid=data.get('pagid')).first()
+        if not pago_existente:
+            return make_response(jsonify({
+                "status": "error",
+                "message": "El pago especificado no existe."
+            }), HTTPStatus.NOT_FOUND)
+
+        # Eliminar archivos antiguos si se proporciona un archivo nuevo
+        for archivo_key in archivos_permitidos:
+            archivo_path = getattr(pago_existente, archivo_key, None)
+            if archivo_path and request.files.get(archivo_key):
+                full_path = os.path.join(upload_directory, archivo_path)
+                if os.path.exists(full_path):
+                    os.remove(full_path)
+
+        # Procesar archivos recibidos
+        for archivo_key in archivos_permitidos:
+            archivo = request.files.get(archivo_key)
+            if archivo:
+                if archivo.filename == '':
+                    raise ValueError(f"Nombre de archivo vacío para {archivo_key}.")
+                if allowed_file(archivo.filename):
+                    # Calcular un nombre de archivo único utilizando un hash
+                    file_hash = calculate_file_hash(archivo)
+                    extension = archivo.filename.rsplit('.', 1)[1].lower()
+                    unique_filename = f"{file_hash}.{extension}"
+                    upload_path = os.path.join(upload_directory, unique_filename)
+
+                    # Guardar el archivo si no existe
+                    if not os.path.exists(upload_path):
+                        archivo.save(upload_path)
+                    archivos[archivo_key] = unique_filename
+                else:
+                    raise ValueError(f"Tipo de archivo no permitido para {archivo_key}.")
+            else:
+                archivos[archivo_key] = getattr(pago_existente, archivo_key, None)  # Mantener el archivo existente si no se proporciona uno nuevo
+
+        # Actualizar el registro de pago
+        pago_existente.pagdescripcion = data.get('pagdescripcion', pago_existente.pagdescripcion)
+        pago_existente.pagmonto = data.get('pagmonto', pago_existente.pagmonto)
+        pago_existente.pagfecha = data.get('pagfecha', pago_existente.pagfecha)
+        pago_existente.pagusumod = data.get('pagusumod', pago_existente.pagusumod)
+        pago_existente.pagtipo = data.get('pagtipo', pago_existente.pagtipo)
+        pago_existente.pagarchivo = archivos.get('pagarchivo', pago_existente.pagarchivo)
+        pago_existente.pagfecmod = datetime.now()
+        pago_existente.pagestado = data.get('pagestado', pago_existente.pagestado)
+
+        db.session.commit()
+
+        # Respuesta exitosa
+        resp = {
+            "status": "success",
+            "message": "El pago fue actualizado correctamente.",
+            "filenames": {k: v for k, v in archivos.items() if v}
+        }
+        return make_response(jsonify(resp), HTTPStatus.OK)
+
+    except Exception as e:
+        db.session.rollback()
+        resp = {
+            "status": "error",
+            "message": f"Error al actualizar el pago: {str(e)}"
+        }
+        return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+"""
 def update_pago(data):
     try:
         pago = Pago.query.get(data['pagid'])
@@ -83,6 +253,7 @@ def update_pago(data):
     except Exception as e:
         db.session.rollback()
         return {"status": "error", "message": f"Error al actualizar el pago: {str(e)}"}, HTTPStatus.INTERNAL_SERVER_ERROR
+"""
 
 def delete_pago(data):
     try:
@@ -375,7 +546,7 @@ def listarPagoCurso():
 def listarPagoEstudiantesMateria(data):
     lista = select(f'''
         SELECT distinct i.insid, i.curmatid, i.peridestudiante, 
-                    i.pagid, m.matrid, tm.tipmatrgestion, c.curnombre, m2.matnombre, p2.pernomcompleto, 
+                    i.pagid, m.matrid, tm.tipmatrgestion, cm.curid, c.curnombre, cm.matid, m2.matnombre, p2.pernomcompleto, p2.pernrodoc, 
                     p2.perfoto, p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, 
                     pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagtipo 
         FROM academico.inscripcion i 
@@ -394,6 +565,78 @@ def listarPagoEstudiantesMateria(data):
         pago["pagfecmod"] = darFormatoFechaConHora(pago["pagfecmod"])
         pago["pagfecha"] = darFormatoFechaConHora(pago["pagfecha"])
     return lista 
+
+def getPagoEstudianteMateria(data):
+    try:
+        curid = data.get('curid')
+        matid = data.get('matid')
+        
+        cm = aliased(CursoMateria)
+        c = aliased(Curso)
+        p = aliased(Pago)
+        p2 = aliased(Persona)
+        tm = aliased(TipoMatricula)
+        m = aliased(Matricula)
+        m2 = aliased(Materia)
+        i = aliased(Inscripcion)
+        
+        query = (db.session.query(
+                    i.insid, i.curmatid, i.peridestudiante, i.pagid,
+                    m.matrid, 
+                    tm.tipmatrgestion, 
+                    cm.curid, cm.matid,
+                    c.curnombre, 
+                    m2.matnombre, 
+                    p2.pernomcompleto, p2.pernrodoc, p2.perfoto, 
+                    p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, p.pagusureg, p.pagfecreg, p.pagusumod, p.pagfecmod, p.pagestado, p.pagtipo
+                )
+                .outerjoin(m, m.matrid == i.matrid)
+                .outerjoin(cm, cm.curmatid == i.curmatid)
+                .outerjoin(p, p.pagid == i.pagid)
+                .outerjoin(p2, p2.perid == i.peridestudiante)
+                .outerjoin(tm, tm.tipmatrid == m.tipmatrid)
+                .outerjoin(m2, m2.matid == cm.matid)
+                .outerjoin(c, c.curid == cm.curid)
+                .filter(cm.curid == curid, cm.matid == matid)
+                .all())
+        
+        lista_pago_estudiante_materia = [
+            {
+                'insid': row.insid,
+                'curmatid': row.curmatid,
+                'peridestudiante': row.peridestudiante,
+                'pagid': row.pagid,
+                'matrid': row.matrid,
+                'tipmatrgestion': row.tipmatrgestion,
+                'curid': row.curid,
+                'matid': row.matid,
+                'curnombre': row.curnombre,
+                'matnombre': row.matnombre,
+                'pernomcompleto': row.pernomcompleto,
+                'pernrodoc': row.pernrodoc,
+                'perfoto': row.perfoto,
+                'pagfecha': row.pagfecha.isoformat() if row.pagfecha else None,
+                'pagdescripcion': row.pagdescripcion,
+                'pagmonto': row.pagmonto,
+                'pagarchivo': row.pagarchivo,
+                'pagusureg': row.pagusureg,
+                'pagfecreg': row.pagfecreg.isoformat() if row.pagfecreg else None,
+                'pagusumod': row.pagusumod,
+                'pagfecmod': row.pagfecmod.isoformat() if row.pagfecmod else None,
+                'pagestado': row.pagestado,
+                'pagtipo': row.pagtipo
+            } for row in query
+        ]
+        
+        return make_response(jsonify(lista_pago_estudiante_materia), HTTPStatus.OK)
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        error_response = {"error": "Error en la base de datos.", "message": str(e)}
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    finally:
+        db.session.close()
     
 def tipoPago():
     return select(f'''
@@ -417,3 +660,49 @@ def getAllPayments():
         # En caso de error, devolver un mensaje de error con el código de estado correspondiente
         error_response = {"error": "Error in the data base.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+def getPagoById(pagid):
+    try:
+        # Buscar el pago por ID
+        pago = Pago.query.get(pagid)
+        
+        # Si no se encuentra el pago, devolver un error 404
+        if pago is None:
+            return make_response(jsonify({"error": "Pago no encontrado"}), HTTPStatus.NOT_FOUND)
+        
+        # Convertir el objeto `Pago` a un diccionario
+        pago_data = pago.to_dict()
+        
+        # Crear la respuesta con el objeto `Pago`
+        response_data = {
+            "message": "Pago obtenido con éxito",
+            "data": pago_data,
+            "code": HTTPStatus.OK
+        }
+        
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+    
+    except Exception as e:
+        # Manejar cualquier error inesperado
+        error_response = {
+            "error": "Error en la base de datos",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
+# Function to calculate the hash of a file
+def calculate_file_hash(file):
+    hasher = hashlib.md5()
+    buf = file.read(1024)
+    while buf:
+        hasher.update(buf)
+        buf = file.read(1024)
+    file.seek(0)  # Reset file pointer to the beginning
+    return hasher.hexdigest()
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

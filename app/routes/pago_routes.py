@@ -16,5 +16,4 @@ def pago_routes(api: Api):
     api.add_resource(Pago_resource.AsignarPagoMatricula, routes.asignarPagoMatricula)
     api.add_resource(Pago_resource.ObtenerUltimoPago, routes.obtenerUltimoPago)
     api.add_resource(Pago_resource.ModificarPago, routes.modificarPago)
-    
-   
+    api.add_resource(Pago_resource.GetPagoByIdResource, routes.getPagoById)                                                                     

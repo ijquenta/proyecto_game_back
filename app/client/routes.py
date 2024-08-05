@@ -54,6 +54,7 @@ class Routes:
     insertarMateria = apiVersion + '/insertarMateria'
     modificarMateria = apiVersion + '/modificarMateria'
     gestionarMateriaEstado = apiVersion + '/gestionarMateriaEstado'
+    getMateriaById = apiVersion + '/getMateriaById/<int:matid>'
     
     #Curso - Materia
     listarCursoMateria = apiVersion + '/listarCursoMateria'
@@ -62,6 +63,7 @@ class Routes:
     modificarCursoMateria = apiVersion + '/modificarCursoMateria'
     gestionarCursoMateriaEstado = apiVersion + '/gestionarCursoMateriaEstado'
     tipoRol = apiVersion + '/tipoRol'
+    getCursoById = apiVersion + '/getCursoById/<int:curid>'
     
     # Combo
     listaCursoCombo = apiVersion + '/listaCursoCombo'
@@ -145,6 +147,7 @@ class Routes:
     asignarPagoInscripcion = apiVersion + '/asignarPagoInscripcion'
     asignarPagoMatricula = apiVersion + '/asignarPagoMatricula'
     obtenerUltimoPago = apiVersion + '/obtenerUltimoPago'
+    getPagoById = apiVersion + '/getPagoById/<int:pagid>'
     
     # Asistencia
     listarAsistencia = apiVersion + '/listarAsistencia'

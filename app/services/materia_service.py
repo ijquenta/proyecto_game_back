@@ -1,3 +1,5 @@
+from http import HTTPStatus
+from models.materia_model import Materia
 from core.database import select, as_string, execute, execute_function
 from psycopg2 import sql
 from flask import jsonify, make_response
@@ -108,3 +110,33 @@ def gestionarMateriaEstado(data):
         print(err)
         return {'code': 0, 'message': 'Error: '+ str(err)}, 404
     return result
+
+def getMateriaById(matid):
+    try:
+        # Buscar el materia por ID
+        materia = Materia.query.get(matid)
+        
+        # Si no se encuentra el materia, devolver un error 404
+        if materia is None:
+            return make_response(jsonify({"error": "Materia no encontrado"}), HTTPStatus.NOT_FOUND)
+        
+        # Convertir el objeto `Materia` a un diccionario
+        materia_data = materia.to_dict()
+        
+        # Crear la respuesta con el objeto `Materia`
+        response_data = {
+            "message": "Materia obtenido con éxito",
+            "data": materia_data,
+            "code": HTTPStatus.OK
+        }
+        
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+    
+    except Exception as e:
+        # Manejar cualquier error inesperado
+        error_response = {
+            "error": "Error en la base de datos",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)

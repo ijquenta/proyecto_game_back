@@ -31,5 +31,6 @@ class Pago(db.Model):
             'pagfecreg': self.pagfecreg.isoformat() if self.pagfecreg else None,
             'pagusumod': self.pagusumod,
             'pagfecmod': self.pagfecmod.isoformat() if self.pagfecmod else None,
-            'pagestado': self.pagestado
+            'pagestado': self.pagestado,
+            'pagtipo': self.pagtipo
         }
