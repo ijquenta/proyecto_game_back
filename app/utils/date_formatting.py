@@ -26,6 +26,21 @@ def darFormatoFechaSinHorav2(fecha_str):
     return fecha_formateada
 
 
+def darFormatoFechaSinHoraV3(fecha_str):
+    if not fecha_str:
+        return None
+    try:
+        # Convertir la cadena de fecha con el formato específico
+        fecha_datetime = datetime.strptime(fecha_str, "%a %b %d %Y %H:%M:%S GMT%z (%Z)")
+        
+        # Formatear la fecha a "YYYY-MM-DD" y devolverla
+        fecha_formateada = fecha_datetime.strftime("%Y-%m-%d")
+        return fecha_formateada
+    except ValueError as e:
+        print(f"Error al analizar la fecha: {e}")
+        return None
+
+
 def darFormatoFechaNacimiento(fecha_str):
     if not fecha_str:
         return None
