@@ -7,13 +7,13 @@ def listarNivel():
     lista_niveles = select(f'''
     SELECT curid, curnombre, curdescripcion, curestadodescripcion, curnivel, curdesnivel, curfchini, curfchfin, curusureg, curfecreg, curusumod, curfecmod, curestado
     FROM academico.curso
-    order by curid desc;
+    order by curnombre;
     ''')
     for nivel in lista_niveles:
-        nivel["curfchini"] = darFormatoFechaSinHora(nivel["curfchini"])
-        nivel["curfchfin"] = darFormatoFechaSinHora(nivel["curfchfin"])
-        nivel["curfecreg"] = darFormatoFechaConHora(nivel["curfecreg"])
-        nivel["curfecmod"] = darFormatoFechaConHora(nivel["curfecmod"])
+        nivel["curfchini"] = darFormatoFechaSinHorav2(nivel["curfchini"])
+        nivel["curfchfin"] = darFormatoFechaSinHorav2(nivel["curfchfin"])
+        # nivel["curfecreg"] = darFormatoFechaConHora(nivel["curfecreg"])
+        # nivel["curfecmod"] = darFormatoFechaConHora(nivel["curfecmod"])
     return lista_niveles
 
 

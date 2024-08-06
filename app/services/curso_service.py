@@ -21,8 +21,8 @@ def listarCursoMateria():
         order by curmatid desc;      
         ''')
     for curso in lista_cursos:
-        curso["curmatfecini"] = darFormatoFechaSinHora(curso["curmatfecini"])
-        curso["curmatfecfin"] = darFormatoFechaSinHora(curso["curmatfecfin"])
+        curso["curmatfecini"] = darFormatoFechaSinHorav2(curso["curmatfecini"])
+        curso["curmatfecfin"] = darFormatoFechaSinHorav2(curso["curmatfecfin"])
         curso["curmatfecreg"] = darFormatoFechaConHora(curso["curmatfecreg"])
         curso["curmatfecmod"] = darFormatoFechaConHora(curso["curmatfecmod"])
     return lista_cursos
@@ -55,10 +55,6 @@ def insertarCursoMateria(data):
     return result
 
 def modificarCursoMateria(data):
-    # print("Data original: ", data)
-    data['curmatfecini'] = volverAFormatoOriginal(data['curmatfecini']) 
-    data['curmatfecfin'] = volverAFormatoOriginal(data['curmatfecfin']) 
-    # print("Fechas modificadas: ", data)
     resultado = execute_function(f'''
         SELECT academico.modificar_curso_materia(
               {data['curmatid']},
