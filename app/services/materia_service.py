@@ -12,9 +12,9 @@ def listarMateria():
     order by matid desc;        
     ''')
     
-    for materia in lista_materias:
-        materia["matfecreg"] = darFormatoFechaConHora(materia["matfecreg"])
-        materia["matfecmod"] = darFormatoFechaConHora(materia["matfecmod"])
+    # for materia in lista_materias:
+        # materia["matfecreg"] = darFormatoFechaConHora(materia["matfecreg"])
+        # materia["matfecmod"] = darFormatoFechaConHora(materia["matfecmod"])
     
     return lista_materias
     
