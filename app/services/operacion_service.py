@@ -69,8 +69,6 @@ def createOperation(data):
 from models.operacion_model import db, Operacion
 def updateOperation(data, opeid):
     try:
-        print(data)
-        print(opeid)
         operation = Operacion.query.get(opeid)
         if operation is None:
             return make_response(jsonify({"error": "Operation no founded."}), HTTPStatus.NOT_FOUND)

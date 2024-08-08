@@ -10,7 +10,6 @@ import os
 
 def f_register_usuario():
     user_data = request.get_json()
-    print("1. datos enviados: ", user_data)
     user = Usuario.query.filter_by(usuname=user_data['usuname']).first()
     if not user:
         try: 
@@ -28,20 +27,14 @@ def f_register_usuario():
                 usuestado=user_data['usuestado']
             )
             
-            print("2. usuario nuevo:", user_new)
-            
             db.session.add(user_new)
             db.session.commit()
 
             # Genera el token de confirmación
             confirmation_token = TokenGenerator.generate_confirmation_token(user_new.usuid, user_new.rolid)
             
-            print("3. se genera el token: ", confirmation_token)
-
             # Prepara el mensaje de correo electrónico de confirmación
             mensaje_correo = f'Por favor, haga clic en el siguiente enlace para confirmar su registro: http://127.0.0.0:4200/confirm-email?token={confirmation_token}'
-
-            print("4. se agrega el mensaje: ", mensaje_correo)
 
             # Envía el correo electrónico de confirmación
             if enviar_correo(user_data['usuemail'], 'Confirmación de registro', mensaje_correo):

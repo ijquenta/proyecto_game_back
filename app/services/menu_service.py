@@ -38,7 +38,6 @@ def getMenus():
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 def createMenu(data):
-    print("Data introduced CreateMenu: ", data)
     try:
         existingMenu = db.session.query(Menu).filter_by(mennombre=data["mennombre"]).first()
         if existingMenu:
@@ -82,8 +81,6 @@ def createMenu(data):
 from models.menu_model import db, Menu
 def updateMenu(data, menid):
     try:
-        print("Data update:", data)
-        print("menid: ", menid)
         menu = Menu.query.get(menid)
         if menu is None:
             return make_response(jsonify({"error": "Menu no founded."}), HTTPStatus.NOT_FOUND)

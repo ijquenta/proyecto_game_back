@@ -18,7 +18,6 @@ reqUrl = "https://planillas.umsa.bo/auth_api/verify"
 #     "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NjA3NDY0ODYsIm5iZiI6MTY2MDc0NjQ4NiwianRpIjoiMDdlMWNlMGUtOTc1NS00MWUxLThkM2MtNDEwODI1OTkwYWE0IiwiZXhwIjoxNjYwODA2NDg2LCJpZGVudGl0eSI6ImE1OGYwODVjLTYwMjgtNDFmNi1hMjFiLTRiNGY3Zjc1NGZlZSIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.6KPQn745tkSFgT5cIKa61BxQz8oVNNWgbvdDBHTaMd4" 
 #     }
 #     response = requests.get(url=reqUrl, headers=headersList)
-#     print(response.status_code)
 #     return True
 
 # def require_token():

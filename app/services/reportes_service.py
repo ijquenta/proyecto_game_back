@@ -37,8 +37,6 @@ def rptCursoMateriaContabilidad(data):
 def rptInformacionAdmision(data):
     perid = data['perid']
     usuname = data['usuname']
-    print("perid: ", perid)
-    print("usuname: ", usuname) 
     
     datos_informacion_personal = select(f'''
                                         SELECT pip.perid, p.pernomcompleto, p.perfecnac, p.pernrodoc, p.perdirec, te.estadocivilnombre, p.percelular, p.pertelefono, pip.peredad, pip.pernrohijos, pip.perprofesion, tp.pronombre,pip.perfecconversion, pip.perlugconversion, 
@@ -108,11 +106,6 @@ def rptInformacionAdmision(data):
     if not datos_documentos_admision:
         datos_documentos_admision = [{"perid": perid, "perfoto": "No", "perfotoci": "No", "perfototitulo": "No", "percartapastor": "No"}]
     
-    print("datos_informacion_personal: ", datos_informacion_personal)
-    print("datos_informacion_academica: ", datos_informacion_academica)
-    print("datos_informacion_ministerial: ", datos_informacion_ministerial)
-    print("datos_documentos_admision: ", datos_documentos_admision)
-
     try:
         pdf = Report().RptInformacionAdmision(usuname, datos_informacion_personal, datos_informacion_academica, datos_informacion_ministerial, datos_documentos_admision)
         return make(pdf)

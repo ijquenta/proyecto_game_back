@@ -40,7 +40,6 @@ def getListSubMenu():
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
     
 def createSubMenu(data):
-    print("Data CreateSubMen: ", data)
     try:
         existingSubMenu = db.session.query(SubMenu).filter_by(submennombre=data["submennombre"]).first()
         if existingSubMenu:
@@ -83,8 +82,6 @@ def createSubMenu(data):
 from models.submenu_model import db, SubMenu
 def updateSubMenu(data, submenid):
     try:
-        print("Data update:", data)
-        print("submenid: ", submenid)
         submenu = SubMenu.query.get(submenid)
         if submenu is None:
             return make_response(jsonify({"error": "SubMenu no founded."}), HTTPStatus.NOT_FOUND)

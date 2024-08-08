@@ -748,7 +748,6 @@ def modificarInformacionMinisterial(data, perinfomin):
 # Persona Documento Admisión
 
 def listarDocumentoAdmision(perid: any):
-    print("perid", perid)
     try:
         documentos = PersonaDocAdmision.query.filter_by(perid=perid).order_by(PersonaDocAdmision.perid).all()
         _data = [documento.to_dict() for documento in documentos]

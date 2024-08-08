@@ -169,7 +169,6 @@ class ModificarInformacionAcademica(Resource):
     @token_required
     def put(self, perinfoaca):
         data = parseModificarInformacionAcademica.parse_args()
-        print("data: ", data)
         return modificarInformacionAcademica(data, perinfoaca)
     
 class EliminarInformacionAcademica(Resource):

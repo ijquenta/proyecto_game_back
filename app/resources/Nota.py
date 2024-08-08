@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 
+from resources.Autenticacion import token_required
 from services.nota_service import *
 # from resources.Autenticacion import token_required
 
@@ -15,18 +16,19 @@ parseGestionarNota = reqparse.RequestParser()
 parseGestionarNota.add_argument('tipo', type=int, help='Ingrese tipo', required=True)
 parseGestionarNota.add_argument('notid', type=int, help='Ingrese notid', required=True)
 parseGestionarNota.add_argument('insid', type=int, help='Ingrese insid', required=True)
-parseGestionarNota.add_argument('not1', type=int, help='Ingrese not1', required=True)
-parseGestionarNota.add_argument('not2', type=int, help='Ingrese not2', required=True)
-parseGestionarNota.add_argument('not3', type=int, help='Ingrese not3', required=True)
-parseGestionarNota.add_argument('notfinal', type=int, help='Ingrese notfinal', required=True)
+parseGestionarNota.add_argument('not1', type=float, help='Ingrese not1', required=True)  # Cambiar a float
+parseGestionarNota.add_argument('not2', type=float, help='Ingrese not2', required=True)  # Cambiar a float
+parseGestionarNota.add_argument('not3', type=float, help='Ingrese not3', required=True)  # Cambiar a float
+parseGestionarNota.add_argument('notfinal', type=float, help='Ingrese notfinal', required=True)  # Cambiar a float
 parseGestionarNota.add_argument('notusureg', type=str, help='Ingrese notusureg', required=True)
 parseGestionarNota.add_argument('notusumod', type=str, help='Ingrese notusumod', required=True)
 parseGestionarNota.add_argument('notestado', type=int, help='Ingrese notestado', required=True)
 class GestionarNota(Resource):
-    # @token_required
+    @token_required
     def post(self):
         data = parseGestionarNota.parse_args()
-        return gestionarNota(data)
+        # return gestionarNota(data)
+        return manage_nota(data)    
   
 parseNotaEstudiante = reqparse.RequestParser()
 parseNotaEstudiante.add_argument('perid', type=int, help='Ingrese perid', required=True)

@@ -72,7 +72,6 @@ def eliminarNivel(data):
         else:
             response_data = {'message': 'No se puede eliminar el curso debido a que tiene registros relacionados'}
             status_code = 500
-        print("response_data: ",response_data)    
 
     return make_response(jsonify(response_data), status_code)
 

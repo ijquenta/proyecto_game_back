@@ -25,7 +25,6 @@ def getTipoMenu():
 def findIdIcono(iconombre):
     try: 
         icono = TipoIcono.query.filter_by(iconombre=iconombre).first()
-        print("icono: ", icono)
         if icono is None:
             return make_response(jsonify({"error": "Icono no encontrado."}), HTTPStatus.NOT_FOUND)
         response = make_response(jsonify(icono.to_dict()), HTTPStatus.OK)
@@ -81,8 +80,6 @@ def createMenu(data):
 from models.menu_model import db, Menu
 def updateMenu(data, menid):
     try:
-        print("Data update:", data)
-        print("menid: ", menid)
         menu = Menu.query.get(menid)
         if menu is None:
             return make_response(jsonify({"error": "Menu no founded."}), HTTPStatus.NOT_FOUND)
