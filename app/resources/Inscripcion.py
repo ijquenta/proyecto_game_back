@@ -1,7 +1,9 @@
 from flask_restful import Resource, reqparse
+from resources.Autenticacion import token_required
 from services.inscripcion_service import * # Servicio de inscripcion
 
 class ListarInscripcion(Resource):
+  @token_required
   def get(self):
       return listarInscripcion()
     
@@ -75,10 +77,20 @@ class GestionarInscripcionEstado(Resource):
   
   
 parseObtenerEstudiantesInscritos = reqparse.RequestParser()
-parseObtenerEstudiantesInscritos.add_argument('curmatid', type=int, help = 'Debe elegir curmatid', required = True)
+parseObtenerEstudiantesInscritos.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
+parseObtenerEstudiantesInscritos.add_argument('matid', type=int, help = 'Debe elegir matid', required = True)
+parseObtenerEstudiantesInscritos.add_argument('curmatfecini', type=str, help = 'Debe elegir curmatfecini', required = True)
+parseObtenerEstudiantesInscritos.add_argument('curmatfecfin', type=str, help = 'Debe elegir curmatfecfin', required = True)
 class ObtenerEstudiantesInscritos(Resource):
+  @token_required
   def post(self):
     data = parseObtenerEstudiantesInscritos.parse_args()
     return obtenerEstudiantesInscritos(data)
   
+
+class GetCursoMateriaByIds(Resource):
+  @token_required
+  def post(self):
+      data = parseObtenerEstudiantesInscritos.parse_args()
+      return getCursoMateriaByIds(data)
   

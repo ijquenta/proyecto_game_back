@@ -13,3 +13,4 @@ def inscripcion_routes(api: Api):
     api.add_resource(Inscripcion.ListarComboMatriculaEstudiante, routes.listarComboMatriculaEstudiante)
     api.add_resource(Inscripcion.GestionarInscripcionEstado, routes.gestionarInscripcionEstado)
     api.add_resource(Inscripcion.ObtenerEstudiantesInscritos, routes.obtenerEstudiantesInscritos)
+    api.add_resource(Inscripcion.GetCursoMateriaByIds, routes.getCursoMateriaByIds)

@@ -64,12 +64,16 @@ class Routes:
     gestionarCursoMateriaEstado = apiVersion + '/gestionarCursoMateriaEstado'
     tipoRol = apiVersion + '/tipoRol'
     getCursoById = apiVersion + '/getCursoById/<int:curid>'
+    getTipoCurso = apiVersion + '/getTipoCurso'
+    getTipoMateriaByCursoId = apiVersion + '/getTipoMateriaByCursoId/<int:curid>'
+
     
     # Combo
     listaCursoCombo = apiVersion + '/listaCursoCombo'
     listaMateriaCombo = apiVersion + '/listaMateriaCombo'
     listaMateriaCombo2 = apiVersion + '/listaMateriaCombo2'
     listaPersonaDocenteCombo = apiVersion + '/listaPersonaDocenteCombo'
+    
     
     #Nivel
     listarNivel = apiVersion + '/listarNivel'
@@ -89,6 +93,7 @@ class Routes:
     listarComboMatriculaEstudiante = apiVersion + '/listarComboMatriculaEstudiante'
     gestionarInscripcionEstado = apiVersion + '/gestionarInscripcionEstado'
     obtenerEstudiantesInscritos = apiVersion + '/obtenerEstudiantesInscritos'
+    getCursoMateriaByIds = apiVersion + '/getCursoMateriaByIds'
 
 
     #Matricula

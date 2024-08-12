@@ -12,3 +12,6 @@ def cursomateria_routes(api: Api):
     api.add_resource(Curso_resource.ListaPersonaDocenteCombo, routes.listaPersonaDocenteCombo)
     api.add_resource(Curso_resource.GestionarCursoMateriaEstado, routes.gestionarCursoMateriaEstado)
     api.add_resource(Curso_resource.GetCursoByIdResource, routes.getCursoById)
+    api.add_resource(Curso_resource.GetTipoMateriaByCursoIdResource, routes.getTipoMateriaByCursoId) 
+    api.add_resource(Curso_resource.GetTipoCurso, routes.getTipoCurso)
+    

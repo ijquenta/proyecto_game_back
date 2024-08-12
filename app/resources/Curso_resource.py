@@ -77,3 +77,14 @@ class GetCursoByIdResource(Resource):
     @token_required
     def get(self, curid):
         return getCursoById(curid)
+    
+
+class GetTipoCurso(Resource):
+    @token_required
+    def get(self):
+        return getTipoCurso()
+  
+class GetTipoMateriaByCursoIdResource(Resource):
+    # @token_required
+  def get(self, curid):
+      return getTipoMateriaByCursoId(curid)

@@ -4,6 +4,7 @@ from core.database import select, as_string, execute, execute_function, execute_
 from psycopg2 import sql
 from flask import jsonify, make_response
 from utils.date_formatting import *
+from sqlalchemy.exc import SQLAlchemyError  # Importa las excepciones de SQLAlchemy
 
 def listarCursoMateria():
     lista_cursos = select(f'''
@@ -146,3 +147,85 @@ def getCursoById(curid):
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
+
+def getTipoCurso():
+    try:
+        # Obtener los tipos de cursos de la base de datos
+        tipos_cursos = Curso.query.order_by(Curso.curnombre).all()
+        # Convertir los tipos de cursos en una lista de diccionarios
+        response = [{"curid": tipo.curid, "curnombre": tipo.curnombre} for tipo in tipos_cursos]
+        # Retornar los tipos de cursos como una respuesta JSON
+        return make_response(jsonify(response), HTTPStatus.OK)
+    except SQLAlchemyError as e:
+        # En caso de error, devolver un mensaje de error con el código de estado correspondiente
+        error_response = {"error": "Error en la base de datos.", "message": str(e)}
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+
+
+from models.curso_materia_model import CursoMateria
+from models.materia_model import Materia, db
+from sqlalchemy.orm import aliased
+
+def getTipoMateriaByCursoId(curid):
+    """
+    Obtiene la lista de materias asociadas a un curso específico.
+
+    Esta función realiza una consulta a la base de datos para obtener todas las materias 
+    vinculadas a un curso específico utilizando un `LEFT JOIN`. Solo se seleccionan aquellas 
+    materias cuyo estado en `CursoMateria` es 1.
+
+    Args:
+        curid (int): El ID del curso para el cual se desean obtener las materias.
+
+    Returns:
+        Response: Una respuesta JSON con un mensaje de éxito y los datos de las materias, o un 
+        mensaje de error si ocurre una excepción.
+    """
+    try:
+        # Definir alias para las tablas
+        cm = aliased(CursoMateria)
+        m = aliased(Materia)
+        
+        # Realizar la consulta con left join y filtrado por curmatestado = 1
+        query = (db.session.query(
+                    cm.matid,
+                    m.matnombre,
+                    cm.curmatfecini,
+                    cm.curmatfecfin
+                )
+                .outerjoin(m, cm.matid == m.matid)
+                .filter(cm.curid == curid, cm.curmatestado == 1)
+                .all())
+        
+        # Convertir los resultados en una lista de diccionarios con fechas formateadas
+        response_data = [
+            {
+                "matid": row.matid,
+                "matnombre": row.matnombre,
+                "curmatfecini": row.curmatfecini.isoformat() if row.curmatfecini else None,
+                "curmatfecfin": row.curmatfecfin.isoformat() if row.curmatfecfin else None
+            } for row in query
+        ]
+
+        # Crear la respuesta con los datos obtenidos
+        return make_response(jsonify({
+            "message": "Materias obtenidas con éxito",
+            "data": response_data,
+            "code": HTTPStatus.OK
+        }), HTTPStatus.OK)
+    
+    except SQLAlchemyError as e:
+        # Manejar cualquier error de SQLAlchemy
+        db.session.rollback()
+        error_response = {
+            "error": "Error en la base de datos.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    finally:
+        db.session.close()
