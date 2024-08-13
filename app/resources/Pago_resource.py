@@ -64,30 +64,48 @@ class ListarPagoEstudiantesMateria(Resource):
         return getPagoEstudianteMateria(data)
 
 
-parseGestionarPago = reqparse.RequestParser()
-parseGestionarPago.add_argument('tipo', type=int, help='Ingrese tipo', required=True)
-parseGestionarPago.add_argument('pagid', type=int, help='Ingrese pagid')
-parseGestionarPago.add_argument('insid', type=int, help='Ingrese insid', required=True)
-parseGestionarPago.add_argument('pagdescripcion', type=str, help='Ingrese pagdescripcion')
-parseGestionarPago.add_argument('pagmonto', type=float, help='Ingrese pagmonto', required=True)
-parseGestionarPago.add_argument('pagfecha', type=str, help='Ingrese pagfecha', required=True)
-parseGestionarPago.add_argument('pagusureg', type=str, help='Ingrese pagusureg')
-parseGestionarPago.add_argument('pagusumod', type=str, help='Ingrese pagusureg')
-parseGestionarPago.add_argument('pagestadodescripcion', type=str, help='Ingrese pagestadodescripcion')
-parseGestionarPago.add_argument('pagestado', type=int, help='Ingrese pagestado')
-parseGestionarPago.add_argument('pagtipo', type=int, help='Ingrese pagtipo' )
-class GestionarPago(Resource):
+parseManagePayment = reqparse.RequestParser()
+parseManagePayment.add_argument('tipo', type=int, help='Ingrese tipo', required=True)
+parseManagePayment.add_argument('pagid', type=int, help='Ingrese pagid')
+parseManagePayment.add_argument('insid', type=int, help='Ingrese insid')
+parseManagePayment.add_argument('pagdescripcion', type=str, help='Ingrese pagdescripcion')
+parseManagePayment.add_argument('pagmonto', type=float, help='Ingrese pagmonto', required=True)
+parseManagePayment.add_argument('pagfecha', type=str, help='Ingrese pagfecha', required=True)
+parseManagePayment.add_argument('pagusureg', type=str, help='Ingrese pagusureg')
+parseManagePayment.add_argument('pagusumod', type=str, help='Ingrese pagusureg')
+parseManagePayment.add_argument('pagestado', type=int, help='Ingrese pagestado')
+parseManagePayment.add_argument('pagtipo', type=int, help='Ingrese pagtipo' )
+class ManagePayment(Resource):
     @token_required
     def post(self):
-        data = parseGestionarPago.parse_args()
-        return manage_pago(data, request)               
+        data = parseManagePayment.parse_args()
+        return managePayment(data, request)               
 
-
+parseManageAssignPayment = reqparse.RequestParser()
+parseManageAssignPayment.add_argument('tipo', type=int, help='Ingrese tipo', required=True)
+parseManageAssignPayment.add_argument('pagid', type=int, help='Ingrese pagid')
+parseManageAssignPayment.add_argument('matrid', type=int, help='Ingrese matrid')
+parseManageAssignPayment.add_argument('pagdescripcion', type=str, help='Ingrese pagdescripcion')
+parseManageAssignPayment.add_argument('pagmonto', type=float, help='Ingrese pagmonto', required=True)
+parseManageAssignPayment.add_argument('pagfecha', type=str, help='Ingrese pagfecha', required=True)
+parseManageAssignPayment.add_argument('pagusureg', type=str, help='Ingrese pagusureg')
+parseManageAssignPayment.add_argument('pagusumod', type=str, help='Ingrese pagusureg')
+parseManageAssignPayment.add_argument('pagestado', type=int, help='Ingrese pagestado')
+parseManageAssignPayment.add_argument('pagtipo', type=int, help='Ingrese pagtipo' )
+class ManageAssignPayment(Resource):
+    @token_required
+    def post(self):
+        data = parseManageAssignPayment.parse_args()
+        return manageAssignPayment(data, request)
+    
 class TipoPago(Resource):
     def get(self):
         return tipoPago()
 
 
+
+# Resource secundarios
+"""
 # Insertar Pago
 parseInsertarPago = reqparse.RequestParser()
 parseInsertarPago.add_argument(
@@ -174,3 +192,4 @@ class AsignarPagoMatricula(Resource):
 class ObtenerUltimoPago(Resource):
     def get(self):
         return obtenerUltimoPago()
+"""
