@@ -8,6 +8,6 @@ def materia_routes(api: Api):
     api.add_resource(Materia_resource.InsertarMateria, routes.insertarMateria)
     api.add_resource(Materia_resource.ModificarMateria, routes.modificarMateria)
     api.add_resource(Materia_resource.ListaMateriaCombo, routes.listaMateriaCombo)
-    api.add_resource(Materia_resource.ListaMateriaCombo2, routes.listaMateriaCombo2)
+    api.add_resource(Materia_resource.GetListMateriaCombo, routes.getListMateriaCombo)
     api.add_resource(Materia_resource.GestionarMateriaEstado, routes.gestionarMateriaEstado)
     api.add_resource(Materia_resource.GetMateriaByIdResource, routes.getMateriaById)

@@ -199,7 +199,7 @@ def f_download_file(file_name):
 
 
 def f_download_file_texto(file_name):
-    archivo_path = 'static/files_texto/' + file_name
+    archivo_path = 'static/files_textos/' + file_name
     return send_file(archivo_path, as_attachment=True)
 
 def f_listarArchivos():

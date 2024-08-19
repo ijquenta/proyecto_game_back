@@ -41,6 +41,7 @@ from routes.acceso_routes import acceso_routes
 from routes.menu_routes import menu_routes
 from routes.tipoIcono_routes import tipoIcono_routes
 from routes.submenu_routes import submenu_routes
+from routes.texto_routes import texto_routes
 
 # Define el nombre del archivo de registro y configura el nivel de registro
 LOG_FILENAME = 'aplication.log'
@@ -153,6 +154,7 @@ acceso_routes(api=api) # Rutas relacionadas con acceso
 menu_routes(api=api) # Rutas relacionadas con menu 
 tipoIcono_routes(api=api) # Rutas relacionadas con tipo icono
 submenu_routes(api=api) # Rutas relacionadas con submenu
+texto_routes(api=api) # Rutas relacionadas con texto
 
 
 # Importamos funciones para registro y login de usuarios

@@ -1,7 +1,13 @@
 from flask_restful import Resource, reqparse
 from services.material_service import * # Servicio de material de apoyo
-# from resources.Autenticacion import token_required
+from resources.Autenticacion import token_required
 
+class GetListTextoCombo(Resource):
+    @token_required
+    def get(self):
+      return getListTextoCombo()
+    
+"""
 class ListarMaterial(Resource):
     # @token_required
     def get(self):
@@ -30,11 +36,7 @@ class ListarMateriaTexto(Resource):
     def get(self):
         return listarMateriaTexto()
     
-class ListarTextoCombo(Resource):
-    # @token_required
-    def get(self):
-        return listarTextoCombo()
-    
+
     
 # Insertar Materia Texto
 parseInsertarMateriaTexto = reqparse.RequestParser()
@@ -60,3 +62,4 @@ class ModificarMateriaTexto(Resource):
     def post(self):
         data = parseModificarMateriaTexto.parse_args()
         return modificarMateriaTexto(data)
+"""

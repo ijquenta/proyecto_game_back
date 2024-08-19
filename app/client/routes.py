@@ -71,7 +71,7 @@ class Routes:
     # Combo
     listaCursoCombo = apiVersion + '/listaCursoCombo'
     listaMateriaCombo = apiVersion + '/listaMateriaCombo'
-    listaMateriaCombo2 = apiVersion + '/listaMateriaCombo2'
+    getListMateriaCombo = apiVersion + '/getListMateriaCombo'
     listaPersonaDocenteCombo = apiVersion + '/listaPersonaDocenteCombo'
     
     
@@ -148,24 +148,13 @@ class Routes:
     manageAssignPayment= apiVersion + '/manageAssignPayment'
     tipoPago = apiVersion + '/tipoPago'
     getPayments = apiVersion + '/getPayments'
-    # insertarPago = apiVersion + '/insertarPago'
-    # modificarPago = apiVersion + '/modificarPago'
-    # asignarPagoInscripcion = apiVersion + '/asignarPagoInscripcion'
-    # asignarPagoMatricula = apiVersion + '/asignarPagoMatricula'
-    # obtenerUltimoPago = apiVersion + '/obtenerUltimoPago'
     getPagoById = apiVersion + '/getPagoById/<int:pagid>'
     
     # Asistencia
     listarAsistencia = apiVersion + '/listarAsistencia'
     
     # Material de Apoyo
-    listarMaterial = apiVersion + '/listarMaterial'
-    listarTexto = apiVersion + '/listarTexto'
-    insertarTexto = apiVersion + '/insertarTexto'
-    listarMateriaTexto = apiVersion + '/listarMateriaTexto'   
-    listarTextoCombo = apiVersion + '/listarTextoCombo'
-    insertarMateriaTexto = apiVersion + '/insertarMateriaTexto'
-    modificarMateriaTexto = apiVersion + '/modificarMateriaTexto'
+    getListTextoCombo = apiVersion + '/getListTextoCombo'
     
     # Reportes
     rptTotalesSigma = apiVersion + '/rptTotalesSigma'
@@ -258,4 +247,38 @@ class Routes:
     tipoCargo = apiVersion + '/tipoCargo'
     tipoCargov2 = apiVersion + '/tipoCargo/<int:carid>'
     
-    
+    # Texto
+    listTexto = apiVersion + '/getTextos'
+    createTexto = apiVersion + '/createTexto'
+    updateTexto = apiVersion + '/updateTexto/<int:texid>'
+    deleteTexto = apiVersion + '/deleteTexto/<int:texid>'
+
+    # TipoTexto
+    listTipoTexto = apiVersion + '/getTipoTextos'
+    createTipoTexto = apiVersion + '/createTipoTexto'
+    updateTipoTexto = apiVersion + '/updateTipoTexto/<int:tiptexid>'
+    deleteTipoTexto = apiVersion + '/deleteTipoTexto/<int:tiptexid>'
+
+    # TipoIdiomaTexto
+    listTipoIdiomaTexto = apiVersion + '/getTipoIdiomaTextos'
+    createTipoIdiomaTexto = apiVersion + '/createTipoIdiomaTexto'
+    updateTipoIdiomaTexto = apiVersion + '/updateTipoIdiomaTexto/<int:tipidiid>'
+    deleteTipoIdiomaTexto = apiVersion + '/deleteTipoIdiomaTexto/<int:tipidiid>'
+
+    # TipoCategoriaTexto
+    listTipoCategoriaTexto = apiVersion + '/getTipoCategoriaTextos'
+    createTipoCategoriaTexto = apiVersion + '/createTipoCategoriaTexto'
+    updateTipoCategoriaTexto = apiVersion + '/updateTipoCategoriaTexto/<int:tipcatid>'
+    deleteTipoCategoriaTexto = apiVersion + '/deleteTipoCategoriaTexto/<int:tipcatid>'
+
+    # TipoExtensionTexto
+    listTipoExtensionTexto = apiVersion + '/getTipoExtensionTextos'
+    createTipoExtensionTexto = apiVersion + '/createTipoExtensionTexto'
+    updateTipoExtensionTexto = apiVersion + '/updateTipoExtensionTexto/<int:tipextid>'
+    deleteTipoExtensionTexto = apiVersion + '/deleteTipoExtensionTexto/<int:tipextid>'
+
+    # MateriaTexto
+    listMateriaTexto = apiVersion + '/getMateriaTextos'
+    createMateriaTexto = apiVersion + '/createMateriaTexto'
+    updateMateriaTexto = apiVersion + '/updateMateriaTexto/<int:mattexid>'
+    deleteMateriaTexto = apiVersion + '/deleteMateriaTexto/<int:mattexid>'
