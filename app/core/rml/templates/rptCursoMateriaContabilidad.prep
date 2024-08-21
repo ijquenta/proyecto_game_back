@@ -7,8 +7,29 @@
     Fecha: 09/12/2023 
 -->
 
-<!DOCTYPE document SYSTEM "rml.dtd">
-<document filename="ReporteTotalesSigma.pdf">
+<!DOCTYPE document SYSTEM "rml.dtd" [
+<!ENTITY lines5 "
+        0cm 0cm 0cm 0.5cm
+        0cm 0cm 0.5cm 0cm
+        5cm 0cm 4.5cm 0cm
+        5cm 0cm 5cm 0.5cm
+        0cm 5cm 0.5cm 5cm
+        0cm 5cm 0cm 4.5cm
+        5cm 5cm 5cm 4.5cm
+        5cm 5cm 4.5cm 5cm
+">
+<!ENTITY lines3 "
+        0cm 0cm 0cm 0.5cm
+        0cm 0cm 0.5cm 0cm
+        3cm 0cm 2.5cm 0cm
+        3cm 0cm 3cm 0.5cm
+        0cm 3cm 0.5cm 3cm
+        0cm 3cm 0cm 2.5cm
+        3cm 3cm 3cm 2.5cm
+        3cm 3cm 2.5cm 3cm
+">
+]>
+<document filename="ReporteContabilidad.pdf">
     <!-- 
         pagesize:
             oficioH: pagesize="(35.6cm, 21.6cm)",
@@ -16,119 +37,108 @@
             cartaH: pagesize="(27.9cm, 21.6cm)"
             cartaV: pagesize="(21.6cm, 27.9cm)"
     -->
-    <!-- <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social"> -->
-    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Informe Financiero" author="Ivan">
+    <template pagesize="(27.9cm, 21.6cm)" title="Reporte Informe Financiero" author="Ivan Quenta">
         <pageTemplate id="main">
             <pageGraphics>
                 <!-- Header -->
                 {{script}}
+                import uuid
                 import datetime
-                from core.rml.util.extras import getFecha
-                ev = ''
-                ev = 'P(titulo)'
-                today=datetime.datetime.today()
-                today=today.strftime("%d/%m/%y %H:%M")
-                curnombre = 1
-                matnombre = 1
-                numero_materias = 1
-                correlativo = 1
-                correlativo2 = 1
+
+                # Generar un UUID como código de verificación
+                verification_code = str(uuid.uuid4())
+
+                # Separar la fecha y la hora en cadenas de texto
+                now = datetime.datetime.now()
+                date_str = now.strftime("%d/%m/%y")  # Formato de fecha
+                time_str = now.strftime("%H:%M")     # Formato de hora
+            
+                correlative1 = 1
+                correlative2 = 1
+                
                 ptotal_int = int(data3[4]['resmonto'])
                 ptotal =  "{:.2f}".format(round(data3[4]['resmonto'], 2))
 
-                total = {
-                    "liq": 0
-                }
-                totalI = {
-                    "ti": 0
-                }
-                
-                totalE = {
-                    "te": 0
-                }
+                username='9973412'
 
-                totalD = {
-                    "td": 0
-                }
+                total = { "liq": 0 }
+                # Total Ingresos
+                totalI = { "ti": 0 }
+                # Total Egresos
+                totalE = { "te": 0 }
+                # Total Descuentos
+                totalD = { "td": 0 }
 
-                def convertir_numero_a_texto(numero):
+                # Convertir número a texto
+                def convert_number_to_text(number):
                     unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
                     decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"]
                     especiales = ["", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"]
                     centena = ["", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"]
-                    if numero < 10:
-                        return unidades[numero]
-                    elif 10 <= numero < 20:
-                        return especiales[numero - 10]
-                    elif 20 <= numero < 100:
-                        return decenas[numero // 10] + (" y " + unidades[numero % 10] if numero % 10 != 0 else "")
-                    elif 100 <= numero < 1000:
-                        if numero % 100 == 0:
-                            return centena[numero // 100]
+                    if number < 10:
+                        return unidades[number]
+                    elif 10 <= number < 20:
+                        return especiales[number - 10]
+                    elif 20 <= number < 100:
+                        return decenas[number // 10] + (" y " + unidades[number % 10] if number % 10 != 0 else "")
+                    elif 100 <= number < 1000:
+                        if number % 100 == 0:
+                            return centena[number // 100]
                         else:
-                            return centena[numero // 100] + " " + convertir_numero_a_texto(numero % 100)
-                    elif 1000 <= numero < 1000000:
-                        miles = numero // 1000
-                        resto = numero % 1000
+                            return centena[number // 100] + " " + convert_number_to_text(number % 100)
+                    elif 1000 <= number < 1000000:
+                        miles = number // 1000
+                        resto = number % 1000
                         if miles == 1:
-                            return "mil " + convertir_numero_a_texto(resto)
+                            return "mil " + convert_number_to_text(resto)
                         elif miles > 1:
-                            return convertir_numero_a_texto(miles) + " mil " + convertir_numero_a_texto(resto)
+                            return convert_number_to_text(miles) + " mil " + convert_number_to_text(resto)
                     return "Número fuera de rango"
-
 
                 {{endscript}}
 
-                <!-- Imagen de la Institución -->
-                <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
-                <setFont name="Helvetica" size="11"/>
+                <!-- Header -->
                 
-                <setFont name="Helvetica" size="9"/>
+                <!-- Imagen -->
+                <image x="0.8cm" y="18.5cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
+                <setFont name="Helvetica" size="9"/>  
+                <drawRightString x="6.15cm" y="18.6cm"> Av. Junin Zona Paraiso I Villa Adela,</drawRightString>
+                <drawRightString x="7.5cm" y="18.2cm"> detrás del colegio particula Jesús de Nazareth</drawRightString>
+
                 <setFont name="Helvetica-Bold" size="12"/>
-                <drawCentredString x="10.5cm" y="25.5cm">Informe Financiero</drawCentredString>
-                <drawString x="6cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawString>
-                <setFont name="Helvetica-Bold" size="12"/>
-                <drawString x="6cm" y="26cm">Sistema de Gestión y Seguimiento Académico</drawString>
-                <setFont name="Helvetica" size="9"/>  <!-- Restablecer la fuente para el texto siguiente -->
-                <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
-                <drawRightString x="20cm" y="27cm">Fecha Emisión: {{ today }}</drawRightString>
-                <!-- <drawString x="1cm" y="25cm">Nombre del Curso: {{ 1 }}</drawString> -->
-                <!-- <drawString x="1cm" y="24.7cm">Nombre de la Materia: {{ 1 }}</drawString> -->
-                    <!-- <place x="1.3cm" y="19cm" width="31cm" height="7.5cm">
-                        <blockTable rowHeights="0.6cm" colWidths="0.6cm, 3.5cm, 3.5cm, 2.3cm, 3.5cm, 1.5cm, 2cm, 2cm, 1cm" style="blocktablestyle1">
-                            <tr>
-                                <td><para style="tableTextTitle">#</para></td>
-                                <td><para style="tableTextTitle">Curso</para></td>
-                                <td><para style="tableTextTitle">Materia</para></td>
-                                <td><para style="tableTextTitle">Fecha</para></td>
-                                <td><para style="tableTextTitle">Docente</para></td>
-                                <td><para style="tableTextTitle">Cant.</para></td>
-                                <td><para style="tableTextTitle">Couta</para></td>
-                                <td><para style="tableTextTitle">Total</para></td>
-                            </tr>
-                        </blockTable>
-                    </place> -->
+                <drawCentredString x="13.95cm" y="18.5cm">Informe Financiero</drawCentredString>
+                <drawCentredString x="13.95cm" y="19.5cm">Instituto Biblico de Capacitación Internacional - IBCI</drawCentredString>
+                <drawCentredString x="13.95cm" y="19cm">SSGA Bolivia</drawCentredString>
+
+                <setFont name="Helvetica" size="9"/>  
+                <drawRightString x="23.8cm" y="20cm">Fecha: {{ date_str }}</drawRightString>
+                <drawRightString x="23.15cm" y="19.6cm">Hora: {{ time_str }}</drawRightString>
+
+                <!-- Header -->
+
                 <!-- Footer -->
-                <setFont name="Helvetica" size="8"/>
-                <drawRightString x="20cm" y="1cm"> Pag. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
-                <drawString x="2cm" y="1cm">Usuario</drawString>
+                <setFont name="Helvetica" size="9"/>
+                <drawRightString x="23.55cm" y="19.2cm"> Página. <pageNumber/> de <getName id="lastPage" default="0" /></drawRightString>
+                <drawString x="21.5cm" y="18.8cm">Usuario: </drawString>
+                <drawString x="21.5cm" y="18.4cm">{{ username }}</drawString>
                 <!-- Footer -->
             </pageGraphics>
-            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="18.5cm" height="23.3cm"/>
+            <!-- Tamaño del frame -->
+            <frame showBoundary="0" id="first" x1="1.5cm" y1="1.5cm" width="25cm" height="16.3cm"/>
         </pageTemplate>
     </template>
 
     <stylesheet>
-        <!-- definicion de estilos -->
+        <!-- Estilos -->
         <blockTableStyle id="blocktablestyle1">
             <!-- <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" /> -->
             <!-- <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" /> -->
-            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
             <!-- <blockSpan start="0,0" stop="3,0" /> -->
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
             <blockValign value="bottom" start="0,0" stop="-1,-1"/>
             <blockFont name="Helvetica" size="9"/>
-
         </blockTableStyle>
+
         <blockTableStyle id="blocktablestyleData">
             <blockLeading length="2cm"/>
             <blockFont name="Helvetica" size="8"/>
@@ -137,11 +147,50 @@
         </blockTableStyle>
 
         <blockTableStyle id="blocktablestyleDataFirma">
-            <!-- <blockLeading length="2cm"/> -->
-            <blockFont name="Helvetica" size="8"/>
-            <!-- <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" /> -->
-            <blockSpan start="3,1" stop="4,1" />
+            <blockFont name="Helvetica" size="10"/>
+            <blockAlign value="center" start="0,0" stop="-1,-1" />
         </blockTableStyle>
+
+        <blockTableStyle id="elegantTableStyle">
+            <!-- Líneas de Borde -->
+            <lineStyle kind="GRID" colorName="darkgrey" thickness="0.5" start="0,0" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,-1" stop="-1,-1" />
+            
+            <!-- Sombreado de Encabezados -->
+            <blockBackground colorName="lightgrey" start="0,0" stop="0,-1" />
+            
+            <!-- Alineación y Fuente -->
+            <blockValign value="middle" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="10" />
+            
+            <!-- Ajuste de Espaciado -->
+            <blockPadding value="5" start="0,0" stop="-1,-1"/>
+            <blockAlignment value="center" start="0,0" stop="-1,-1"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="elegantTableData">
+            <!-- Líneas de Borde -->
+            <lineStyle kind="GRID" colorName="lightgrey" thickness="0.5" start="0,0" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="darkgrey" thickness="0.5" start="0,0" stop="-1,0" />
+            <lineStyle kind="LINEBELOW" colorName="darkgrey" thickness="0.5" start="0,-1" stop="-1,-1" />
+            
+            <!-- Alineación y Fuente -->
+            <blockValign value="middle" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9" />
+            
+            <!-- Ajuste de Espaciado y Sombreado -->
+            <blockPadding value="5" start="0,0" stop="-1,-1"/>
+            <blockBackground colorName="white" start="0,1" stop="-1,-1"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="horizontalLineStyle">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <blockFont name="Helvetica" size="1" />  <!-- Tamaño pequeño para la línea -->
+        </blockTableStyle>
+        
+        
+        
 
         <paraStyle name="textstyle1" alignment="center" fontName="Helvetica" fontSize="9" spaceAfter="0.25cm" spaceBefore="0.25cm"/>
         <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
@@ -149,99 +198,103 @@
         <paraStyle name="tableText2" alignment="right" fontSize="8"/>
         <paraStyle name="tableTexttd" alignment="left" fontSize="9"/>
         <paraStyle name="tableTextTitle" alignment="center" fontSize="9" fontName="Helvetica"/>
+
     </stylesheet>
+
     <story>
-       <!-- aqui entra todo lo que se mostrara en la pagina, (mas que todo en el frame) -->
-        <blockTable rowHeights="0.6cm" colWidths="0.6cm, 3.5cm, 3.5cm, 2.3cm, 3.5cm, 1.5cm, 2cm, 2cm, 1cm" style="blocktablestyle1">
-                            <tr>
-                                <td><para style="tableTextTitle">#</para></td>
-                                <td><para style="tableTextTitle">Curso</para></td>
-                                <td><para style="tableTextTitle">Materia</para></td>
-                                <td><para style="tableTextTitle">Fecha</para></td>
-                                <td><para style="tableTextTitle">Docente</para></td>
-                                <td><para style="tableTextTitle">Cant.</para></td>
-                                <td><para style="tableTextTitle">Couta</para></td>
-                                <td><para style="tableTextTitle">SubTotal</para></td>
-                            </tr>
-        </blockTable>
-       {{for item in data}}
-       
-            <blockTable
-                style="blocktablestyleData"
-                rowHeights="1.3cm"
-                colWidths="0.6cm, 3.5cm, 3.5cm, 2.3cm, 3.5cm, 1.5cm 2cm, 2cm, 1cm"
-            >
-                <tr>
-                    <td><para style="tableTexttd">{{correlativo}}</para></td>
-                    <td><para style="tableTexttd">{{item['curnombre']}}</para></td>
-                    <td><para style="tableTexttd">{{item['matnombre']}}</para></td>
-                    <td><para style="tableTexttd">{{item['curmatfecini'] + ' ' + item['curmatfecfin']}}</para></td>
-                    <td><para style="tableTexttd">{{item['pernomcompleto']}}</para></td>
-                    <td><para style="tableTexttd">{{item['numeroEstudiantes']}}</para></td>
-                    <td><para style="tableTexttd">{{item['curmatcosto']}}</para></td>
-                    <td><para style="tableTexttd">{{ item['numeroEstudiantes']*item['curmatcosto']if item['numeroEstudiantes'] is not None else 0}}</para></td>
-                </tr>
-            </blockTable>
-            {{script}}
-                totalE["te"] = round(totalE["te"] + item['numeroEstudiantes'])
-                totalI["ti"] = round(totalI["ti"] + item['numeroEstudiantes']*item['curmatcosto'])
-                correlativo = correlativo + 1
-            {{endscript}}
-       {{endfor}}
-       <illustration width="27cm" height="0cm">
-            <lineMode width="1" dash="3,3" />
-            <lines>1cm 1cm 1cm 1cm </lines>
+        <!-- Imagen QR -->
+        <illustration height="0cm" width="0cm" align="center">
+            <plugInGraphic module="reportlab_qr_code" function="qr">size=3cm,x=630,y=1;text;{{ verification_code }}</plugInGraphic>
         </illustration>
-        <blockTable
-            style="blocktablestyleData"
-            rowHeights="0.7cm"
-            colWidths="13.4cm, 1.5cm, 2cm, 2cm"
-        > 
-             <tr>
-                 <td><para style="tableTextTotal">Num. estudiantes:</para> </td> 
-                 <td><para>{{ totalE["te"] }}</para></td> 
-                 <td><para style="tableTextTotal">Total Ingresos:</para> </td> 
-                 <td><para>{{ totalI['ti'] }}</para></td> 
+
+        <!-- Cabecera de la tabla -->
+        <blockTable rowHeights="0.6cm" colWidths="0.8cm, 7.5cm, 5.5cm, 2.3cm, 3.5cm, 1.5cm, 2cm, 2cm, 1cm" style="elegantTableStyle">
+            <tr>
+                <td><para style="tableTextTitle">#</para></td>
+                <td><para style="tableTextTitle">Curso</para></td>
+                <td><para style="tableTextTitle">Materia</para></td>
+                <td><para style="tableTextTitle">Fecha</para></td>
+                <td><para style="tableTextTitle">Docente</para></td>
+                <td><para style="tableTextTitle">Cant.</para></td>
+                <td><para style="tableTextTitle">Couta</para></td>
+                <td><para style="tableTextTitle">SubTotal</para></td>
             </tr>
         </blockTable>
+
+        <!-- Contenido de las tablas -->
+        {{for item in data}}
+                <blockTable style="elegantTableData" rowHeights="1.3cm" colWidths="0.8cm, 7.5cm, 5.5cm, 2.3cm, 3.5cm, 1.5cm 2cm, 2cm, 1cm" >
+                    <tr>
+                        <td><para style="tableTexttd">{{correlative1}}</para></td>
+                        <td><para style="tableTexttd">{{item['curnombre']}}</para></td>
+                        <td><para style="tableTexttd">{{item['matnombre']}}</para></td>
+                        <td><para style="tableTexttd">{{item['curmatfecini'] + ' ' + item['curmatfecfin']}}</para></td>
+                        <td><para style="tableTexttd">{{item['pernomcompleto']}}</para></td>
+                        <td><para style="tableTexttd">{{item['numeroEstudiantes']}}</para></td>
+                        <td><para style="tableTexttd">{{item['curmatcosto']}}</para></td>
+                        <td><para style="tableTexttd">{{ item['numeroEstudiantes']*item['curmatcosto']if item['numeroEstudiantes'] is not None else 0}}</para></td>
+                    </tr>
+                </blockTable>
+                {{script}}
+                    totalE["te"] = round(totalE["te"] + item['numeroEstudiantes'])
+                    totalI["ti"] = round(totalI["ti"] + item['numeroEstudiantes']*item['curmatcosto'])
+                    correlative1 = correlative1 + 1
+                {{endscript}}
+        {{endfor}}
+
         <illustration width="27cm" height="0cm">
-            <lineMode width="1" dash="3,3" />
+            <lineMode width="0.5" dash="3,3" />
             <lines>1cm 1cm 1cm 1cm </lines>
         </illustration>
+
         <blockTable
-            rowHeights="0.7cm"
-            colWidths="1cm, 5cm, 5cm, 2cm"
+            style="elegantTableData"
+            rowHeights="0.6cm"
+            colWidths="19.6cm, 1.5cm, 2cm, 2cm"
         > 
-            
-             <tr>
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
+            <tr>
+                <td><para style="tableTextTotal">N.E.:</para> </td> 
+                <td><para>{{ totalE["te"] }}</para></td> 
+                <td><para style="tableTextTotal">T.I.:</para> </td> 
+                <td><para>{{ totalI['ti'] }}</para></td> 
+            </tr>
+        </blockTable>
+
+        <illustration width="27cm" height="0cm">
+            <lineMode width="0.5" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+
+        <blockTable rowHeights="0.6cm" colWidths="1cm, 5cm, 5cm, 2cm"> 
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
             </tr>
         </blockTable>
 
         <blockTable
-            style="blocktablestyleData"
-            rowHeights="0.7cm"
-            colWidths="1cm, 5cm, 5cm, 2cm"
+            style="elegantTableStyle"
+            rowHeights="0.6cm"
+            colWidths="1cm, 10cm, 10cm, 4cm"
         > 
-            
-             <tr>
-                 <td><para>#</para> </td> 
-                 <td><para>Descuento</para></td> 
-                 <td><para>Descripción</para> </td> 
-                 <td><para>Total</para></td> 
+            <tr>
+                <td><para>#</para> </td> 
+                <td><para>Descuento</para></td> 
+                <td><para>Descripción</para> </td> 
+                <td><para>Total</para></td> 
             </tr>
         </blockTable>
-         {{for d2 in data2}}
+        
+        {{for d2 in data2}}
             <blockTable
-                style="blocktablestyleData"
-                rowHeights="1cm"
-                colWidths="1cm, 5cm, 5cm, 2cm"
+                style="elegantTableData"
+                rowHeights="0.6cm"
+                colWidths="1cm, 10cm, 10cm, 4cm"
             >
                 <tr>
-                    <td><para style="tableTexttd">{{correlativo2}}</para></td>
+                    <td><para style="tableTexttd">{{correlative2}}</para></td>
                     <td><para style="tableTexttd">{{d2['desnombre']}}</para></td>
                     <td><para style="tableTexttd">{{d2['desdescripcion']}}</para></td>
                     <td><para style="tableTexttd">{{d2['desmonto']}}</para></td>
@@ -249,105 +302,108 @@
             </blockTable>
             {{script}}
                 totalD["td"] = round(totalD["td"] + d2['desmonto'])
-                correlativo2 = correlativo2 + 1
+                correlative2 = correlative2 + 1
             {{endscript}}
-       {{endfor}}
-       <blockTable
-            style="blocktablestyleData"
-            rowHeights="1cm"
-            colWidths="11cm, 2cm"
+        {{endfor}}
+        <blockTable
+            style="elegantTableData"
+            rowHeights="0.6cm"
+            colWidths="21cm, 4cm"
         > 
-             <tr>
-                 <td><para style="tableTextTotal">Total Egresos:</para> </td> 
-                 <td><para>{{  totalD["td"] }}</para></td> 
+            <tr>
+                <td><para style="tableTextTotal">T.E.:</para> </td> 
+                <td><para>{{  totalD["td"] }}</para></td> 
             </tr>
         </blockTable>
 
-
-         <illustration width="27cm" height="0cm">
-            <lineMode width="1" dash="3,3" />
+        <illustration width="27cm" height="0cm">
+            <lineMode width="0.6" dash="3,3" />
             <lines>1cm 1cm 1cm 1cm </lines>
         </illustration>
         <blockTable
-            rowHeights="0.7cm"
+            rowHeights="0.6cm"
             colWidths="1cm, 5cm, 5cm, 2cm"
         > 
-            
-             <tr>
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
             </tr>
         </blockTable>
 
-
-         <blockTable
-            style="blocktablestyleData"
-            rowHeights="0.7cm"
-            colWidths="8cm, 2cm"
+        <blockTable
+            style="elegantTableStyle"
+            rowHeights="0.6cm"
+            colWidths="21cm, 4cm"
         > 
-            
-             <tr>
-                 <td><para>Descripción</para></td> 
-                 <td><para>Monto</para> </td> 
+            <tr>
+                <td><para>Descripción</para></td> 
+                <td><para>Monto</para> </td> 
             </tr>
         </blockTable>
 
-         {{for item in data3}}
+        {{for item in data3}}
             <blockTable
-                style="blocktablestyleData"
-                rowHeights="0.7cm"
-                colWidths="8cm, 2cm"
+                style="elegantTableData"
+                rowHeights="0.6cm"
+                colWidths="21cm, 4cm"
             >
                 <tr>
                     <td><para style="tableTexttd">{{item['resdescripcion']}}</para></td>
                     <td><para style="tableTexttd">{{item['resmonto']}}</para></td>
                 </tr>
             </blockTable>
-       {{endfor}}
+        {{endfor}}
 
-       <blockTable
-            rowHeights="0.7cm, 0cm"
+        <blockTable
+            rowHeights="0.6cm, 0cm"
             colWidths="1cm, 5cm, 5cm, 2cm"
         > 
-            
-             <tr>
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
             </tr>
             <tr>
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
-                 <td><para></para> </td> 
-                 <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
             </tr>
         </blockTable>
-          <blockTable
+        <blockTable
             style="blocktablestyleDataFirma"
             rowHeights="2cm"
-            colWidths="12cm, 6cm"
+            colWidths="15cm, 10cm"
         > 
-             <tr>
-                 <td>
-                    <para>Monto de Bs. {{ptotal}}.- 
-                    (
-                       {{ convertir_numero_a_texto(int(ptotal_int)).upper() +' '+ str(ptotal)[str(ptotal).find('.')+1:]}}/100 BOLIVIANOS 
-                    ), 
-                       realizado en {{today}}. 
-                    </para> 
-                 </td>
-                 <td align="center"><para>Alyne Monteiro Costa de Flor      Director IBCI</para></td>
-             </tr>
-            
-             </blockTable>
-        <!-- <illustration width="33cm" height="0.2cm">
-            <lineMode width="1" dash="3,3" />
-            <lines>1cm 0.1cm 32cm 0.1cm</lines>
-        </illustration> -->
-        <!--Variable para saber cuantas paginas tiene dejar al final para el total-->
+            <tr>
+                <td align="left">
+                    Monto de Bs. {{ptotal}}.- ({{ convert_number_to_text(int(ptotal_int)).upper() +' '+ str(ptotal)[str(ptotal).find('.')+1:]}}/100 BOLIVIANOS), 
+                </td>
+                <td align="center">
+                    Lic. Adolfo Gastón Flor Sainz
+                </td>
+            </tr>
+        </blockTable>
+
+        <blockTable
+            style="blocktablestyleDataFirma"
+            rowHeights="0.5cm"
+            colWidths="15cm, 10cm"
+        > 
+            <tr>
+                <td align="left">
+                    realizado en {{date_str}}.
+                </td>
+                <td align="center">
+                    Director IBCI
+                </td>
+            </tr>
+        </blockTable>
+
+        <!-- Número de paginas -->
         <namedString id="lastPage"><pageNumber/></namedString>
     </story>
 </document>

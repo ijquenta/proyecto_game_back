@@ -164,6 +164,7 @@ class Routes:
     
     # Contabilidad
     listarCursoMateriaContabilidad = apiVersion + '/listarCursoMateriaContabilidad'
+    getListCursoMateriaContabilidadById = apiVersion + '/getListCursoMateriaContabilidadById'
     
     
     #principal
