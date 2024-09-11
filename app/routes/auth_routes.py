@@ -6,10 +6,9 @@ from models.rol_model import Rol
 from resources.Autenticacion import TokenGenerator
 
 
-
+import bcrypt
 def f_login_usuario(bcrypt):
     user_data = request.get_json()
-
     # Verificar si los campos requeridos están presentes en la solicitud
     if 'usuname' not in user_data or 'usupassword' not in user_data:
         return jsonify({"status": "Error", "message": "Missing username or password"}), 400
