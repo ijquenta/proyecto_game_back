@@ -243,8 +243,6 @@ def f_login_usuario():
                 return jsonify({"status": "Error", "message": "Email not confirmed. Please confirm your email before logging in."}), 401
 
             # Verificar si la contraseña es correcta
-            print("user.usupassword", user.usupassword)
-            print("user_data['usupassword']", user_data['usupassword'])
             if bcrypt.check_password_hash(user.usupassword, user_data['usupassword']):
                 rol = Rol.query.get(user.rolid)
                 auth_token = TokenGenerator.encode_token(
