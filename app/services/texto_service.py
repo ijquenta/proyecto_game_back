@@ -1,15 +1,20 @@
+from flask import jsonify, make_response
+from http import HTTPStatus
+
+from core.database import db
+from sqlalchemy.orm import aliased
+from sqlalchemy.exc import SQLAlchemyError
+
+from models.texto_model import Texto, db
 from models.texto_model import MateriaTexto, TipoExtensionTexto, Texto, TipoIdiomaTexto, TipoCategoriaTexto, db
 from models.materia_model import Materia
-from datetime import datetime
-from flask import jsonify, make_response
-from core.database import db
-from sqlalchemy.exc import SQLAlchemyError
-from http import HTTPStatus
-from models.texto_model import Texto, db
+from models.inscripcion_model import Inscripcion
+from models.curso_materia_model import CursoMateria
+
 import os
 import uuid
+from datetime import datetime
 from dotenv import load_dotenv
-from sqlalchemy.orm import aliased
 load_dotenv()
 
 
@@ -699,3 +704,76 @@ def allowedFile(filename):
     # Extensiones permitidas, incluyendo archivos de Word
     allowed_extensions = {'pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+
+
+def getListMateriaTextoEstudiante(estudiante_id):
+    try:
+        # Crear alias para las tablas con aliased
+        m = aliased(Materia)
+        t = aliased(Texto)
+        mt = aliased(MateriaTexto)
+        i = aliased(Inscripcion)
+        cm = aliased(CursoMateria)
+        
+        # Realizar la consulta con los joins necesarios, filtrando por el estudiante
+        query = (db.session.query(
+            mt.mattexid, mt.matid, mt.texid, mt.mattexdescripcion,
+            mt.mattexusureg, mt.mattexfecreg, mt.mattexusumod,
+            mt.mattexfecmod, mt.mattexestado, m.matnombre, m.matnivel, m.matdesnivel,
+            t.texnombre, t.texdocumento, t.texruta, t.texdescripcion
+        )
+            .join(m, m.matid == mt.matid)
+            .join(t, t.texid == mt.texid)
+            .join(cm, cm.matid == m.matid)  
+            .join(i, i.curmatid == cm.curmatid)  
+            .filter(i.peridestudiante == estudiante_id) 
+            .order_by(m.matnombre, t.texnombre)
+            .distinct()
+            .all()
+        )
+
+        # Organizar materias y textos en un diccionario agrupado
+        materias = {}
+        for row in query:
+            mat_id = row.matid
+            if mat_id not in materias:
+                materias[mat_id] = {
+                    'materia': row.matnombre,
+                    # 'nivel': row.matnivel,
+                    # 'desnivel': row.matdesnivel,
+                    'textos': []
+                }
+            
+            # Agregar los textos asociados a la materia
+            texto = {
+                'texid': row.texid,
+                'texnombre': row.texnombre,
+                'texdocumento': row.texdocumento,
+                'texdescripcion': row.texdescripcion,
+                'texruta': row.texruta,
+                'mattexdescripcion': row.mattexdescripcion,
+                'mattexusureg': row.mattexusureg,
+                'mattexfecreg': row.mattexfecreg.isoformat() if row.mattexfecreg else None,
+                'mattexusumod': row.mattexusumod,
+                'mattexfecmod': row.mattexfecmod.isoformat() if row.mattexfecmod else None,
+                'mattexestado': row.mattexestado
+            }
+            materias[mat_id]['textos'].append(texto)
+            
+
+        # Convertir el diccionario a una lista para la respuesta
+        print("materias", materias)
+        
+        response = list(materias.values())
+        
+        return make_response(jsonify(response), HTTPStatus.OK)
+    
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)

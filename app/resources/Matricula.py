@@ -1,9 +1,16 @@
 from flask_restful import Resource, reqparse
+from resources.Autenticacion import token_required
 from services.matricula_service import * # Servicio de matricula
 
 class ListarMatricula(Resource):
+  @token_required
   def get(self):
       return listarMatricula()
+    
+class ListarMatriculaEstudiante(Resource):
+  @token_required
+  def get(self, perid):
+      return listarMatriculaEstudiante(perid)
     
 class ListarTipoMatricula(Resource):
   def get(self):

@@ -1,0 +1,338 @@
+<!-- Parametros de entrada -->
+{{def(comprobante, usuname)}}
+<!-- Fin de parametros de entrada-->
+
+<!-- 
+    Author: Ivan Quenta
+    Fecha: 09/12/2023 
+-->
+
+<!DOCTYPE document SYSTEM "rml.dtd">
+<document filename="ReporteNotaEstudianteMateria.pdf">
+    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Nota Estudiante" author="Estudiante">
+        <pageTemplate id="main">
+            <pageGraphics>
+                {{script}}
+                # Importación de librerías necesarias
+                import uuid
+                import datetime
+                import os
+
+                # 1. Generar un UUID como código de verificación
+                verification_code = str(uuid.uuid4())
+
+                # 2. Obtener la fecha y la hora actuales
+                now = datetime.datetime.now()
+                date_str = now.strftime("%d/%m/%y")  # Formato de fecha (dd/mm/yy)
+                time_str = now.strftime("%H:%M")     # Formato de hora (HH:MM)
+                correlative1 = 1  # Correlativo para el procesamiento de datos
+
+                # 3. Extraer datos del estudiante
+                pernomcompleto = comprobante['estudiante']['pernomcompleto'] 
+                pernrodoc = comprobante['estudiante']['pernrodoc']           
+                perfoto = comprobante['estudiante']['perfoto']               
+                peremail = comprobante['estudiante']['peremail']             
+                percelular = comprobante['estudiante']['percelular']         
+
+                # 4. Definir la ruta de la imagen de perfil
+                image_path = f"static/personProfilePhoto/{perfoto}"  # Ruta donde se encuentra la foto del estudiante
+                image_aux = "static/personProfilePhoto/icono-estu.png"  # Ruta alternativa en caso de no encontrar la imagen
+
+                # 5. Verificar si la imagen de perfil existe en la ruta
+                if os.path.exists(image_path):
+                    image_rml = image_path  # Si la imagen existe, utilizar la ruta original
+                else:
+                    image_rml = image_aux   # Si no existe, usar una imagen por defecto
+
+                ptotal_int = int(comprobante['pago']['pagmonto'])
+                ptotal =  "{:.2f}".format(round(comprobante['pago']['pagmonto'], 2))
+    
+                # Convertir número a texto
+                def convert_number_to_text(number):
+                    unidades = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
+                    decenas = ["", "diez", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"]
+                    especiales = ["", "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve"]
+                    centena = ["", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"]
+                    if number < 10:
+                        return unidades[number]
+                    elif 10 <= number < 20:
+                        return especiales[number - 10]
+                    elif 20 <= number < 100:
+                        return decenas[number // 10] + (" y " + unidades[number % 10] if number % 10 != 0 else "")
+                    elif 100 <= number < 1000:
+                        if number % 100 == 0:
+                            return centena[number // 100]
+                        else:
+                            return centena[number // 100] + " " + convert_number_to_text(number % 100)
+                    elif 1000 <= number < 1000000:
+                        miles = number // 1000
+                        resto = number % 1000
+                        if miles == 1:
+                            return "mil " + convert_number_to_text(resto)
+                        elif miles > 1:
+                            return convert_number_to_text(miles) + " mil " + convert_number_to_text(resto)
+                    return "Número fuera de rango"
+                {{endscript}}
+
+
+                <!-- Imagen IBCI -->
+                <image x="0.5cm" y="25.2cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
+
+                <!-- Titulos Centrados -->
+                <setFont name="Helvetica" size="7"/>  
+                <setFont name="Helvetica-Bold" size="12"/>
+                <drawCentredString x="10.8cm" y="25.5cm">Comprobante de Pago</drawCentredString>
+                <drawCentredString x="10.8cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawCentredString>
+                <drawCentredString x="10.8cm" y="26cm">SSGA Bolivia</drawCentredString>
+
+                <!-- Datos Pesonales Estudiante -->
+                <setFont name="Helvetica" size="9"/>
+                <drawString x="1.5cm" y="25cm">Nombre Completo: {{pernomcompleto}}</drawString>
+                <drawString x="1.5cm" y="24.6cm">Número de Documento: {{pernrodoc}}</drawString>
+                <drawString x="1.5cm" y="24.2cm">Correo Eléctronico: {{peremail}}</drawString>
+                <drawString x="1.5cm" y="23.8cm">Celular: {{percelular}} </drawString>
+
+                <drawString x="18.5cm" y="25cm">Nro.: {{comprobante['pago']['pagid']}}</drawString>
+
+                <!-- Imagen del estudiante -->
+                <!-- <image x="2cm" y="23.5cm" width="2cm" height="2cm" file="{{image_rml or image_aux}}"/> -->
+                
+                <!-- Datos Reporte -->
+                <setFont name="Helvetica" size="8"/>  
+                <drawString x="18.5cm" y="27cm">Fecha: {{ date_str }}</drawString>
+                <drawString x="18.5cm" y="26.6cm">Hora: {{ time_str }}</drawString>
+                
+                <setFont name="Helvetica" size="8"/>
+                <drawString x="18.5cm" y="26.2cm">Página: <pageNumber/> de <getName id="lastPage" default="0" /></drawString>
+                <drawString x="18.5cm" y="25.8cm">Usuario: {{ usuname }}</drawString>
+                
+                <!-- Cabecera Tabla -->
+                <place x="0.85cm" y="15.4cm" width="19.7cm" height="7.5cm">
+                    
+                    <blockTable rowHeights="0.6cm" colWidths="0.7cm, 4cm, 2cm, 1cm, 4.5cm, 1cm, 1.5cm, 1.75cm, 1.5cm, 1.75cm" style="elegantTableStyle">
+                        <tr>
+                            <td>#</td>
+                            <td>Materia</td>
+                            <td>Fechas</td>
+                            <td>Costo</td>
+                            <td>Curso</td>
+                            <td>Res</td>
+                            <td>Monto Bs</td>
+                            <td>Fecha</td>
+                            <td>Tipo</td>
+                            <td>Estado</td>
+                        </tr>
+                    </blockTable>
+                </place>
+            </pageGraphics>
+
+            <!-- Tamaño del frame -->
+            <frame showBoundary="0" id="first" x1="0.7cm" y1="1cm" width="20cm" height="21.3cm"/>
+        </pageTemplate>
+    </template>
+    <stylesheet>
+        <!-- definicion de estilos -->
+        <blockTableStyle id="blocktablestyle1">
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,1" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <blockValign value="bottom" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9"/>
+        </blockTableStyle>
+        <blockTableStyle id="blocktablestylecursos">
+            <blockLeading length="2cm"/>
+            <blockFont name="Helvetica" size="8"/>
+            <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" />
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+
+        <blockTableStyle id="elegantTableStyle">
+            <lineStyle kind="GRID" colorName="darkgrey" thickness="0.5" start="0,0" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="black" thickness="1" start="0,0" stop="-1,0" />
+            <lineStyle kind="LINEBELOW" colorName="black" thickness="1" start="0,-1" stop="-1,-1" />
+            <blockBackground colorName="lightgrey" start="0,0" stop="0,-1" />
+            <blockValign value="middle" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="9" />
+            <blockPadding value="5" start="0,0" stop="-1,-1"/>
+            <blockAlignment value="center" start="0,0" stop="-1,-1"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="elegantTableData">
+            <lineStyle kind="GRID" colorName="lightgrey" thickness="0.5" start="0,0" stop="-1,-1" />
+            <lineStyle kind="LINEABOVE" colorName="darkgrey" thickness="0.5" start="0,0" stop="-1,0" />
+            <lineStyle kind="LINEBELOW" colorName="darkgrey" thickness="0.5" start="0,-1" stop="-1,-1" />
+            <blockValign value="middle" start="0,0" stop="-1,-1"/>
+            <blockFont name="Helvetica" size="8" />
+            <blockPadding value="5" start="0,0" stop="-1,-1"/>
+            <blockBackground colorName="white" start="0,1" stop="-1,-1"/>
+        </blockTableStyle>
+
+        <blockTableStyle id="blocktablestyleDataFirma">
+            <!-- <blockLeading length="2cm"/> -->
+            <blockFont name="Helvetica" size="8"/>
+            <!-- <lineStyle kind="GRID" colorName="black" thickness="1" start="0,0" stop="-1,-1" /> -->
+            <blockSpan start="3,1" stop="4,1" />
+        </blockTableStyle>
+        
+        <paraStyle name="textstylepara" fontSize="8"/>
+        <paraStyle name="textstyle1" fontSize="9" alignment="LEFT" />
+        <paraStyle name="tableText" alignment="center" fontSize="7" leading="8" />
+        <paraStyle name="tableText2" alignment="right" fontSize="8"/>
+        
+    </stylesheet>
+    <story>
+        
+
+        
+
+       <illustration width="27cm" height="0cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+
+        <!-- Datos de la tabla -->
+        <blockTable style="elegantTableData" rowHeights="1.5cm" colWidths="0.7cm, 4cm, 2cm, 1cm, 4.5cm, 1cm, 1.5cm, 1.75cm, 1.5cm, 1.75cm">
+            <tr>
+                <td>{{ correlative1 }}</td>
+                <td><para style="textstylepara">{{ comprobante['curso']['matnombre'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['curso']['curmatfecini'] + ' ' + comprobante['curso']['curmatfecfin'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['curso']['curmatcosto'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['curso']['curnombre'] + ' ' + comprobante['curso']['curfchini'] + ' ' + comprobante['curso']['curfchfin'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['pago']['pagarchivo'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['pago']['pagmonto'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['pago']['pagfecha'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['pago']['tpagnombre'] }}</para></td>
+                <td><para style="textstylepara">{{ comprobante['pago']['pagestado'] }}</para></td>
+            </tr>
+        </blockTable>
+
+
+        <illustration width="21cm" height="0cm">
+            <lineMode width="1" dash="3,3" />
+            <lines>1cm 1cm 1cm 1cm </lines>
+        </illustration>
+
+
+        <blockTable
+        rowHeights="0.6cm, 0cm"
+        colWidths="1cm, 5cm, 5cm, 2cm"
+        > 
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
+            </tr>
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
+            </tr>
+        </blockTable>
+
+        <blockTable            
+            rowHeights="0.6cm"
+            colWidths="10cm, 4cm"
+            style="elegantTableData" 
+        > 
+            <tr>
+                <td><para>Descripción</para></td> 
+                <td><para>Total</para> </td> 
+            </tr>
+        </blockTable>
+
+            <blockTable                
+                rowHeights="0.6cm"
+                colWidths="10cm, 4cm"
+                style="elegantTableData" 
+            >
+                <tr>
+                    <td><para style="textstylepara">{{comprobante['pago']['pagdescripcion']}}</para></td>
+                    <td><para style="textstylepara">{{comprobante['pago']['pagmonto']}}</para></td>
+                </tr>
+            </blockTable>
+
+        <blockTable
+        rowHeights="0.6cm, 0cm"
+        colWidths="1cm, 5cm, 5cm, 2cm"
+        > 
+        <tr>
+            <td><para></para> </td> 
+            <td><para></para></td> 
+            <td><para></para> </td> 
+            <td><para></para></td> 
+        </tr>
+        <tr>
+            <td><para></para> </td> 
+            <td><para></para></td> 
+            <td><para></para> </td> 
+            <td><para></para></td> 
+        </tr>
+        </blockTable>
+        <blockTable
+            style="blocktablestyleDataFirma"
+            rowHeights="1cm"
+            colWidths="14cm"
+        > 
+        <tr>
+            <td align="left">
+                Monto de Bs. {{ptotal}}.- ({{ convert_number_to_text(int(ptotal_int)).upper() +' '+ str(ptotal)[str(ptotal).find('.')+1:]}}/100 BOLIVIANOS), 
+            </td>
+           
+        </tr>
+        </blockTable>
+        <blockTable
+            style="blocktablestyleDataFirma"
+            rowHeights="2cm"
+            colWidths="11cm, 10cm"
+        > 
+        <tr>
+            <td align="left">
+            </td>
+            <td align="center">
+                {{pernomcompleto}}
+            </td>
+        </tr>
+        </blockTable>
+
+        <blockTable
+            style="blocktablestyleDataFirma"
+            rowHeights="0.5cm"
+            colWidths="11cm, 10cm"
+        > 
+        <tr>
+            <td align="left">
+                Realizado en {{date_str}}.
+            </td>
+            <td align="center">
+                Estudiante IBCI
+            </td>
+        </tr>
+        </blockTable>
+
+        <blockTable
+        rowHeights="0.6cm, 0cm"
+        colWidths="1cm, 5cm, 5cm, 2cm"
+        > 
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
+            </tr>
+            <tr>
+                <td><para></para> </td> 
+                <td><para></para></td> 
+                <td><para></para> </td> 
+                <td><para></para></td> 
+            </tr>
+        </blockTable>
+        
+        <!-- Imagen QR -->
+        <illustration height="0cm" width="0cm" align="center">
+            <plugInGraphic module="reportlab_qr_code" function="qr">size=2.5cm,x=250,y=-80;text;{{ verification_code }}</plugInGraphic>
+        </illustration>
+        
+        <namedString id="lastPage"><pageNumber/></namedString>
+    </story>
+</document>

@@ -1,40 +1,113 @@
-from core.database import select, execute_function
-from utils.date_formatting import *
-from models.matricula_model import Matricula
+# Importaciones estándar de Python
+from http import HTTPStatus
 
-"""
-def listarMatricula():
-    lista = select(f'''
-        SELECT m.matrid, m.matrfec,
-            m.tipmatrid, tm.tipmatrgestion, tm.tipmatrfecini, tm.tipmatrfecfin, tm.tipmatrcosto, 
-            m.peridestudiante, p.pernomcompleto, p.pernrodoc, p.perfoto,
-            m.pagoidmatricula, p2.pagdescripcion, p2.pagmonto, p2.pagarchivo, p2.pagfecha, p2.pagtipo,
-            m.matrusureg, m.matrfecreg, m.matrusumod, m.matrfecmod, m.matrestado, m.matrdescripcion 
-        FROM academico.matricula m
-        LEFT JOIN 
-            academico.persona p ON p.perid = m.peridestudiante
-        LEFT JOIN 
-            academico.pago p2 ON p2.pagid = m.pagoidmatricula
-        LEFT JOIN 
-            academico.tipo_matricula tm ON tm.tipmatrid = m.tipmatrid
-    ''')
-    for l in lista:
-        l['tipmatrfecini'] = darFormatoFechaSinHora(l['tipmatrfecini'])
-        l['tipmatrfecfin'] = darFormatoFechaSinHora(l['tipmatrfecfin'])
-        l['matrfec'] = darFormatoFechaSinHora(l['matrfec']) 
-        l['matrfecreg'] = darFormatoFechaConHora(l['matrfecreg'])
-        l['matrfecmod'] = darFormatoFechaConHora(l['matrfecmod'])
-        l['pagfecha'] = darFormatoFechaSinHora(l['pagfecha'])
-    return lista
-"""
+# Importaciones de Flask
 from flask import jsonify, make_response
+
+# Importaciones de SQLAlchemy
 from sqlalchemy.orm import aliased
 from sqlalchemy.exc import SQLAlchemyError
-from http import HTTPStatus
+
+# Importaciones del core del proyecto
+from core.database import select, execute_function
+
+# Importaciones de modelos
 from models.matricula_model import Matricula
 from models.persona_model import Persona
 from models.pago_model import Pago
 from models.tipo_matricula_model import TipoMatricula, db
+
+# Importaciones de utilidades
+from utils.date_formatting import *
+
+def listarMatriculaEstudiante(perid):
+    try:
+        # Definir alias para las tablas si es necesario
+        Estudiante = aliased(Persona)
+
+        # Realizar la consulta con los joins necesarios
+        query = (db.session.query(
+                    Matricula.matrid,
+                    Matricula.matrfec,
+                    Matricula.tipmatrid,
+                    TipoMatricula.tipmatrgestion,
+                    TipoMatricula.tipmatrfecini,
+                    TipoMatricula.tipmatrfecfin,
+                    TipoMatricula.tipmatrcosto,
+                    Matricula.peridestudiante,
+                    Estudiante.pernomcompleto.label('pernomcompleto'),
+                    Estudiante.pernrodoc.label('pernrodoc'),
+                    Estudiante.perfoto.label('perfoto'),
+                    Matricula.pagoidmatricula,
+                    Pago.pagdescripcion,
+                    Pago.pagmonto,
+                    Pago.pagarchivo,
+                    Pago.pagfecha,
+                    Pago.pagtipo,
+                    Pago.pagestado,
+                    Matricula.matrusureg,
+                    Matricula.matrfecreg,
+                    Matricula.matrusumod,
+                    Matricula.matrfecmod,
+                    Matricula.matrestado,
+                    Matricula.matrdescripcion
+                )
+                .join(Estudiante, Matricula.peridestudiante == Estudiante.perid)
+                .outerjoin(Pago, Matricula.pagoidmatricula == Pago.pagid)
+                .join(TipoMatricula, Matricula.tipmatrid == TipoMatricula.tipmatrid)
+                .filter(Matricula.peridestudiante == perid)
+                .all())
+
+        # Convertir los resultados en una lista de diccionarios con fechas formateadas
+        response_data = [
+            {
+                "matrid": row.matrid,
+                "matrfec": row.matrfec.isoformat() if row.matrfec else None,
+                "tipmatrid": row.tipmatrid,
+                "tipmatrgestion": row.tipmatrgestion,
+                "tipmatrfecini": row.tipmatrfecini.isoformat() if row.tipmatrfecini else None,
+                "tipmatrfecfin": row.tipmatrfecfin.isoformat() if row.tipmatrfecfin else None,
+                "tipmatrcosto": row.tipmatrcosto,
+                "peridestudiante": row.peridestudiante,
+                "pernomcompleto": row.pernomcompleto,
+                "pernrodoc": row.pernrodoc,
+                "perfoto": row.perfoto,
+                "pagoidmatricula": row.pagoidmatricula,
+                "pagdescripcion": row.pagdescripcion,
+                "pagmonto": row.pagmonto,
+                "pagarchivo": row.pagarchivo,
+                "pagfecha": row.pagfecha.isoformat() if row.pagfecha else None,
+                "pagtipo": row.pagtipo,
+                "pagestado": row.pagestado,
+                "matrusureg": row.matrusureg,
+                "matrfecreg": row.matrfecreg.isoformat() if row.matrfecreg else None,
+                "matrusumod": row.matrusumod,
+                "matrfecmod": row.matrfecmod.isoformat() if row.matrfecmod else None,
+                "matrestado": row.matrestado,
+                "matrdescripcion": row.matrdescripcion
+            } for row in query
+        ]
+
+        # Crear la respuesta con los datos obtenidos
+        return make_response(jsonify({
+            "message": "Matrículas obtenidas con éxito",
+            "data": response_data,
+            "code": HTTPStatus.OK
+        }), HTTPStatus.OK)
+    
+    except SQLAlchemyError as e:
+        # Manejar cualquier error de SQLAlchemy
+        db.session.rollback()
+        error_response = {
+            "error": "Error en la base de datos.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    finally:
+        db.session.close()
+
 def listarMatricula():
     """
     Lista todas las matrículas con los detalles relacionados de las tablas asociadas.

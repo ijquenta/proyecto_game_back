@@ -201,6 +201,11 @@ class GetListMateriaTexto(Resource):
     @token_required
     def get(self):
         return getListMateriaTexto()
+    
+class GetListMateriaTextoEstudiante(Resource):
+    @token_required
+    def get(self, peridestudiante):
+        return getListMateriaTextoEstudiante(peridestudiante)
 
 class CreateMateriaTexto(Resource):
     @token_required

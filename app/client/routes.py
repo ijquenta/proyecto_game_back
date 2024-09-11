@@ -98,6 +98,7 @@ class Routes:
 
     #Matricula
     listarMatricula = apiVersion + '/listarMatricula'
+    listarMatriculaEstudiante = apiVersion + '/listarMatriculaEstudiante/<int:perid>'
     insertarMatricula = apiVersion + '/insertarMatricula'
     modificarMatricula = apiVersion + '/modificarMatricula'
     eliminarMatricula = apiVersion + '/eliminarMatricula'
@@ -119,7 +120,8 @@ class Routes:
     listarEstudiante = apiVersion + '/listarEstudiante'
     obtenerMateriasInscritas = apiVersion + '/obtenerMateriasInscritas'
     actualizarDatosPersonales = apiVersion + '/actualizarDatosPersonales'
-    
+    rptCursoMateriaEstudiante = apiVersion + '/rptCursoMateriaEstudiante'
+    getInformacionDocente = apiVersion + '/getInformacionDocente'
     # Docente
     listarDocente = apiVersion + '/listarDocente'
     obtenerMateriasAsignadas = apiVersion + '/obtenerMateriasAsignadas'
@@ -149,6 +151,9 @@ class Routes:
     tipoPago = apiVersion + '/tipoPago'
     getPayments = apiVersion + '/getPayments'
     getPagoById = apiVersion + '/getPagoById/<int:pagid>'
+    rptPagoEstudianteMateria = apiVersion + '/rptPagoEstudianteMateria'
+    generarComprobantePagoEstudiante = apiVersion + '/generarComprobantePagoEstudiante'
+    generarComprobantePagoMatricula = apiVersion + '/generarComprobantePagoMatricula'
     
     # Asistencia
     listarAsistencia = apiVersion + '/listarAsistencia'
@@ -280,6 +285,15 @@ class Routes:
 
     # MateriaTexto
     listMateriaTexto = apiVersion + '/getMateriaTextos'
+    listMateriaTextoEstudiante = apiVersion + '/getMateriaTextosEstudiante/<int:peridestudiante>'
     createMateriaTexto = apiVersion + '/createMateriaTexto'
     updateMateriaTexto = apiVersion + '/updateMateriaTexto/<int:mattexid>'
     deleteMateriaTexto = apiVersion + '/deleteMateriaTexto/<int:mattexid>'
+    
+    # Horario
+    getHorarios = apiVersion + '/horarios'
+    getHorariosByCursoMateria = apiVersion + '/horarios/<int:curmatid>'
+    createHorario = apiVersion + '/horarios'
+    updateHorario = apiVersion + '/horarios/<int:horid>'
+    deleteHorario = apiVersion + '/horarios/<int:horid>'
+    getHorariosPorCurmatid = apiVersion + '/getHorariosPorCurmatid/<int:curmatid>'

@@ -1,32 +1,86 @@
 from http import HTTPStatus
-from models.curso_model import Curso
+
 from core.database import select, as_string, execute, execute_function, execute_response
 from psycopg2 import sql
 from flask import jsonify, make_response
 from utils.date_formatting import *
 from sqlalchemy.exc import SQLAlchemyError  # Importa las excepciones de SQLAlchemy
 
-def listarCursoMateria():
-    lista_cursos = select(f'''
-        SELECT distinct cm.curmatid, c.curnombre, cm.curid, m.matnombre, cm.matid, m.matnivel, 
-        p.pernomcompleto, p.perfoto, p.pernrodoc, p.pernombres, p.perapepat, p.perapemat, cm.periddocente, 
-        c.curnivel,
-        cm.curmatfecini, cm.curmatfecfin, cm.curmatestado, cm.curmatestadodescripcion, 
-        cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatidrol as rolid, cm.curmatidroldes as rolnombre, cm.curmatcosto
-        FROM academico.curso_materia cm
-        inner join academico.curso c on c.curid  = cm.curid 
-        inner join academico.materia m on m.matid = cm.matid 
-        inner join academico.persona p on p.perid = cm.periddocente 
-        inner join academico.usuario u on u.perid = cm.periddocente
-        inner join academico.rol r on r.rolid = u.rolid
-        order by curmatid desc;      
-        ''')
-    for curso in lista_cursos:
-        curso["curmatfecini"] = darFormatoFechaSinHorav2(curso["curmatfecini"])
-        curso["curmatfecfin"] = darFormatoFechaSinHorav2(curso["curmatfecfin"])
-        curso["curmatfecreg"] = darFormatoFechaConHora(curso["curmatfecreg"])
-        curso["curmatfecmod"] = darFormatoFechaConHora(curso["curmatfecmod"])
-    return lista_cursos
+# Importar los modelos
+from models.curso_materia_model import CursoMateria, db
+from models.curso_model import Curso
+from models.persona_model import Persona
+from models.usuario_model import Usuario
+from models.rol_model import Rol
+def getListCursoMateria():
+    try:
+        # Definir alias para las tablas
+        cm = aliased(CursoMateria)
+        c = aliased(Curso)
+        m = aliased(Materia)
+        p = aliased(Persona)
+        u = aliased(Usuario)
+        r = aliased(Rol)
+
+        # Realizar la consulta con los joins necesarios
+        query = (db.session.query(
+                    cm.curmatid, cm.curmatfecini, cm.curmatfecfin, cm.matid, cm.periddocente, 
+                    cm.curmatidrol.label('rolid'), cm.curmatidroldes.label('rolnombre'), cm.curmatcosto,
+                    c.curid, c.curnombre, c.curfchini, c.curfchfin, c.curnivel,
+                    m.matnombre, m.matnivel, 
+                    p.pernomcompleto, p.pernrodoc, p.perfoto, p.pernombres, p.perapemat, p.perapepat, 
+                    cm.curmatusureg, cm.curmatfecreg, cm.curmatusumod, cm.curmatfecmod, cm.curmatestado
+                )
+                .distinct()
+                .outerjoin(cm, cm.curid == c.curid)
+                .outerjoin(m, m.matid == cm.matid)
+                .outerjoin(p, p.perid == cm.periddocente)
+                .outerjoin(u, u.perid == cm.periddocente)
+                .outerjoin(r, r.rolid == u.rolid)
+                .all())
+                
+
+        # Convertir los resultados en una lista de diccionarios
+        list_curso_materia = [
+            {
+                'curmatid': row.curmatid,
+                'curmatfecini': row.curmatfecini.isoformat() if row.curmatfecini else None,
+                'curmatfecfin': row.curmatfecfin.isoformat() if row.curmatfecfin else None,
+                'matid': row.matid,
+                'periddocente': row.periddocente,
+                'rolid': row.rolid,
+                'rolnombre': row.rolnombre,
+                'curmatcosto': row.curmatcosto,
+                'curid': row.curid,
+                'curnombre': row.curnombre,
+                'curfchini': row.curfchini.isoformat() if row.curfchini else None,
+                'curfchfin': row.curfchfin.isoformat() if row.curfchfin else None,
+                'curnivel': row.curnivel,
+                'matnombre': row.matnombre,
+                'matnivel': row.matnivel,
+                'pernomcompleto': row.pernomcompleto,
+                'pernrodoc': row.pernrodoc,
+                'perfoto': row.perfoto,
+                'pernombres': row.pernombres,
+                'perapemat': row.perapemat,
+                'perapepat': row.perapepat,
+                'curmatusureg': row.curmatusureg,
+                'curmatfecreg': row.curmatfecreg.isoformat() if row.curmatfecreg else None,
+                'curmatusumod': row.curmatusumod,
+                'curmatfecmod': row.curmatfecmod.isoformat() if row.curmatfecmod else None,
+                'curmatestado': row.curmatestado
+            } for row in query
+        ]
+
+        return make_response(jsonify(list_curso_materia), HTTPStatus.OK)
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        error_response = {"error": "Error en la base de datos.", "message": str(e)}
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    finally:
+        db.session.close()
     
 def eliminarCursoMateria(data):
     resultado = execute_function(f'''
@@ -74,7 +128,6 @@ def modificarCursoMateria(data):
          ''')
     return resultado
 
-
 def listaCursoCombo():
     return select(f'''
     SELECT curid, curnombre, curnivel
@@ -100,7 +153,6 @@ def tipoRol():
 	FROM academico.rol
 	order by rolnombre;                
     ''')
-    
     
 def gestionarCursoMateriaEstado(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
@@ -148,7 +200,6 @@ def getCursoById(curid):
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
     
-
 def getTipoCurso():
     try:
         # Obtener los tipos de cursos de la base de datos
@@ -161,9 +212,6 @@ def getTipoCurso():
         # En caso de error, devolver un mensaje de error con el código de estado correspondiente
         error_response = {"error": "Error en la base de datos.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-
-
 
 from models.curso_materia_model import CursoMateria
 from models.materia_model import Materia, db

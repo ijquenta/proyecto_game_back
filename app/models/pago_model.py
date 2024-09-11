@@ -34,3 +34,13 @@ class Pago(db.Model):
             'pagestado': self.pagestado,
             'pagtipo': self.pagtipo
         }
+        
+class TipoPago(db.Model):
+    __tablename__ = 'tipo_pago'
+    __table_args__ = {'schema': 'academico'}
+
+    tpagid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tpagnombre = db.Column(db.String(30), nullable=False)
+
+    def __repr__(self):
+        return f'<TipoPago {self.pagtipnombre}>'

@@ -35,6 +35,7 @@ def texto_routes(api: Api):
 
     # Rutas para MateriaTexto
     api.add_resource(Texto.GetListMateriaTexto, routes.listMateriaTexto)
+    api.add_resource(Texto.GetListMateriaTextoEstudiante, routes.listMateriaTextoEstudiante)
     api.add_resource(Texto.CreateMateriaTexto, routes.createMateriaTexto)
     api.add_resource(Texto.UpdateMateriaTexto, routes.updateMateriaTexto)
     api.add_resource(Texto.DeleteMateriaTexto, routes.deleteMateriaTexto)

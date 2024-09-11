@@ -4,7 +4,7 @@ from services.curso_service import * # Servicio de curso
 
 class ListarCursoMateria(Resource):
   def get(self):
-      return listarCursoMateria()
+      return getListCursoMateria()
 
 parseEliminarCursoMateria = reqparse.RequestParser()
 parseEliminarCursoMateria.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)

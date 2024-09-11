@@ -21,57 +21,58 @@
             <pageGraphics>
                 <!-- Header -->
                 {{script}}
+
+                # Importación de librerías necesarias
                 import datetime
                 from core.rml.util.extras import getFecha
-                ev = ''
+                
+                # Inicialización de variables
                 ev = 'P(titulo)'
-                today=datetime.datetime.today()
-                today=today.strftime("%d/%m/%y %H:%M")
-                curnombre = data[0]['curnombre']
-                matnombre = data[0]['matnombre']
-                numero_materias = len(data)
+                today = datetime.datetime.today().strftime("%d/%m/%y %H:%M")  # Fecha y hora actuales en formato (dd/mm/yy HH:MM)
+                curnombre = data[0]['curnombre']  # Nombre del curso (primer elemento de la lista)
+                matnombre = data[0]['matnombre']  # Nombre de la materia (primer elemento de la lista)
+                numero_materias = len(data)  # Número de materias en los datos
                 correlativo = 1
                 correlativo2 = 1
-                #se puede hacer lo que sea con la info
-                total = {
-                    "liq": 0
-                }
-
+                
+                # Se puede realizar cualquier cálculo o procesamiento adicional con la información
+                total = {"liq": 0}  # Inicialización de variable total
+                
+                # Inicialización de diccionario para almacenar los cursos y materias
                 cursos = {}
-                # Iteramos una clave basada en la combinación de los valores del nombre de curso y materia
+                
+                # 1. Iterar sobre los datos para crear claves únicas basadas en curso y materia
                 for element in data:
-
-                    llave = str("Curso: " + element["curnombre"] + " - Materia: " + element["matnombre"])
-
+                    llave = f"Curso: {element['curnombre']} - Materia: {element['matnombre']}"  # Crear una clave única para cada combinación
+                
                     try:
-                        # Insertamos con esa clave creada todos los elementos relacionados 
+                        # 2. Si la clave ya existe, agregar el elemento a la lista correspondiente
                         cursos[llave].append(element)
-                    
-                    except Exception:
-                        # Caso diferente, si la clave no existe se crea una nueva clave con ese registro
-                        l = [element]
-                        cursos.update({llave: l})
-
-                # Diccionario para almacenar los totales de aprobados y reprobados por materia
+                    except KeyError:
+                        # 3. Si la clave no existe, crear una nueva entrada con la clave y el elemento
+                        cursos[llave] = [element]
+                
+                # 4. Diccionario para almacenar los totales de aprobados y reprobados por materia
                 totals = {}
-
-                # Procesar los datos para contar aprobados y reprobados
+                
+                # 5. Procesar los datos para contar aprobados y reprobados por cada curso y materia
                 for curso, items in cursos.items():
-                    # Inicializar los contadores de aprobados y reprobados para la materia actual
+                    # Inicializar los contadores de aprobados y reprobados
                     aprobados = 0
                     reprobados = 0
                     
-                    # Contar aprobados y reprobados para cada estudiante en la materia actual
+                    # Contar aprobados y reprobados para cada estudiante en el curso actual
                     for item in items:
                         if item['notfinal'] >= 70:
-                            aprobados += 1
+                            aprobados += 1  # Si la nota final es mayor o igual a 70, se considera aprobado
                         else:
-                            reprobados += 1
+                            reprobados += 1  # Si es menor a 70, se considera reprobado
                     
-                    # Guardar los totales en el diccionario
+                    # Guardar los totales de aprobados y reprobados en el diccionario
                     totals[curso] = {'aprobados': aprobados, 'reprobados': reprobados}
-                print(totals)
+                
                 {{endscript}}
+                
 
                 <!-- Imagen de la Institución -->
                 <image x="0.8cm" y="25cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
@@ -83,12 +84,10 @@
                 <drawString x="7cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawString>
                 <setFont name="Helvetica-Bold" size="12"/>
                 <drawString x="7cm" y="26cm">Sistema de Gestión y Seguimiento Académico</drawString>
-                <setFont name="Helvetica" size="9"/>  <!-- Restablecer la fuente para el texto siguiente -->
-
-                <!-- <drawCentredString x="18.5cm" y="19cm">REINTEGRO - 2023</drawCentredString> -->
+                <setFont name="Helvetica" size="9"/>  
+                
                 <drawRightString x="20cm" y="27cm">Fecha Emisión: {{ today }}</drawRightString>
-                <!-- <drawString x="1cm" y="25cm">Nombre del Curso: {{ curnombre }}</drawString> -->
-                <!-- <drawString x="1cm" y="24.7cm">Nombre de la Materia: {{ matnombre }}</drawString> -->
+                
                     <place x="2.4cm" y="16cm" width="33cm" height="8.5cm">
                         <blockTable rowHeights="0.6cm, 0.0cm" colWidths="0.6cm, 5.5cm, 2.5cm, 1.5cm, 1.5cm 1.5cm, 1.5cm, 2cm, 7cm" style="blocktablestyle1">
                             <tr>

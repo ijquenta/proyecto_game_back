@@ -1,115 +1,51 @@
-import hashlib
-from http import HTTPStatus
+# Importaciones estándar de Python
 import os
-from models.matricula_model import Matricula
-from models.tipo_matricula_model import TipoMatricula
-from core.database import select, execute_function
+import hashlib
+import decimal
+from datetime import datetime
+from http import HTTPStatus
+
+# Importaciones de Flask
 from flask import jsonify, make_response
-from utils.date_formatting import *
-from models.pago_model import Pago
-from models.persona_model import Persona
-from models.curso_materia_model import CursoMateria
-from models.inscripcion_model import Inscripcion
-from models.materia_model import Materia
-from models.curso_model import Curso
+
+# Importaciones de SQLAlchemy
 from sqlalchemy.orm import aliased
 from sqlalchemy.exc import SQLAlchemyError
-from core.database import db
 from sqlalchemy.sql import func
-from datetime import datetime
+from sqlalchemy import case
+
+# Importaciones del core del proyecto
+from core.database import select, execute_function, db
+from core.rml.report_generator import Report
+
+# Importaciones de modelos
+from models.matricula_model import Matricula
+from models.inscripcion_model import Inscripcion
+from models.tipo_matricula_model import TipoMatricula
+from models.pago_model import Pago, TipoPago
+from models.nota_model import Nota
+from models.persona_model import Persona
+from models.curso_materia_model import CursoMateria
+from models.materia_model import Materia
+from models.curso_model import Curso
+
+# Importaciones de utilidades
+from utils.date_formatting import *
+
+
+def make(pdf):
+    response = make_response(pdf)
+    response.headers["Content-Disposition"] = "attachment; filename={}".format(
+        "archivo.pdf")
+    response.mimetype = 'application/pdf'
+    return response
+
 
 def listarPago():
     return select('''
         SELECT pagid, pagdescripcion, pagmonto, pagarchivo, pagusureg, pagfecreg, pagusumod, pagfecmod, pagestado, pagfecha, pagtipo FROM academico.pago WHERE pagestado = 1;
     '''
-    )
-
-
-# Rol estudiante
-def listarPagoEstudiante(data):
-    lista_pago_estudiante = select(f'''
-         select distinct i.insid, i.matrid, cm.curid, 
-               c.curnombre, cm.curmatfecini, cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente, p.pernomcompleto, i.peridestudiante, i.pagid, i.insusureg,
-               i.insfecreg, i.insusumod, i.insfecmod, i.curmatid, i.insestado, i.insestadodescripcion 
-            
-          FROM academico.inscripcion i
-          left join academico.curso_materia cm on cm.curmatid = i.curmatid
-          left join academico.curso c on c.curid = cm.curid
-          left join academico.materia m on m.matid = cm.matid
-          LEFT JOIN academico.persona p ON p.perid = cm.periddocente
-          where i.peridestudiante = {data['perid']}
-          order by c.curnombre, m.matnombre; 
-    ''')
-
-    for pago_estudiante in lista_pago_estudiante:
-        pago_estudiante["insfecreg"] = darFormatoFechaConHora(pago_estudiante["insfecreg"])
-        pago_estudiante["insfecmod"] = darFormatoFechaConHora(pago_estudiante["insfecmod"])
-        pago_estudiante["curmatfecini"] = darFormatoFechaSinHora(pago_estudiante["curmatfecini"])
-        pago_estudiante["curmatfecfin"] = darFormatoFechaSinHora(pago_estudiante["curmatfecfin"])
-
-    return lista_pago_estudiante
-
-def getAllPaymentsForOneStudent(data):
-    try:
-        perid_estudiante = data.get('perid')
-
-        # Definir alias para las tablas
-        cm = aliased(CursoMateria)
-        c = aliased(Curso)
-        m = aliased(Materia)
-        p = aliased(Persona)
-        i = aliased(Inscripcion)
-
-        # Realizar la consulta con los joins necesarios
-        query = (db.session.query(
-                    i.insid, i.matrid, cm.curid, c.curnombre, cm.curmatfecini,
-                    cm.curmatfecfin, cm.matid, m.matnombre, cm.periddocente,
-                    p.pernomcompleto, p.pernrodoc, i.peridestudiante, i.pagid, i.insusureg,
-                    i.insfecreg, i.insusumod, i.insfecmod, i.curmatid,
-                    i.insestado, i.insestadodescripcion
-                )
-                .outerjoin(cm, cm.curmatid == i.curmatid)
-                .outerjoin(c, c.curid == cm.curid)
-                .outerjoin(m, m.matid == cm.matid)
-                .outerjoin(p, p.perid == cm.periddocente)
-                .filter(i.peridestudiante == perid_estudiante)
-                .order_by(c.curnombre, m.matnombre)
-                .all())
-
-        # Convertir los resultados en una lista de diccionarios
-        lista_pago_estudiante = [
-            {
-                'insid': row.insid,
-                'matrid': row.matrid,
-                'curid': row.curid,
-                'curnombre': row.curnombre,
-                'curmatfecini': row.curmatfecini.isoformat() if row.curmatfecini else None,
-                'curmatfecfin': row.curmatfecfin.isoformat() if row.curmatfecfin else None,
-                'matid': row.matid,
-                'matnombre': row.matnombre,
-                'periddocente': row.periddocente,
-                'pernomcompleto': row.pernomcompleto,
-                'peridestudiante': row.peridestudiante,
-                'pagid': row.pagid,
-                'insusureg': row.insusureg,
-                'insfecreg': row.insfecreg.isoformat() if row.insfecreg else None,
-                'insusumod': row.insusumod,
-                'insfecmod': row.insfecmod.isoformat() if row.insfecmod else None,
-                'curmatid': row.curmatid,
-                'insestado': row.insestado,
-                'insestadodescripcion': row.insestadodescripcion
-            } for row in query
-        ]
-
-        return make_response(jsonify(lista_pago_estudiante), HTTPStatus.OK)
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        error_response = {"error": "Error en la base de datos.", "message": str(e)}
-        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-    finally:
-        db.session.close()
+                  )
 
 def listarPagoEstudianteMateria(data):
     return select(f'''
@@ -128,6 +64,75 @@ def listarPagoEstudianteMateria(data):
         and cm.curid = {data['curid']}
         and cm.matid = {data['matid']}
     ''') 
+    
+def getAllPaymentsForOneStudent(data):
+    try:
+        # Definir alias para las tablas
+        i = aliased(Inscripcion)
+        mt = aliased(Matricula)
+        tm = aliased(TipoMatricula)
+        cm = aliased(CursoMateria)
+        c = aliased(Curso)
+        m = aliased(Materia)
+        pa = aliased(Pago)
+        p = aliased(Persona)
+
+        # Realizar la consulta con los joins necesarios
+        query = (db.session.query(
+            i.insid, i.matrid, tm.tipmatrgestion, i.curmatid,
+            c.curid, c.curnombre, m.matid, m.matnombre, i.peridestudiante, p.perfoto,
+            i.pagid, c.curfchini, c.curfchfin, cm.curmatestado,
+            pa.pagdescripcion, pa.pagmonto, pa.pagarchivo, pa.pagusureg, pa.pagfecreg,
+            pa.pagusumod, pa.pagfecmod, pa.pagestado, pa.pagtipo, pa.pagfecha,
+        )
+            .join(mt, mt.matrid == i.matrid)
+            .join(tm, tm.tipmatrid == mt.tipmatrid)
+            .join(cm, cm.curmatid == i.curmatid)
+            .join(c, c.curid == cm.curid)
+            .join(m, m.matid == cm.matid)
+            .join(pa, pa.pagid == i.pagid)
+            .join(p, p.perid == i.peridestudiante)
+            .distinct()
+            .filter(i.peridestudiante == data['perid'])
+            .all())
+        
+        lista_pago_estudiante = [
+            {
+                'insid': row.insid,
+                'pagid': row.pagid,
+                'pagdescripcion': row.pagdescripcion,
+                'pagmonto': row.pagmonto,
+                'pagarchivo': row.pagarchivo,
+                'pagusureg': row.pagusureg,
+                'pagfecreg': row.pagfecreg.isoformat() if row.pagfecreg else None,
+                'pagusumod': row.pagusumod,
+                'pagfecmod': row.pagfecmod.isoformat() if row.pagfecmod else None,
+                'pagestado': row.pagestado,
+                'pagtipo': row.pagtipo,
+                'pagfecha': row.pagfecha.isoformat() if row.pagfecha else None,
+                'curmatid': row.curmatid,
+                'curid': row.curid,
+                'curnombre': row.curnombre,
+                'curfchini': row.curfchini.isoformat() if row.curfchini else None,
+                'curfchfin': row.curfchfin.isoformat() if row.curfchfin else None,  
+                'curmatestado': row.curmatestado,
+                'matid': row.matid,
+                'matnombre': row.matnombre,
+                'matrid': row.matrid,
+                'tipmatrgestion': row.tipmatrgestion,
+                'peridestudiante': row.peridestudiante,
+                'perfoto': row.perfoto,
+            } for row in query]
+
+        return make_response(jsonify(lista_pago_estudiante), HTTPStatus.OK)
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        error_response = {
+            "error": "Error en la base de datos.", "message": str(e)}
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    finally:
+        db.session.close()
 
 def getAllPaymentsCourse():
     try:
@@ -138,39 +143,39 @@ def getAllPaymentsCourse():
         p = aliased(Persona)
         i = aliased(Inscripcion)
         pg = aliased(Pago)
-        
+
         # Realizar la consulta con los joins necesarios
         query = (db.session.query(
-                    cm.curmatid,
-                    cm.curid,
-                    cm.curmatfecini,
-                    cm.curmatfecfin,
-                    cm.matid,
-                    cm.curmatusureg,
-                    cm.curmatfecreg,
-                    cm.curmatusumod,
-                    cm.curmatfecmod,
-                    cm.curmatestadodescripcion,
-                    cm.curmatdescripcion,
-                    cm.periddocente,
-                    cm.curmatestado,
-                    c.curnombre,
-                    m.matnombre,
-                    p.pernomcompleto,
-                    p.pernrodoc,
-                    p.perfoto,
-                    func.count(i.insid).label('num_estudiantes'),
-                    func.count(pg.pagid).label('num_pagos'),
-                    
-                )
-                .outerjoin(c, c.curid == cm.curid)
-                .outerjoin(m, m.matid == cm.matid)
-                .outerjoin(p, p.perid == cm.periddocente)
-                .outerjoin(i, i.curmatid == cm.curmatid)
-                .outerjoin(pg, pg.pagid == i.pagid)
-                .group_by(cm.curmatid, c.curid, m.matid, p.perid)
-                .order_by(c.curnombre, m.matnombre)
-                .all())
+            cm.curmatid,
+            cm.curid,
+            cm.curmatfecini,
+            cm.curmatfecfin,
+            cm.matid,
+            cm.curmatusureg,
+            cm.curmatfecreg,
+            cm.curmatusumod,
+            cm.curmatfecmod,
+            cm.curmatestadodescripcion,
+            cm.curmatdescripcion,
+            cm.periddocente,
+            cm.curmatestado,
+            c.curnombre,
+            m.matnombre,
+            p.pernomcompleto,
+            p.pernrodoc,
+            p.perfoto,
+            func.count(i.insid).label('num_estudiantes'),
+            func.count(pg.pagid).label('num_pagos'),
+
+        )
+            .outerjoin(c, c.curid == cm.curid)
+            .outerjoin(m, m.matid == cm.matid)
+            .outerjoin(p, p.perid == cm.periddocente)
+            .outerjoin(i, i.curmatid == cm.curmatid)
+            .outerjoin(pg, pg.pagid == i.pagid)
+            .group_by(cm.curmatid, c.curid, m.matid, p.perid)
+            .order_by(c.curnombre, m.matnombre)
+            .all())
 
         # Convertir los resultados en una lista de diccionarios
         listAllPaymentsCourse = [
@@ -186,7 +191,7 @@ def getAllPaymentsCourse():
                 'curmatfecmod': row.curmatfecmod.isoformat() if row.curmatfecmod else None,
                 'curmatestadodescripcion': row.curmatestadodescripcion,
                 'curmatdescripcion': row.curmatdescripcion,
-                'curmatestado': row.curmatestado,       
+                'curmatestado': row.curmatestado,
                 'periddocente': row.periddocente,
                 'curnombre': row.curnombre,
                 'matnombre': row.matnombre,
@@ -202,7 +207,8 @@ def getAllPaymentsCourse():
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        error_response = {"error": "Error en la base de datos.", "message": str(e)}
+        error_response = {
+            "error": "Error en la base de datos.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
     finally:
@@ -218,14 +224,14 @@ def listarPagoCurso():
         left join academico.materia m on m.matid = cm.matid 
         left join academico.persona p on p.perid = cm.periddocente 
         order by c.curnombre, m.matnombre;
-    ''')  
+    ''')
     for pago in lista:
         pago["curmatfecreg"] = darFormatoFechaConHora(pago["curmatfecreg"])
         pago["curmatfecmod"] = darFormatoFechaConHora(pago["curmatfecmod"])
         pago["curmatfecini"] = darFormatoFechaSinHora(pago["curmatfecini"])
-        pago["curmatfecfin"] = darFormatoFechaSinHora(pago["curmatfecfin"]) 
+        pago["curmatfecfin"] = darFormatoFechaSinHora(pago["curmatfecfin"])
     return lista
-    
+
 def listarPagoEstudiantesMateria(data):
     lista = select(f'''
         SELECT distinct i.insid, i.curmatid, i.peridestudiante, 
@@ -247,13 +253,13 @@ def listarPagoEstudiantesMateria(data):
         pago["pagfecreg"] = darFormatoFechaConHora(pago["pagfecreg"])
         pago["pagfecmod"] = darFormatoFechaConHora(pago["pagfecmod"])
         pago["pagfecha"] = darFormatoFechaConHora(pago["pagfecha"])
-    return lista 
+    return lista
 
 def getPagoEstudianteMateria(data):
     try:
         curid = data.get('curid')
         matid = data.get('matid')
-        
+
         cm = aliased(CursoMateria)
         c = aliased(Curso)
         p = aliased(Pago)
@@ -262,27 +268,27 @@ def getPagoEstudianteMateria(data):
         m = aliased(Matricula)
         m2 = aliased(Materia)
         i = aliased(Inscripcion)
-        
+
         query = (db.session.query(
-                    i.insid, i.curmatid, i.peridestudiante, i.pagid,
-                    m.matrid, 
-                    tm.tipmatrgestion, 
-                    cm.curid, cm.matid,
-                    c.curnombre, 
-                    m2.matnombre, 
-                    p2.pernomcompleto, p2.pernrodoc, p2.perfoto, 
-                    p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, p.pagusureg, p.pagfecreg, p.pagusumod, p.pagfecmod, p.pagestado, p.pagtipo
-                )
-                .outerjoin(m, m.matrid == i.matrid)
-                .outerjoin(cm, cm.curmatid == i.curmatid)
-                .outerjoin(p, p.pagid == i.pagid)
-                .outerjoin(p2, p2.perid == i.peridestudiante)
-                .outerjoin(tm, tm.tipmatrid == m.tipmatrid)
-                .outerjoin(m2, m2.matid == cm.matid)
-                .outerjoin(c, c.curid == cm.curid)
-                .filter(cm.curid == curid, cm.matid == matid)
-                .all())
-        
+            i.insid, i.curmatid, i.peridestudiante, i.pagid,
+            m.matrid,
+            tm.tipmatrgestion,
+            cm.curid, cm.matid,
+            c.curnombre,
+            m2.matnombre,
+            p2.pernomcompleto, p2.pernrodoc, p2.perfoto,
+            p.pagfecha, p.pagdescripcion, p.pagmonto, p.pagarchivo, p.pagusureg, p.pagfecreg, p.pagusumod, p.pagfecmod, p.pagestado, p.pagtipo
+        )
+            .outerjoin(m, m.matrid == i.matrid)
+            .outerjoin(cm, cm.curmatid == i.curmatid)
+            .outerjoin(p, p.pagid == i.pagid)
+            .outerjoin(p2, p2.perid == i.peridestudiante)
+            .outerjoin(tm, tm.tipmatrid == m.tipmatrid)
+            .outerjoin(m2, m2.matid == cm.matid)
+            .outerjoin(c, c.curid == cm.curid)
+            .filter(cm.curid == curid, cm.matid == matid)
+            .all())
+
         lista_pago_estudiante_materia = [
             {
                 'insid': row.insid,
@@ -310,21 +316,22 @@ def getPagoEstudianteMateria(data):
                 'pagtipo': row.pagtipo
             } for row in query
         ]
-        
+
         return make_response(jsonify(lista_pago_estudiante_materia), HTTPStatus.OK)
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        error_response = {"error": "Error en la base de datos.", "message": str(e)}
+        error_response = {
+            "error": "Error en la base de datos.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
     finally:
         db.session.close()
-    
+
 def tipoPago():
     return select(f'''
    select tp.tpagid, tp.tpagnombre from academico.tipo_pago tp              
-    ''')    
+    ''')
 
 def getPayments():
     pagos = Pago.query.all()
@@ -341,30 +348,31 @@ def getAllPayments():
         return make_response(jsonify(response), HTTPStatus.OK)
     except SQLAlchemyError as e:
         # En caso de error, devolver un mensaje de error con el código de estado correspondiente
-        error_response = {"error": "Error in the data base.", "message": str(e)}
+        error_response = {
+            "error": "Error in the data base.", "message": str(e)}
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 def getPagoById(pagid):
     try:
         # Buscar el pago por ID
         pago = Pago.query.get(pagid)
-        
+
         # Si no se encuentra el pago, devolver un error 404
         if pago is None:
             return make_response(jsonify({"error": "Pago no encontrado"}), HTTPStatus.NOT_FOUND)
-        
+
         # Convertir el objeto `Pago` a un diccionario
         pago_data = pago.to_dict()
-        
+
         # Crear la respuesta con el objeto `Pago`
         response_data = {
             "message": "Pago obtenido con éxito",
             "data": pago_data,
             "code": HTTPStatus.OK
         }
-        
+
         return make_response(jsonify(response_data), HTTPStatus.OK)
-    
+
     except Exception as e:
         # Manejar cualquier error inesperado
         error_response = {
@@ -373,8 +381,7 @@ def getPagoById(pagid):
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-    
-# Function to calculate the hash of a file
+
 def calculateFileHash(file):
     hasher = hashlib.md5()
     buf = file.read(1024)
@@ -389,11 +396,11 @@ ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 def allowedFile(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 """
     -----------------------------------------------------------------------------------------------------------
     Payment's Fuctions
-"""
-""" Admistrar pago 
+    Admistrar pago 
     - por tipo: para crear, modificar y eliminar
     - Adminstrar pagos asignados a matriculas
 """
@@ -427,15 +434,15 @@ def saveFilePago(request):
             extension = archivo.filename.rsplit('.', 1)[1].lower()
             unique_filename = f"{file_hash}.{extension}"
             upload_path = os.path.join(upload_directory, unique_filename)
-            
+
             # Guardar el archivo solo si no existe
             if not os.path.exists(upload_path):
                 archivo.save(upload_path)
             return unique_filename
         else:
-            raise ValueError(f"Tipo de archivo no permitido para {archivo_key}.")
+            raise ValueError(
+                f"Tipo de archivo no permitido para {archivo_key}.")
     return None
-
 
 """ Administrar pago por tipo
 """
@@ -450,9 +457,7 @@ def managePayment(data, request):
     else:
         return {"status": "error", "message": "Tipo de operación no soportada."}, HTTPStatus.BAD_REQUEST
 
-""" Crear pago además de guardar el archivo si se proporciona
-"""
-from models.inscripcion_model import Inscripcion, db
+# Crear pago además de guardar el archivo si se proporciona
 def createPayment(data, request):
     try:
         # Verificar si la inscripción ya tiene un pago asignado
@@ -478,7 +483,7 @@ def createPayment(data, request):
         # Crear un nuevo registro de pago
         nuevo_pago = Pago(
             pagdescripcion=data['pagdescripcion'],
-            pagmonto=data['pagmonto'],              
+            pagmonto=data['pagmonto'],
             pagfecha=data['pagfecha'],
             pagusureg=data['pagusureg'],
             pagusumod=data['pagusureg'],
@@ -513,8 +518,7 @@ def createPayment(data, request):
         }
         return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-""" Modificar pago
-"""
+from models.pago_model import Pago, db
 def updatePayment(data, request):
     try:
         # Guardar el archivo de request utilizando la función saveFilePago
@@ -533,7 +537,8 @@ def updatePayment(data, request):
             # Si hay un archivo nuevo y existe uno antiguo, eliminar el antiguo
             if pago_existente.pagarchivo:
                 basepath = os.path.dirname(__file__)
-                old_file_path = os.path.join(basepath, '..', 'static', 'files_pago', pago_existente.pagarchivo)
+                old_file_path = os.path.join(
+                    basepath, '..', 'static', 'files_pago', pago_existente.pagarchivo)
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
 
@@ -541,13 +546,16 @@ def updatePayment(data, request):
             pago_existente.pagarchivo = archivo
 
         # Actualizar el resto de los campos del registro de pago
-        pago_existente.pagdescripcion = data.get('pagdescripcion', pago_existente.pagdescripcion)
+        pago_existente.pagdescripcion = data.get(
+            'pagdescripcion', pago_existente.pagdescripcion)
         pago_existente.pagmonto = data.get('pagmonto', pago_existente.pagmonto)
         pago_existente.pagfecha = data.get('pagfecha', pago_existente.pagfecha)
-        pago_existente.pagusumod = data.get('pagusumod', pago_existente.pagusumod)
+        pago_existente.pagusumod = data.get(
+            'pagusumod', pago_existente.pagusumod)
         pago_existente.pagtipo = data.get('pagtipo', pago_existente.pagtipo)
         pago_existente.pagfecmod = datetime.now()
-        pago_existente.pagestado = data.get('pagestado', pago_existente.pagestado)
+        pago_existente.pagestado = data.get(
+            'pagestado', pago_existente.pagestado)
 
         db.session.commit()
 
@@ -566,15 +574,14 @@ def updatePayment(data, request):
             "message": f"Error al actualizar el pago: {str(e)}"
         }
         return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
-""" Eliminar pago
-"""
+
 def deletePayment(data):
     try:
         pago = Pago.query.get(data['pagid'])
         if pago:
             db.session.delete(pago)
             db.session.commit()
-            
+
             return {"status": "success", "message": "Pago eliminada correctamente."}, HTTPStatus.OK
         else:
             return {"status": "error", "message": "Pago no encontrado."}, HTTPStatus.NOT_FOUND
@@ -582,9 +589,6 @@ def deletePayment(data):
         db.session.rollback()
         return {"status": "error", "message": f"Error al eliminar el pago: {str(e)}"}, HTTPStatus.INTERNAL_SERVER_ERROR
 
-
-""" Administrar pago por tipo
-"""
 def manageAssignPayment(data, request):
     tipo = data.get('tipo')
     if tipo == 1:
@@ -594,9 +598,6 @@ def manageAssignPayment(data, request):
     else:
         return {"status": "error", "message": "Tipo de operación no soportada."}, HTTPStatus.BAD_REQUEST
 
-from models.matricula_model import Matricula, db
-""" Crear y asingar a matricula pago
-"""
 def createAndAssignPayment(data, request):
     try:
         # Verificar si la matrícula existe
@@ -623,19 +624,20 @@ def createAndAssignPayment(data, request):
         # Crear un nuevo registro de pago
         nuevo_pago = Pago(
             pagdescripcion=data['pagdescripcion'],
-            pagmonto=data['pagmonto'],              
+            pagmonto=data['pagmonto'],
             pagfecha=data['pagfecha'],
             pagusureg=data['pagusureg'],
             pagusumod=data['pagusureg'],
             pagtipo=data['pagtipo'],
             pagarchivo=archivo,
-            pagestado=data.get('pagestado', 1),  # Estado por defecto = 1 si no se proporciona
+            # Estado por defecto = 1 si no se proporciona
+            pagestado=data.get('pagestado', 1),
             pagfecreg=datetime.now(),
             pagfecmod=datetime.now()
         )
         db.session.add(nuevo_pago)
         db.session.flush()  # Asegura que el nuevo pago obtenga un pagid
-        
+
         # Asignar el pago a la matrícula
         matricula.pagoidmatricula = nuevo_pago.pagid
         matricula.matrusumod = datetime.now()
@@ -658,8 +660,6 @@ def createAndAssignPayment(data, request):
         }
         return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-from models.matricula_model import Pago, db
-# Modificar pago asignado a matricula
 def modifyPaymentAlreadyAssigned(data, request):
     try:
         # Guardar el archivo nuevo (si se proporciona uno)
@@ -672,7 +672,8 @@ def modifyPaymentAlreadyAssigned(data, request):
 
         # Eliminar el archivo anterior si se ha subido uno nuevo
         if archivo and pago.pagarchivo:
-            old_file_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'files_pago', pago.pagarchivo)
+            old_file_path = os.path.join(os.path.dirname(
+                __file__), '..', 'static', 'files_pago', pago.pagarchivo)
             if os.path.exists(old_file_path):
                 os.remove(old_file_path)
 
@@ -704,79 +705,254 @@ def modifyPaymentAlreadyAssigned(data, request):
         }
         return make_response(jsonify(resp), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-""" 
-    -----------------------------------------------------------------------------------------------------------
-    Funciones secundarias 
-"""
+def rptPagoEstudianteMateria(data):
+    try:
+        # Definir los alias para las tablas
+        cm = aliased(CursoMateria)
+        c = aliased(Curso)
+        m = aliased(Materia)    
+        i = aliased(Inscripcion)
+        pe = aliased(Persona)
+        tm = aliased(TipoMatricula)
+        pa = aliased(Pago)
+        mt = aliased(Matricula)
+        tp = aliased(TipoPago)
 
-"""
-def gestionarPago(data):
-    data = {key: f'\'{value}\'' if value is not None else 'NULL' for key, value in data.items()}
+        query = (db.session.query(
+                    i.insid, i.matrid, tm.tipmatrgestion, i.curmatid,
+                    c.curid, c.curnombre, m.matid, m.matnombre, i.peridestudiante, pe.pernomcompleto, pe.perfoto, pe.pernrodoc, pe.peremail, pe.percelular,
+                    i.pagid, c.curfchini, c.curfchfin, cm.curmatestado,
+                    pa.pagdescripcion, cm.curmatcosto,
+                    pa.pagmonto, pa.pagusureg, pa.pagfecreg,
+                    case([(pa.pagarchivo != None, 'Sí')], else_='No').label('pagarchivo'),
+                    case(
+                        [
+                            (pa.pagestado == 1, 'Pagado'),        # Si pagestado es 1, es "Pagado"
+                            (pa.pagestado == 2, 'Pendiente'),     # Si pagestado es 2, es "Pendiente"
+                            (pa.pagestado == 0, 'Sin pagar'),     # Si pagestado es 0, es "Sin pagar"
+                            (pa.pagestado == None, 'Sin pagar')   # Si pagestado es None, es "Sin pagar"
+                        ],
+                        else_='Ninguno'  # Si es cualquier otro número, es "Ninguno"
+                    ).label('pagestado'),
+                    pa.pagusumod, pa.pagfecmod, pa.pagtipo, pa.pagfecha,
+                    cm.curmatfecini, cm.curmatfecfin, tp.tpagnombre  
+                )
+                    .join(mt, mt.matrid == i.matrid)
+                    .join(tm, tm.tipmatrid == mt.tipmatrid)
+                    .join(cm, cm.curmatid == i.curmatid)
+                    .join(c, c.curid == cm.curid)
+                    .join(m, m.matid == cm.matid)
+                    .join(pa, pa.pagid == i.pagid)
+                    .join(tp, pa.pagtipo == tp.tpagid)
+                    .join(pe, pe.perid == i.peridestudiante)
+                    .filter(i.peridestudiante == data['perid'])
+                    .distinct()
+                    .all())
+        
+        # Inicializar un diccionario para agrupar los cursos
+        cursos_agrupados = {}
 
-    return execute_function(f'''
-       SELECT academico.f_gestionar_pago_2  
-               ({data['tipo']},
-                {data['pagid']}, 
-                {data['insid']}, 
-                {data['pagdescripcion']}, 
-                {data['pagmonto']}, 
-                {data['pagfecha']},
-                {data['pagusureg']},
-                {data['pagestadodescripcion']},                             
-                {data['pagestado']}) as valor;
-    ''')
+        # Inicializar el diccionario para la información del estudiante
+        estudiante = {}
+
+        # Iterar sobre los resultados de la consulta y agrupar por curnombre
+        for row in query:
+            # Generar la llave basada en curnombre y las fechas del curso-materia
+            llave = row.curnombre + ' ' + row.curfchini.isoformat() + ' - ' + row.curfchfin.isoformat()
+
+            # Crear el objeto de la lista
+            elemento = {
+                'curso_materia': { 
+                        'curmatfecini': row.curmatfecini.isoformat() if row.curmatfecini else None, 
+                        'curmatfecfin': row.curmatfecfin.isoformat() if row.curmatfecfin else None, 
+                        'matid': row.matid, 
+                        'matnombre': row.matnombre, 
+                        'curid': row.curid, 
+                        'curnombre': row.curnombre, 
+                        'curfchini': row.curfchini.isoformat() if row.curfchini else None, 
+                        'curfchfin': row.curfchfin.isoformat() if row.curfchfin else None,
+                        'curmatcosto': row.curmatcosto 
+                    },
+                'pago': {
+                        'pagid': row.pagid,
+                        'pagdescripcion': row.pagdescripcion,
+                        'pagmonto': row.pagmonto,
+                        'pagarchivo': row.pagarchivo,
+                        'pagusureg': row.pagusureg,
+                        'pagfecreg': row.pagfecreg.isoformat() if row.pagfecreg else None,
+                        'pagusumod': row.pagusumod,
+                        'pagfecmod': row.pagfecmod.isoformat() if row.pagfecmod else None,
+                        'pagestado': row.pagestado,
+                        'pagtipo': row.pagtipo,
+                        'pagfecha': row.pagfecha.isoformat() if row.pagfecha else None,
+                        'tpagnombre': row.tpagnombre
+                    }
+            }
+
+            # Asignar la información del estudiante (solo una vez)
+            if not estudiante:
+                estudiante = { 
+                    'pernomcompleto': row.pernomcompleto,
+                    'pernrodoc': row.pernrodoc,
+                    'peremail': row.peremail,
+                    'percelular': row.percelular,
+                    'perfoto': row.perfoto
+                }
+
+            # Si la llave ya existe en el diccionario, agregamos el elemento a la lista
+            if llave in cursos_agrupados:
+                cursos_agrupados[llave].append(elemento)
+            else:
+                # Si la llave no existe, la creamos con una lista que contiene el elemento
+                cursos_agrupados[llave] = [elemento]
+
+      
+        # Generar y devolver el reporte en PDF
+        return make(Report().RptPagoEstudianteMateria(cursos_agrupados, estudiante, data['usuname']))
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error rpt PagoEstudianteMateria: {e}")
+        return make_response(jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR)
     
-def insertarPago(data):
-    res = execute_function(f'''
-       SELECT academico.f_pago_insertar (  
-                \'{data['pagdescripcion']}\', 
-                {data['pagmonto']}, 
-                \'{data['pagfecha']}\',
-                \'{data['pagarchivo']}\',
-                \'{data['pagusureg']}\',
-                {data['pagtipo']}
-                ) as valor;
-    ''')
-    return res
+def generarComprobantePagoEstudiante(data):
+    try:
+        # Definir los alias para las tablas
+        i = aliased(Inscripcion)
+        p = aliased(Persona)
+        pa = aliased(Pago)
+        c = aliased(Curso)
+        cm = aliased(CursoMateria)
+        m = aliased(Materia)
+        tp = aliased(TipoPago)
 
-def modificarPago(data):
-    data['pagfecha'] = volverAFormatoOriginal(data['pagfecha']) 
-    res = execute_function(f'''
-       SELECT academico.f_pago_modificar (  
-                  {data['pagid']}, 
-                \'{data['pagdescripcion']}\', 
-                  {data['pagmonto']}, 
-                \'{data['pagarchivo']}\',
-                \'{data['pagusumod']}\',
-                \'{data['pagfecha']}\',
-                  {data['pagtipo']},
-                  {data['archivobol']}
-                ) as valor;
-    ''')
-    return res
+        # Realizar la consulta para obtener el pago y la información relevante
+        query = (db.session.query(
+                    i.insid, i.peridestudiante, i.curmatid, c.curfchini, c.curfchfin, cm.curmatcosto,
+                    p.pernomcompleto, p.pernrodoc, p.peremail, p.percelular, p.perfoto, pa.pagarchivo, pa.pagfecha, pa.pagid,
+                    pa.pagid, pa.pagmonto, pa.pagdescripcion, pa.pagfecreg, pa.pagestado, pa.pagusumod, pa.pagfecmod,
+                    c.curnombre, cm.curmatfecini, cm.curmatfecfin, m.matnombre, tp.tpagnombre
+                )
+                .join(p, p.perid == i.peridestudiante)
+                .join(pa, pa.pagid == i.pagid)
+                .join(cm, cm.curmatid == i.curmatid)
+                .join(c, c.curid == cm.curid)
+                .join(m, m.matid == cm.matid)
+                .join(tp, tp.tpagid == pa.pagtipo)
+                .filter(i.insid == data['insid'])
+                .filter(i.peridestudiante == data['perid'])
+                .first())
 
-def asignarPagoInscripcion(data):
-    res = execute_function(f'''
-       SELECT academico.f_pago_asignar_a_inscripcion (  
-                {data['insid']}, 
-                {data['pagid']}, 
-                \'{data['pagusumod']}\'
-                ) as valor;
-    ''')
-    return res
+        if not query:
+            return make_response(jsonify({'error': 'No se encontraron registros para el estudiante.'}), HTTPStatus.NOT_FOUND)
 
-def asignarPagoMatricula(data):
-    res = execute_function(f'''
-       SELECT academico.f_pago_asignar_a_matricula (  
-                {data['matrid']}, 
-                {data['pagid']}, 
-                \'{data['matrusumod']}\'
-                ) as valor;
-    ''')
-    return res
+        # Organizar los datos del comprobante
+        comprobante = {
+            'estudiante': {
+                'pernomcompleto': query.pernomcompleto,
+                'pernrodoc': query.pernrodoc,
+                'peremail': query.peremail,
+                'percelular': query.percelular,
+                'perfoto': query.perfoto
+            },
+            'curso': {
+                'curnombre': query.curnombre,
+                'matnombre': query.matnombre,
+                'curmatcosto': query.curmatcosto,
+                'curfchini': query.curfchini.isoformat() if query.curfchini else None,
+                'curfchfin': query.curfchfin.isoformat() if query.curfchfin else None,
+                'curmatfecini': query.curmatfecini.isoformat() if query.curmatfecini else None,
+                'curmatfecfin': query.curmatfecfin.isoformat() if query.curmatfecfin else None
+            },
+            'pago': {
+                'pagid': query.pagid,
+                'pagmonto': query.pagmonto,
+                'pagdescripcion': query.pagdescripcion,
+                'pagfecreg': query.pagfecreg.isoformat() if query.pagfecreg else None,
+                'pagfecha': query.pagfecha.isoformat() if query.pagfecha else None,
+                'pagestado': 'Pagado' if query.pagestado == 1 else 'Pendiente' if query.pagestado == 2 else 'Sin pagar',
+                'tpagnombre': query.tpagnombre,
+                'pagarchivo': 'Si' if query.pagarchivo else 'No'
+            }
+        }
 
-def obtenerUltimoPago():
-    return select(f'''
-       select pagid from academico.pago p where pagestado = 1 order by pagid desc limit 1
-    ''') 
-"""  
+        # Llamar a la función para generar el PDF con los datos del comprobante
+        return make(Report().GenerarComprobantePagoPDF(comprobante, 'admin'))
+        # return make_response(jsonify(comprobante), HTTPStatus.OK)
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Error al generar el comprobante: {e}")
+        return make_response(jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+
+def generarComprobantePagoMatricula(data):
+    try:
+        # Definir los alias para las tablas
+        m = aliased(Matricula)
+        tm = aliased(TipoMatricula)
+        p = aliased(Persona)
+        pa = aliased(Pago)
+        tp = aliased(TipoPago)
+
+        # Realizar la consulta para obtener el pago y la información relevante
+        query = (db.session.query(
+                    m.matrid, m.tipmatrid, m.matrfec, m.peridestudiante, m.pagoidmatricula, m.matrusureg, m.matrfecreg, m.matrusumod, m.matrfecmod, m.matrestado, m.matrdescripcion,
+                    tm.tipmatrid, tm.tipmatrgestion, tm.tipmatrfecini, tm.tipmatrfecfin, tm.tipmatrcosto, tm.tipmatrestado, tm.tipmatrdescripcion,
+                    p.pernomcompleto, p.pernrodoc, p.peremail, p.percelular,
+                    pa.pagid, pa.pagmonto, pa.pagdescripcion, pa.pagfecreg, pa.pagestado, pa.pagusumod, pa.pagfecmod,
+                    tp.tpagnombre, p.perfoto, pa.pagarchivo, pa.pagfecha
+                )
+                .join(tm, tm.tipmatrid == m.tipmatrid)
+                .join(p, p.perid == m.peridestudiante)
+                .join(pa, pa.pagid == m.pagoidmatricula)
+                .join(tp, tp.tpagid == pa.pagtipo)
+                .filter(m.matrid == data['matrid'])
+                .filter(m.peridestudiante == data['perid'])
+                .first())
+
+        if not query:
+            return make_response(jsonify({'error': 'No se encontraron registros para la matrícula y el estudiante.'}), HTTPStatus.NOT_FOUND)
+
+        # Organizar los datos del comprobante
+        comprobante = {
+            'estudiante': {
+                'pernomcompleto': query.pernomcompleto,
+                'pernrodoc': query.pernrodoc,
+                'peremail': query.peremail,
+                'percelular': query.percelular,
+                'perfoto': query.perfoto
+            },
+            'matricula': {
+                'tipmatrid': query.tipmatrid,
+                'matrfec': query.matrfec.isoformat() if query.matrfec else None,
+                'matrestado': query.matrestado,
+                'matrdescripcion': query.matrdescripcion,
+                'tipmatrgestion': query.tipmatrgestion,
+                'tipmatrfecini': query.tipmatrfecini.isoformat() if query.tipmatrfecini else None,
+                'tipmatrfecfin': query.tipmatrfecfin.isoformat() if query.tipmatrfecfin else None,
+                'tipmatrcosto': query.tipmatrcosto,
+                'tipmatrestado': query.tipmatrestado,
+                'tipmatrdescripcion': query.tipmatrdescripcion
+            },
+            'pago': {
+                'pagid': query.pagid,
+                'pagmonto': query.pagmonto,
+                'pagdescripcion': query.pagdescripcion,
+                'pagfecreg': query.pagfecreg.isoformat() if query.pagfecreg else None,
+                'pagfecmod': query.pagfecmod.isoformat() if query.pagfecmod else None,
+                'pagestado': 'Pagado' if query.pagestado == 1 else 'Pendiente' if query.pagestado == 2 else 'Sin pagar',
+                'tpagnombre': query.tpagnombre,
+                'pagarchivo': 'Si' if query.pagarchivo else 'No',
+                'pagfecha': query.pagfecha.isoformat() if query.pagfecha else None
+            }
+        }
+
+        # Llamar a la función para generar el PDF con los datos del comprobante
+        return make(Report().GenerarComprobantePagoMatriculaPDF(comprobante, 'admin'))
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Error al generar el comprobante: {e}")
+        return make_response(jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR)

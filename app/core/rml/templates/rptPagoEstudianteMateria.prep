@@ -1,5 +1,5 @@
 <!-- Parametros de entrada -->
-{{def(cursos, estudiante, usuname, resumen)}}
+{{def(cursos, estudiante, usuname)}}
 <!-- Fin de parametros de entrada-->
 
 <!-- 
@@ -13,42 +13,39 @@
         <pageTemplate id="main">
             <pageGraphics>
                 {{script}}
-                # Importación de librerías
+                # Importación de librerías necesarias
                 import uuid
                 import datetime
                 import os
 
-                # Generar un UUID como código de verificación
+                # 1. Generar un UUID como código de verificación
                 verification_code = str(uuid.uuid4())
 
+                # 2. Obtener la fecha y la hora actuales
                 now = datetime.datetime.now()
-                date_str = now.strftime("%d/%m/%y")  # Formato de fecha
-                time_str = now.strftime("%H:%M")     # Formato de hora
-                correlative1 = 1
+                date_str = now.strftime("%d/%m/%y")  # Formato de fecha (dd/mm/yy)
+                time_str = now.strftime("%H:%M")     # Formato de hora (HH:MM)
+                correlative1 = 1  # Correlativo para el procesamiento de datos
 
-                pernomcompleto = estudiante['pernomcompleto']
-                pernrodoc = estudiante['pernrodoc']
-                perfoto = estudiante['perfoto']
-                peremail = estudiante['peremail']
-                percelular = estudiante['percelular']
+                # 3. Extraer datos del estudiante
+                pernomcompleto = estudiante['pernomcompleto']  # Nombre completo del estudiante
+                pernrodoc = estudiante['pernrodoc']            # Número de documento del estudiante
+                perfoto = estudiante['perfoto']                # Foto del estudiante
+                peremail = estudiante['peremail']              # Email del estudiante
+                percelular = estudiante['percelular']          # Número de celular del estudiante
 
-                # Ruta de la imagen de perfil
-                image_path = f"static/personProfilePhoto/{perfoto}"
-                image_aux = f"static/personProfilePhoto/icono-estu.png"
-                
+                # 4. Definir la ruta de la imagen de perfil
+                image_path = f"static/personProfilePhoto/{perfoto}"  # Ruta donde se encuentra la foto del estudiante
+                image_aux = "static/personProfilePhoto/icono-estu.png"  # Ruta alternativa en caso de no encontrar la imagen
+
+                # 5. Verificar si la imagen de perfil existe en la ruta
                 if os.path.exists(image_path):
-                    image_rml = image_path
+                    image_rml = image_path  # Si la imagen existe, utilizar la ruta original
                 else:
-                    image_rml = ''
-
-                materias_abandonadas = resumen['materias_abandonadas']
-                materias_aprobadas = resumen['materias_aprobadas']
-                materias_reprobadas = resumen['materias_reprobadas']
-                promedio_aprobadas = resumen['promedio_aprobadas']
-                promedio_general = resumen['promedio_general']
-                total_materias = resumen['total_materias']
+                    image_rml = image_aux   # Si no existe, usar una imagen por defecto
 
                 {{endscript}}
+
 
                 <!-- Imagen IBCI -->
                 <image x="0.5cm" y="25.2cm" width="5cm" height="3cm" file="core/rml/templates/logo_ibci.png"/>
@@ -56,16 +53,16 @@
                 <!-- Titulos Centrados -->
                 <setFont name="Helvetica" size="7"/>  
                 <setFont name="Helvetica-Bold" size="12"/>
-                <drawCentredString x="10.8cm" y="25.5cm">Notas</drawCentredString>
+                <drawCentredString x="10.8cm" y="25.5cm">Mis Pagos</drawCentredString>
                 <drawCentredString x="10.8cm" y="26.5cm">Instituto Biblico de Capacitación Internacional</drawCentredString>
                 <drawCentredString x="10.8cm" y="26cm">SSGA Bolivia - IBCI</drawCentredString>
 
                 <!-- Datos Pesonales Estudiante -->
                 <setFont name="Helvetica" size="9"/>
-                <drawString x="4.5cm" y="25cm">Nombre Completo: {{ pernomcompleto }}</drawString>
-                <drawString x="4.5cm" y="24.6cm">Número de Documento: {{ pernrodoc }}</drawString>
-                <drawString x="4.5cm" y="24.2cm">Correo Eléctronico: {{ peremail }}</drawString>
-                <drawString x="4.5cm" y="23.8cm">Celular: {{ percelular }}</drawString>
+                <drawString x="4.5cm" y="25cm">Nombre Completo: {{pernomcompleto}}</drawString>
+                <drawString x="4.5cm" y="24.6cm">Número de Documento: {{pernrodoc}}</drawString>
+                <drawString x="4.5cm" y="24.2cm">Correo Eléctronico: {{peremail}}</drawString>
+                <drawString x="4.5cm" y="23.8cm">Celular: {{percelular}} </drawString>
 
                 <!-- Imagen del estudiante -->
                 <image x="2cm" y="23.5cm" width="2cm" height="2cm" file="{{image_rml or image_aux}}"/>
@@ -81,17 +78,17 @@
                 
                 <!-- Cabecera Tabla -->
                 <place x="0.85cm" y="15.4cm" width="19.7cm" height="7.5cm">
-                    <blockTable rowHeights="0.6cm" colWidths="0.7cm, 4cm, 2cm, 2cm, 3cm, 1.5cm, 1.5cm, 1.5cm, 1.5cm, 2cm" style="elegantTableStyle">
+                    <blockTable rowHeights="0.6cm" colWidths="0.7cm, 4cm, 2cm, 1cm, 4.5cm, 1cm, 1.5cm, 1.75cm, 1.5cm, 1.75cm" style="elegantTableStyle">
                         <tr>
                             <td>#</td>
                             <td>Materia</td>
-                            <td>Fecha Inicio</td>
-                            <td>Fecha Fin</td>
-                            <td>Docente</td>
-                            <td>1° Nota</td>
-                            <td>2° Nota</td>
-                            <td>3° Nota</td>
-                            <td>N. Final</td>
+                            <td>Fechas</td>
+                            <td>Costo</td>
+                            <td>Descripción</td>
+                            <td>Res</td>
+                            <td>Monto Bs</td>
+                            <td>Fecha</td>
+                            <td>Tipo</td>
                             <td>Estado</td>
                         </tr>
                     </blockTable>
@@ -100,7 +97,6 @@
 
             <!-- Tamaño del frame -->
             <frame showBoundary="0" id="first" x1="0.7cm" y1="1cm" width="20cm" height="21.3cm"/>
-
         </pageTemplate>
     </template>
     <stylesheet>
@@ -163,18 +159,18 @@
             <tr> <td> <para style="textstyle1" truncation="end-ellipsis">{{curso}}</para></td></tr>
         </blockTable>
             {{for item in items}}
-            <blockTable style="elegantTableData" rowHeights="1cm" colWidths="0.7cm, 4cm, 2cm, 2cm, 3cm, 1.5cm, 1.5cm, 1.5cm, 1.5cm, 2cm" wordWrap="CJK">
+            <blockTable style="elegantTableData" rowHeights="1.5cm" colWidths="0.7cm, 4cm, 2cm, 1cm, 4.5cm, 1cm, 1.5cm, 1.75cm, 1.5cm, 1.75cm" wordWrap="CJK">
                 <tr>
                     <td>{{ correlative1 }}</td>
                     <td><para style="textstylepara">{{ item['curso_materia']['matnombre'] }}</para></td>
-                    <td align="center">{{ item['curso_materia']['curmatfecini'] }}</td>
-                    <td align="center">{{ item['curso_materia']['curmatfecfin'] }}</td>
-                    <td><para style="textstylepara">{{ item['docente']['pernomcompletodocente'] }}</para></td>
-                    <td align="center">{{ item['nota']['not1'] }}</td>
-                    <td align="center">{{ item['nota']['not2'] }}</td>
-                    <td align="center">{{ item['nota']['not3'] }}</td>
-                    <td align="center">{{ item['nota']['notfinal'] }}</td>
-                    <td align="center">{{ item['nota']['notdescripcion'] }}</td>
+                    <td><para style="textstylepara">{{ item['curso_materia']['curmatfecini'] + ' ' + item['curso_materia']['curmatfecfin']}}</para></td>
+                    <td align="center">{{ item['curso_materia']['curmatcosto'] }}</td>
+                    <td><para style="textstylepara">{{ item['pago']['pagdescripcion'] }}</para></td>
+                    <td align="center">{{ item['pago']['pagarchivo'] }}</td>
+                    <td align="center">{{ item['pago']['pagmonto'] }}</td>
+                    <td align="center">{{ item['pago']['pagfecha'] }}</td>
+                    <td align="center">{{ item['pago']['tpagnombre'] }}</td>
+                    <td align="center">{{ item['pago']['pagestado'] }}</td>
                 </tr>
             </blockTable>
                 {{script}}
@@ -192,26 +188,26 @@
         </illustration>
 
         <!-- Resultados de los cálculos -->
-        <blockTable
+        <!-- <blockTable
             style="elegantTableData"
             rowHeights="0.7cm"
             colWidths="2.5cm, 1.5cm, 2.2cm, 1.5cm, 2cm, 1cm, 2cm, 1cm, 2cm, 1cm, 2cm, 1cm"
         > 
             <tr>
                 <td align="center">Prom. General:</td>
-                <td align="center">{{ promedio_general }}</td>
+                <td align="center">{{ 2 }}</td>
                 <td align="center">Prom. Aprob.:</td>
-                <td align="center">{{ promedio_aprobadas }}</td>
+                <td align="center">{{ 2 }}</td>
                 <td align="center">M. Aprob.:</td>
-                <td align="center">{{ materias_aprobadas }}</td>
+                <td align="center">{{ 2 }}</td>
                 <td align="center">M. Reprob.:</td>
-                <td align="center">{{ materias_reprobadas }}</td>
+                <td align="center">{{ 2 }}</td>
                 <td align="center">M. Aband.:</td>
-                <td align="center">{{ materias_abandonadas }}</td>
+                <td align="center">{{ 2 }}</td>
                 <td align="center">T. Materias:</td>
-                <td align="center">{{ total_materias }}</td>
+                <td align="center">{{ 3 }}</td>
             </tr>
-        </blockTable>
+        </blockTable> -->
 
         <illustration width="21cm" height="0cm">
             <lineMode width="1" dash="3,3" />

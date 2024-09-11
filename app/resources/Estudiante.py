@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from resources.Autenticacion import token_required
 from services.estudiante_service import * # Servicio de estudiante
 # from core.auth import require_token
 # from resources.Autenticacion import token_required
@@ -32,3 +33,12 @@ class ActualizarDatosPersonales(Resource):
     def post(self):
         data = parseActualizarDatosPersonales.parse_args()
         return actualizarDatosPersonales(data)  
+    
+    
+parseGetInformacionDocente = reqparse.RequestParser()
+parseGetInformacionDocente.add_argument('perid', type=int, help='Ingresar perid', required=True)
+class GetInformacionDocente(Resource):
+    @token_required
+    def post(self):
+        data = parseGetInformacionDocente.parse_args()
+        return getInformacionDocente(data)
