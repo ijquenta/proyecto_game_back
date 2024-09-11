@@ -227,7 +227,7 @@ def f_register_usuario():  # Función para regitrar un usuario
         }
         return make_response(jsonify(resp)), 202
 
-from models.rol_model import Rol, Rol
+from models.rol_model import Rol
 @app.route('/academico_api/login', methods=['POST'])
 def f_login_usuario():
     user_data = request.get_json()
@@ -243,6 +243,8 @@ def f_login_usuario():
                 return jsonify({"status": "Error", "message": "Email not confirmed. Please confirm your email before logging in."}), 401
 
             # Verificar si la contraseña es correcta
+            print("user.usupassword", user.usupassword)
+            print("user_data['usupassword']", user_data['usupassword'])
             if bcrypt.check_password_hash(user.usupassword, user_data['usupassword']):
                 rol = Rol.query.get(user.rolid)
                 auth_token = TokenGenerator.encode_token(
