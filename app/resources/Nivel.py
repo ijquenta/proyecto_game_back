@@ -1,7 +1,9 @@
 from flask_restful import Resource, reqparse
+from resources.Autenticacion import token_required
 from services.nivel_service import * # Servicio de nivel
 
 class ListarNivel(Resource):
+  @token_required
   def get(self):
       return listarNivel()
 
@@ -17,6 +19,7 @@ parseInsertarNivel.add_argument('curusumod', type=str, help = 'Debe elegir curus
 parseInsertarNivel.add_argument('curdesnivel', type=str, help = 'Debe elegir curdesnivel', required = True)
 parseInsertarNivel.add_argument('curdescripcion', type=str, help = 'Debe elegir curdescripcion', required = True)
 class InsertarNivel(Resource):
+  @token_required
   def post(self):
     data = parseInsertarNivel.parse_args()
     return insertarNivel(data)
@@ -24,6 +27,7 @@ class InsertarNivel(Resource):
 parseEliminarNivel = reqparse.RequestParser()
 parseEliminarNivel.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
 class EliminarNivel(Resource):
+  @token_required
   def post(self):
     data = parseEliminarNivel.parse_args()
     return eliminarNivel(data)
@@ -40,6 +44,7 @@ parseModificarNivel.add_argument('curusumod', type=str, help = 'Debe elegir curu
 parseModificarNivel.add_argument('curdesnivel', type=str, help = 'Debe elegir curdesnivel', required = True)
 parseModificarNivel.add_argument('curdescripcion', type=str, help = 'Debe elegir curdescripcion', required = True)
 class ModificarNivel(Resource):
+  @token_required
   def post(self):
     data = parseModificarNivel.parse_args()
     return modificarNivel(data)
@@ -50,6 +55,7 @@ parseGestionarNivelEstado.add_argument('tipo', type=int, help = 'Debe elegir tip
 parseGestionarNivelEstado.add_argument('curid', type=int, help = 'Debe elegir curid', required = True)
 parseGestionarNivelEstado.add_argument('curusumod', type=str, help = 'Debe elegir curusumod', required = True)
 class GestionarNivelEstado(Resource):
+  @token_required
   def post(self):
     data = parseGestionarNivelEstado.parse_args()
     return gestionarNivelEstado(data)

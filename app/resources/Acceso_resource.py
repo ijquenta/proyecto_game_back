@@ -8,14 +8,17 @@ class GetAccesos(Resource):
         return list_all_accesses()
     
 class GetIconoNombre(Resource):
+    @token_required
     def get(self, submenid):
         return getIconoNombre(submenid)
 
 class GetSubMenus(Resource):
+    @token_required
     def get(self):
         return getSubMenus()
     
 class GetSubMenuType(Resource):
+    @token_required
     def get(self):
         return getSubMenuType()
     
@@ -27,6 +30,7 @@ parseCreateAccess.add_argument('accusureg', type=str, help='Ingrese accusureg', 
 parseCreateAccess.add_argument('accdescripcion', type=str, help='Ingrese accdescripcion', required=False)
 parseCreateAccess.add_argument('accestado', type=int, help='Ingrese accestado', required=True)
 class CreateAccess(Resource):
+    @token_required
     def post(self):
         data = parseCreateAccess.parse_args()
         return createAccess(data)
@@ -35,12 +39,14 @@ parseUpdateAccess = reqparse.RequestParser()
 parseUpdateAccess.add_argument('accactivo', type=int, help='Ingrese accactivo', required=True)
 parseUpdateAccess.add_argument('accusumod', type=str, help='Ingrese accusumod', required=True)  
 class UpdateAccess(Resource):
+    @token_required
     def put(self, accid):
         data = parseUpdateAccess.parse_args()
         return updateAccess(data, accid)
     
 parseDeleteAccess = reqparse.RequestParser()
 class DeleteAccess(Resource):
+    @token_required
     def delete(self, accid):
         return deleteAccess(accid)
     

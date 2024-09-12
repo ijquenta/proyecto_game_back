@@ -15,6 +15,7 @@ parseCreatePersonForm.add_argument('peremail', type=str, help='este campo es req
 parseCreatePersonForm.add_argument('perusureg', type=str, help='este campo es requerido perusureg', required=True)
 parseCreatePersonForm.add_argument('perobservacion', type=str, help='este campo es requerido perobservacion', required=True)
 class CreatePersonForm(Resource):
+    @token_required
     def post(self):
         data = parseCreatePersonForm.parse_args()
         return createPersonForm(data)
@@ -50,7 +51,7 @@ parseDeletePerson.add_argument('perid', type=int, help='ID de la persona', requi
 parseDeletePerson.add_argument('perusumod', type=str, help='Usuario que modificó la persona', required=True)
 
 class GetPersons(Resource):
-    # @     CreatePersonForm
+    @token_required
     def get(self):
         return getPersons()
 
@@ -67,6 +68,7 @@ class DeletePerson(Resource):
         return deletePerson(data)               
     
 class DeletePersonForm(Resource):
+    @token_required
     def delete(self, perid):
         return deletePersonForm(perid)
     
@@ -245,7 +247,6 @@ class ModificarDocumentoAdmision(Resource):
         return modificarDocumentoAdmision(data, request)    
                                             
 class MostrarDocumentoAdmision(Resource):
-    # @token_required
     def get(self, filename):
         return mostrarDocumentoAdmision(filename)
         
@@ -395,22 +396,27 @@ class ShowPersonData(Resource):
 # Section Types   
 
 class TipoDocumento(Resource):
+    @token_required
     def get(self):
         return tipoDocumento()
 
 class TipoGenero(Resource):
+    @token_required
     def get(self):
         return tipoGenero()
 
 class TipoPais(Resource):
+    @token_required
     def get(self):
         return tipoPais()
 
 class TipoCiudad(Resource):
+    @token_required
     def get(self):
         return tipoCiudad()
 
 class TipoEstadoCivil(Resource):
+    @token_required
     def get(self):
         return tipoEstadoCivil()
 
@@ -420,6 +426,7 @@ class ListarUsuarios(Resource):
         return listarUsuarios() 
 
 class GetUsers(Resource):
+    @token_required
     def get(self):
         return getUsers() 
 

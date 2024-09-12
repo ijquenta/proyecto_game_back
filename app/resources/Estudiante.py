@@ -1,12 +1,10 @@
 from flask_restful import Resource, reqparse
 from resources.Autenticacion import token_required
 from services.estudiante_service import * # Servicio de estudiante
-# from core.auth import require_token
-# from resources.Autenticacion import token_required
+from resources.Autenticacion import token_required
 
 class ListarEstudiante(Resource):
-    # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
-    # @token_required
+    @token_required
     def get(self):
         return listarEstudiante()
       
@@ -14,7 +12,7 @@ class ListarEstudiante(Resource):
 parseObtenerMateriasInscritas = reqparse.RequestParser()
 parseObtenerMateriasInscritas.add_argument('perid', type=int, help='Ingresar perid', required=True)
 class ObtenerMateriasInscritas(Resource):
-    # @token_required
+    @token_required
     def post(self):
         data = parseObtenerMateriasInscritas.parse_args()
         return obtenerMateriasInscritas(data)
@@ -30,6 +28,7 @@ parseActualizarDatosPersonales.add_argument('pernomdiriglesia', type=str, help='
 parseActualizarDatosPersonales.add_argument('pernompastor', type=str, help='Nombre del pastor - pernompastor', required=True)
 parseActualizarDatosPersonales.add_argument('perusumod', type=str, help='Usuario que modificó la persona - perusumod', required=True)
 class ActualizarDatosPersonales(Resource):
+    @token_required
     def post(self):
         data = parseActualizarDatosPersonales.parse_args()
         return actualizarDatosPersonales(data)  

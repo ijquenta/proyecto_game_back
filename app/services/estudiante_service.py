@@ -4,7 +4,6 @@ from flask import jsonify, make_response
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql import func
 from sqlalchemy import case
 
 from core.database import db, select, execute_function

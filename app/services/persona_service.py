@@ -1362,7 +1362,6 @@ def getUsers():
 # Other fuctions 
     
 from models.persona_model import db, Persona  # Import person model
-# Handle uploaded files in manage person
 def handle_uploaded_files(request, upload_directory):
     profilePhotoFile = ['perfoto']
     files = {}

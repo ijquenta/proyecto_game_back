@@ -12,8 +12,6 @@ def listarNivel():
     for nivel in lista_niveles:
         nivel["curfchini"] = darFormatoFechaSinHorav2(nivel["curfchini"])
         nivel["curfchfin"] = darFormatoFechaSinHorav2(nivel["curfchfin"])
-        # nivel["curfecreg"] = darFormatoFechaConHora(nivel["curfecreg"])
-        # nivel["curfecmod"] = darFormatoFechaConHora(nivel["curfecmod"])
     return lista_niveles
 
 

@@ -6,8 +6,3 @@ import resources.TipoIcono_resource as tipoIcono
 def tipoIcono_routes(api: Api):
     api.add_resource(tipoIcono.GetTipoIcono, routes.getTipoIcono)
     api.add_resource(tipoIcono.FindIdIcono, routes.findIdIcono)
-    # api.add_resource(operacion.GetTipoOperacion, routes.getTipoOperacion)
-    # api.add_resource(operacion.GetOperations, routes.getOperations)
-    # api.add_resource(operacion.CreateOperation, routes.createOperation)
-    # api.add_resource(operacion.UpdateOperation, routes.updateOperation)
-    # api.add_resource(operacion.DeleteOperation, routes.deleteOperation)

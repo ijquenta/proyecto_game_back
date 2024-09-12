@@ -67,13 +67,11 @@ class Routes:
     getTipoCurso = apiVersion + '/getTipoCurso'
     getTipoMateriaByCursoId = apiVersion + '/getTipoMateriaByCursoId/<int:curid>'
 
-    
     # Combo
     listaCursoCombo = apiVersion + '/listaCursoCombo'
     listaMateriaCombo = apiVersion + '/listaMateriaCombo'
     getListMateriaCombo = apiVersion + '/getListMateriaCombo'
     listaPersonaDocenteCombo = apiVersion + '/listaPersonaDocenteCombo'
-    
     
     #Nivel
     listarNivel = apiVersion + '/listarNivel'
@@ -94,7 +92,6 @@ class Routes:
     gestionarInscripcionEstado = apiVersion + '/gestionarInscripcionEstado'
     obtenerEstudiantesInscritos = apiVersion + '/obtenerEstudiantesInscritos'
     getCursoMateriaByIds = apiVersion + '/getCursoMateriaByIds'
-
 
     #Matricula
     listarMatricula = apiVersion + '/listarMatricula'
@@ -122,6 +119,7 @@ class Routes:
     actualizarDatosPersonales = apiVersion + '/actualizarDatosPersonales'
     rptCursoMateriaEstudiante = apiVersion + '/rptCursoMateriaEstudiante'
     getInformacionDocente = apiVersion + '/getInformacionDocente'
+    
     # Docente
     listarDocente = apiVersion + '/listarDocente'
     obtenerMateriasAsignadas = apiVersion + '/obtenerMateriasAsignadas'
@@ -166,11 +164,9 @@ class Routes:
     rptCursoMateriaContabilidad = apiVersion + '/rptCursoMateriaContabilidad'
     rptInformacionAdmision = apiVersion + '/rptInformacionAdmision'
     
-    
     # Contabilidad
     listarCursoMateriaContabilidad = apiVersion + '/listarCursoMateriaContabilidad'
     getListCursoMateriaContabilidadById = apiVersion + '/getListCursoMateriaContabilidadById'
-    
     
     #principal
     listarCantidades = apiVersion + '/listarCantidades'
@@ -186,7 +182,6 @@ class Routes:
     updatePermiso = apiVersion + '/updatePermiso'
     addPermiso = apiVersion + '/addPermiso'
     deletePermiso = apiVersion + '/deletePermiso'
-    
     
     #Operacion
     getTipoOperacion = apiVersion + '/getTipoOperacion'
@@ -236,11 +231,11 @@ class Routes:
     personaInformacionMinisterialv2 = apiVersion + '/informacionMinisterial/<int:perinfomin>'
     
     # Persona Documento Admisión
-    
     documentoAdmision = apiVersion + '/documentoAdmision/<int:perid>'
     personaDocumentoAdmision = apiVersion + '/documentoAdmision'
     personaDocumentoAdmisionv2 = apiVersion + '/documentoAdmision/<int:perdocadm>'
     documentoAdmisionv2 = apiVersion + '/documentoAdmision/<string:filename>'
+
     # Tipo Profesión
     tipoProfesion = apiVersion + '/tipoProfesion'
     tipoProfesionv2 = apiVersion + '/tipoProfesion/<int:proid>'

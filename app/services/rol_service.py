@@ -1,5 +1,5 @@
 from psycopg2 import sql
-from core.database import select, execute, execute, as_string
+from core.database import execute, execute, as_string
 from models.rol_model import Rol
 from flask import jsonify, make_response
 from sqlalchemy.exc import SQLAlchemyError

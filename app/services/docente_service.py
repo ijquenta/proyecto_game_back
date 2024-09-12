@@ -1,4 +1,4 @@
-from core.database import select, execute, execute_function, execute_response
+from core.database import select
 from utils.date_formatting import *
 from models.curso_materia_model import CursoMateria
 from models.persona_model import Persona 

@@ -1,5 +1,4 @@
 from flask_restful import Api
-# import resources.Operacion as operacion
 import resources.Acceso_resource as acceso
 from client.routes import Routes as routes
 

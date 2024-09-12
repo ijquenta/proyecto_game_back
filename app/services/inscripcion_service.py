@@ -1,9 +1,6 @@
-from core.database import select, as_string, execute, execute_function
-from psycopg2 import sql
+from core.database import select, execute_function
 from flask import jsonify, make_response
-from sqlalchemy import func, distinct
 from utils.date_formatting import *
-from sqlalchemy.orm import joinedload
 from datetime import datetime
 from models.inscripcion_model import Inscripcion, db 
 from models.matricula_model import Matricula
@@ -13,7 +10,6 @@ from models.curso_materia_model import CursoMateria
 from models.curso_model import Curso
 from models.materia_model import Materia
 from models.tipo_matricula_model import TipoMatricula
-# Realizamos una consulta a la base de datos usando SQLAlchemy ORM
 from sqlalchemy.orm import aliased
 from sqlalchemy.exc import SQLAlchemyError
 from flask import jsonify, make_response

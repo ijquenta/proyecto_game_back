@@ -13,14 +13,17 @@ class ListarMatriculaEstudiante(Resource):
       return listarMatriculaEstudiante(perid)
     
 class ListarTipoMatricula(Resource):
+  @token_required
   def get(self):
     return listarTipoMatricula()
   
 class ListarTipoMatriculaCombo(Resource):
+  @token_required
   def get(self):
     return listarTipoMatriculaCombo()
   
 class ListarTipoPersonaEstudiante(Resource):
+  @token_required
   def get(self):
     return listarTipoPersonaEstudiante()
   
@@ -32,6 +35,7 @@ parseInsertarTipoMatricula.add_argument('tipmatrcosto', type=int, help = 'Debe e
 parseInsertarTipoMatricula.add_argument('tipmatrusureg', type=str, help = 'Debe elegir tipmatrusureg', required = True)
 parseInsertarTipoMatricula.add_argument('tipmatrdescripcion', type=str, help = 'Debe elegir tipmatrdescripcion')
 class InsertarTipoMatricula(Resource):
+  @token_required
   def post(self): 
     data = parseInsertarTipoMatricula.parse_args()
     return insertarTipoMatricula(data)
@@ -45,6 +49,7 @@ parseModificarTipoMatricula.add_argument('tipmatrcosto', type=int, help = 'Debe 
 parseModificarTipoMatricula.add_argument('tipmatrusumod', type=str, help = 'Debe elegir tipmatrusumod', required = True)
 parseModificarTipoMatricula.add_argument('tipmatrdescripcion', type=str, help = 'Debe elegir tipmatrdescripcion')
 class ModificarTipoMatricula(Resource):
+  @token_required
   def post(self):
     data = parseModificarTipoMatricula.parse_args()
     return modificarTipoMatricula(data)
@@ -55,6 +60,7 @@ parseGestionarTipoMatriculaEstado.add_argument('tipo', type=int, help = 'Debe el
 parseGestionarTipoMatriculaEstado.add_argument('tipmatrid', type=int, help = 'Debe elegir tipmatrid', required = True)  
 parseGestionarTipoMatriculaEstado.add_argument('tipmatrusumod', type=str, help = 'Debe elegir tipmatrusumod', required = True)
 class GestionarTipoMatriculaEstado(Resource):
+  @token_required
   def post(self):
     data = parseGestionarTipoMatriculaEstado.parse_args()
     return gestionarTipoMatriculaEstado(data)
@@ -68,6 +74,7 @@ parseInsertarMatricula.add_argument('pagoidmatricula', type=int, help = 'Debe el
 parseInsertarMatricula.add_argument('matrusureg', type=str, help = 'Debe elegir matrusureg', required = True)
 parseInsertarMatricula.add_argument('matrdescripcion', type=str, help = 'Debe elegir matrdescripcion')
 class InsertarMatricula(Resource):
+  @token_required
   def post(self):
     data = parseInsertarMatricula.parse_args()
     return insertarMatricula(data)
@@ -80,6 +87,7 @@ parseModificarMatricula.add_argument('peridestudiante', type=int, help = 'Debe e
 parseModificarMatricula.add_argument('matrusumod', type=str, help = 'Debe elegir matrusureg', required = True)
 parseModificarMatricula.add_argument('matrdescripcion', type=str, help = 'Debe elegir matrdescripcion')
 class ModificarMatricula(Resource):
+  @token_required
   def post(self):
     data = parseModificarMatricula.parse_args()
     return modificarMatricula(data)
@@ -87,6 +95,7 @@ class ModificarMatricula(Resource):
 parseEliminarMatricula = reqparse.RequestParser()
 parseEliminarMatricula.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
 class EliminarMatricula(Resource):
+  @token_required
   def post(self):
     data = parseEliminarMatricula.parse_args()
     return eliminarMatricula(data)
@@ -96,6 +105,7 @@ parseGestionarMatriculaEstado.add_argument('tipo', type=int, help = 'Debe elegir
 parseGestionarMatriculaEstado.add_argument('matrid', type=int, help = 'Debe elegir matrid', required = True)
 parseGestionarMatriculaEstado.add_argument('matrusumod', type=str, help = 'Debe elegir matrusmod', required = True)
 class GestionarMatriculaEstado(Resource):
+  @token_required
   def post(self):
     data = parseGestionarMatriculaEstado.parse_args()
     return gestionarMatriculaEstado(data)

@@ -35,29 +35,3 @@ class RptInformacionAdmision(Resource):
     def post(self):
         data = parseRptInformacionAdmision.parse_args()
         return reporte.rptInformacionAdmision(data)
-
-"""
-
-Ejemplos 
-parseRptBenSoc = reqparse.RequestParser()
-parseRptBenSoc.add_argument('idGestion',type=int , help = 'This field cannot be blank')
-parseRptBenSoc.add_argument('idMes',type=int , help = 'This field cannot be blank')
-parseRptBenSoc.add_argument('codDocente',type=str , help = 'This field cannot be blank')
-parseRptBenSoc.add_argument('nroLiquidacion',type=str , help = 'This field cannot be blank')
-class rptBeneficioSocial(Resource):
-    def post(self):
-        data = parseRptBenSoc.parse_args()
-        return reporte.rptBeneficoSocial(data['idGestion'], data['idMes'], data['codDocente'], data['nroLiquidacion'])
-
-class rptReintegroBeneficioSocial(Resource):
-    def post(self):
-        data = parseRptBenSoc.parse_args()
-        return reporte.rptReintegroBeneficoSocial(data['idGestion'], data['idMes'], data['codDocente'], data['nroLiquidacion'])
-
-class rptConsolidadoBeneficioSocial(Resource):
-    def post(self):
-        data = parseRptBenSoc.parse_args()
-        return reporte.rptConsolidadoBeneficoSocial(data['idGestion'], data['idMes'], data['codDocente'], data['nroLiquidacion'])
-
-
-"""

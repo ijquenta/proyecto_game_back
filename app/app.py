@@ -45,7 +45,6 @@ from routes.tipoIcono_routes import tipoIcono_routes
 from routes.submenu_routes import submenu_routes
 from routes.texto_routes import texto_routes
 from routes.horario_routes import horario_routes
-# from routes.auth_routes import f_login_usuario
 from routes.subir_archivos_routes import *
 
 from models.usuario_model import Usuario, db  # Importamos Usuario
@@ -323,36 +322,43 @@ def delete_file_foto_perfil():
 
 
 @app.route('/academico_api/pago/upload', methods=['POST'])
+@token_required
 def upload_file_pago():
     return f_upload_file_pago()
 
 
 @app.route('/academico_api/texto/upload', methods=['POST'])
+@token_required
 def upload_file_texto():
     return f_upload_file_texto()
 
 
 @app.route('/registrar-archivo', methods=['POST'])
+@token_required
 def registrarArchivo():
     return f_registrarArchivo()
 
 
 @app.route('/academico_api/pago/download/<file_name>')
+@token_required
 def download_file(file_name):
     return f_download_file(file_name)
 
 
 @app.route('/academico_api/texto/download/<file_name>')
+@token_required
 def download_file_texto(file_name):
     return f_download_file_texto(file_name)
 
 
 @app.route('/listar-archivos', methods=['GET'])
+@token_required
 def listarArchivos():
     return f_listarArchivos()
 
 
 @app.route('/eliminar-archivo/<filename>', methods=['DELETE'])
+@token_required
 def eliminarArchivo(filename):
     return f_eliminarArchivo(filename)
 

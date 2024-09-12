@@ -1,5 +1,5 @@
 # Librerías de Flask y Werkzeug
-from flask import request, make_response, jsonify
+from flask import make_response, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Librerías de PostgreSQL y SQLAlchemy
@@ -17,7 +17,6 @@ from services.email_service import EmailService
 # Utilidades y funciones auxiliares
 from utils.date_formatting import *
 from core.database import select, execute, as_string
-# from app.utils.email import send_reset_email  # Comentado temporalmente
 
 from sqlalchemy.exc import SQLAlchemyError  # Para manejo de errores de SQLAlchemy
 from http import HTTPStatus  # Para códigos de estado HTTP estándar

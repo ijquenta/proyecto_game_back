@@ -7,14 +7,13 @@ from http import HTTPStatus
 from flask import jsonify, make_response
 
 # ------------- Módulos de la aplicación -------------
-from core.database import select, execute, execute_function, execute_response
+from core.database import select, execute_function
 from core.database import db  # Asegúrate de importar `db` solo una vez
 from core.rml.report_generator import Report
 from utils.date_formatting import *
 
 # ------------- Modelos -------------
 from models.nota_model import Nota
-from models.pago_model import Pago
 from models.persona_model import Persona
 from models.curso_materia_model import CursoMateria
 from models.inscripcion_model import Inscripcion

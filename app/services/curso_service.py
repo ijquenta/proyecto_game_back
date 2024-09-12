@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from core.database import select, as_string, execute, execute_function, execute_response
+from core.database import select, as_string, execute, execute_function
 from psycopg2 import sql
 from flask import jsonify, make_response
 from utils.date_formatting import *

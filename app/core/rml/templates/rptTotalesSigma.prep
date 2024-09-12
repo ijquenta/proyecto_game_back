@@ -16,8 +16,8 @@
             cartaH: pagesize="(27.9cm, 21.6cm)"
             cartaV: pagesize="(21.6cm, 27.9cm)"
     -->
-    <!-- <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social"> -->
-    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Totales Sigma" author="Modulo Beneficio Social">
+    <!-- <template pagesize="(35.6cm, 21.6cm)" title="Reporte Totales Sigma" author="Mod"> -->
+    <template pagesize="(21.6cm, 27.9cm)" title="Reporte Totales Sigma" author="Mod">
         <pageTemplate id="main">
             <pageGraphics>
                 <!-- Header -->

@@ -345,21 +345,6 @@ def listarTipoPersonaEstudiante():
         order by p.pernomcompleto;
     ''')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # otras funciones 
 
 def eliminarMatricula(data):

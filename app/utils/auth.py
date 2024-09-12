@@ -17,7 +17,6 @@ def token_required(f):
             }, 401
         try:
             data=jwt.decode(token, os.environ.get("APP_SECRET_KEY"), algorithms=["HS256"])
-            # data=TokenGenerator.decode_token(token)
             current_user=Usuario().get_by_id(data["sub"])
             if current_user is None:
                 return {

@@ -77,6 +77,7 @@ def list_all_accesses():
 
     finally:
         db.session.close()
+        
 
 def getSubMenus():
     try:

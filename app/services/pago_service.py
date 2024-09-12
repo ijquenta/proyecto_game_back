@@ -1,7 +1,6 @@
 # Importaciones estándar de Python
 import os
 import hashlib
-import decimal
 from datetime import datetime
 from http import HTTPStatus
 
@@ -15,7 +14,7 @@ from sqlalchemy.sql import func
 from sqlalchemy import case
 
 # Importaciones del core del proyecto
-from core.database import select, execute_function, db
+from core.database import select, db
 from core.rml.report_generator import Report
 
 # Importaciones de modelos

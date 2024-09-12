@@ -1,21 +1,9 @@
 import hashlib
 from http import HTTPStatus
-import os
-from models.matricula_model import Matricula
-from models.tipo_matricula_model import TipoMatricula
-from core.database import select, execute_function
 from flask import jsonify, make_response
 from utils.date_formatting import *
-from models.pago_model import Pago
-from models.persona_model import Persona
-from models.curso_materia_model import CursoMateria
-from models.inscripcion_model import Inscripcion
-from models.materia_model import Materia
-from models.curso_model import Curso
-from sqlalchemy.orm import aliased
 from sqlalchemy.exc import SQLAlchemyError
 from core.database import db
-from sqlalchemy.sql import func
 from datetime import datetime
 
 

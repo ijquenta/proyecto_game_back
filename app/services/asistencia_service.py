@@ -1,4 +1,4 @@
-from core.database import select, as_string, execute, execute_function, execute_response
+from core.database import select
 
 def listarAsistencia():
     return select('''

@@ -3,12 +3,14 @@ from resources.Autenticacion import token_required
 from services.curso_service import * # Servicio de curso
 
 class ListarCursoMateria(Resource):
+  @token_required
   def get(self):
       return getListCursoMateria()
 
 parseEliminarCursoMateria = reqparse.RequestParser()
 parseEliminarCursoMateria.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)
 class EliminarCursoMateria(Resource):
+  @token_required
   def post(self):
       data = parseEliminarCursoMateria.parse_args()
       return eliminarCursoMateria(data)
@@ -26,6 +28,7 @@ parseInsertarCursoMateria.add_argument('curmatidrol', type=int, help='Debe inser
 parseInsertarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe insersar curmatidroldes', required = True)
 parseInsertarCursoMateria.add_argument('curmatcosto', type=int, help='Debe insersar curmatcosto', required = True)
 class InsertarCursoMateria(Resource):
+  @token_required
   def post(self):
       data = parseInsertarCursoMateria.parse_args()
       return insertarCursoMateria(data)
@@ -44,22 +47,26 @@ parseModificarCursoMateria.add_argument('curmatidrol', type=int, help='Debe inse
 parseModificarCursoMateria.add_argument('curmatidroldes', type=str, help='Debe insersar curmatidroldes', required = True)
 parseModificarCursoMateria.add_argument('curmatcosto', type=int, help='Debe insersar curmatcosto', required = True)
 class ModificarCursoMateria(Resource):
+  @token_required
   def post(self):
       data = parseModificarCursoMateria.parse_args()
       return modificarCursoMateria(data)
 
 class ListaCursoCombo(Resource):
+  @token_required
   def get(self):
       return listaCursoCombo()
        
 parseListaPersonaDocenteCombo = reqparse.RequestParser()
 parseListaPersonaDocenteCombo.add_argument('rolnombre', type=str, help='Debe ingresar el nombre del rol', required = True)
 class ListaPersonaDocenteCombo(Resource):
+  @token_required
   def post(self):
     data = parseListaPersonaDocenteCombo.parse_args()
     return listaPersonaDocenteCombo(data)
   
 class TipoRol(Resource):
+  @token_required
   def get(self):
     return tipoRol()
   
@@ -68,6 +75,7 @@ parseGestionarCursoMateriaEstado.add_argument('tipo', type=int, help='Debe ingre
 parseGestionarCursoMateriaEstado.add_argument('curmatid', type=int, help='Debe ingresar curmatid', required = True)
 parseGestionarCursoMateriaEstado.add_argument('curmatusumod', type=str, help='Debe insersar curmatusumod', required = True)
 class GestionarCursoMateriaEstado(Resource):
+  @token_required
   def post(self):
       data = parseGestionarCursoMateriaEstado.parse_args()
       return gestionarCursoMateriaEstado(data)
@@ -85,6 +93,6 @@ class GetTipoCurso(Resource):
         return getTipoCurso()
   
 class GetTipoMateriaByCursoIdResource(Resource):
-    # @token_required
-  def get(self, curid):
-      return getTipoMateriaByCursoId(curid)
+    @token_required
+    def get(self, curid):
+        return getTipoMateriaByCursoId(curid)

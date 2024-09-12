@@ -1,8 +1,7 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
 from flask import session
+from resources.Autenticacion import token_required
 from client.responses import clientResponses as messages
-# from core.auth import require_token
-from http import HTTPStatus
 
 class Index(Resource):
   def get(self):
@@ -10,7 +9,7 @@ class Index(Resource):
     return messages.index
 
 class Protected(Resource):
-#   @require_token()
+  @token_required
   def get(self):
     print (session)
     return messages.protected

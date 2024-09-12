@@ -1,10 +1,5 @@
-from flask import make_response, request, jsonify, send_file
-# from . import db
-# from models.usuario import Usuario
-# from models.rol import Rol
+from flask import request, jsonify, send_file
 from werkzeug.utils import secure_filename  # Para asegurar los nombres de archivo
-# from resources.Autenticacion import TokenGenerator
-# Importación de funciones para subir imagenes
 from utils.update_files import allowed_file_img, allowed_file, stringAleatorio
 import os  # Para acceder a variables de entorno y operaciones del sistema
 from utils.optimize_image import optimize_image  # Para optimizar imágenes
@@ -40,7 +35,6 @@ def f_upload_file_foto_perfil(request):
     for file in files:
         if file and allowed_file_img(file.filename):
             basepath = os.path.dirname(__file__)
-            # upload_directory = os.path.join(basepath, 'static', 'files_fotoperfil')
             upload_directory = os.path.join(basepath, '..', 'static', 'files_fotoperfil') # Ajustamos el lugar del directorio de las imagenes
             if not os.path.exists(upload_directory):
                 os.makedirs(upload_directory)
@@ -83,14 +77,12 @@ def f_upload_file_pago():
     for file in files:
         if file and allowed_file(file.filename):
             basepath = os.path.dirname(__file__)
-            # upload_directory = os.path.join(basepath, 'static', 'files_pago')
             upload_directory = os.path.join(basepath, '..', 'static', 'files_pago') # Ajustamos el lugar del directorio
 
             if not os.path.exists(upload_directory):
                 os.makedirs(upload_directory)
 
             filename = secure_filename(file.filename)
-            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
             upload_path = os.path.join(upload_directory, filename)
 
             file.save(upload_path)
@@ -123,14 +115,12 @@ def f_upload_file_texto():
     for file in files:
         if file and allowed_file(file.filename):
             basepath = os.path.dirname(__file__)
-            # upload_directory = os.path.join(basepath, 'static', 'files_texto')
             upload_directory = os.path.join(basepath, '..', 'static', 'files_texto') # Ajustamos el lugar del directorio
 
             if not os.path.exists(upload_directory):
                 os.makedirs(upload_directory)
 
             filename = secure_filename(file.filename)
-            # nuevo_nombre_file = stringAleatorio() + os.path.splitext(filename)[1]
             upload_path = os.path.join(upload_directory, filename)
 
             file.save(upload_path)
@@ -164,7 +154,6 @@ def f_registrarArchivo():
 
         if file and allowed_file(file.filename):
             basepath = os.path.dirname(__file__)
-            # upload_directory = os.path.join(basepath, 'static', 'archivos')
             upload_directory = os.path.join(basepath, '..', 'static', 'archivos') # Ajustamos el lugar del directorio
 
             if not os.path.exists(upload_directory):

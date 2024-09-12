@@ -1,4 +1,4 @@
-# Sistema de Gestión y Seguimiento Académico
+# IBCI Bolivia
 
 Este sistema se encarga de realizar la gestión académica del instituto IBCI
 

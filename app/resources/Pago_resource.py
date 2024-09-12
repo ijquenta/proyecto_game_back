@@ -1,8 +1,6 @@
 from flask import request
 from flask_restful import Resource, reqparse
-# Servicio de pago
 from services.pago_service import *  
-# Token required
 from resources.Autenticacion import token_required
 
 # Payment
@@ -25,27 +23,21 @@ class ListarPagoEstudiante(Resource):
     @token_required
     def post(self):
         data = parsePagoEstudiante.parse_args()
-        # return listarPagoEstudiante(data)
         return getAllPaymentsForOneStudent(data)
-
 
 parsePagoEstudianteMateria = reqparse.RequestParser()
 parsePagoEstudianteMateria.add_argument('perid', type=int, help='Ingrese perid', required=True)
 parsePagoEstudianteMateria.add_argument('curid', type=int, help='Ingrese curid', required=True)
 parsePagoEstudianteMateria.add_argument('matid', type=int, help='Ingrese matid', required=True)
-
-
 class ListarPagoEstudianteMateria(Resource):
     @token_required
     def post(self):
         data = parsePagoEstudianteMateria.parse_args()
         return listarPagoEstudianteMateria(data)
 
-
 class ListarPagoCurso(Resource):
     @token_required
     def get(self):
-        # return listarPagoCurso()
         return getAllPaymentsCourse()                                               
 
 
@@ -61,7 +53,6 @@ class ListarPagoEstudiantesMateria(Resource):
     @token_required
     def post(self):
         data = parsePagoEstudiantesMateria.parse_args()
-        # return listarPagoEstudiantesMateria(data)
         return getPagoEstudianteMateria(data)
 
 
@@ -100,6 +91,7 @@ class ManageAssignPayment(Resource):
         return manageAssignPayment(data, request)
     
 class TipoPago(Resource):
+    @token_required
     def get(self):
         return tipoPago()
 

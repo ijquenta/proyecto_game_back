@@ -3,8 +3,7 @@ from services.docente_service import * # Servicio de docente
 from resources.Autenticacion import token_required
 
 class ListarDocente(Resource):
-    # method_decorators = [token_required]  # Aplica el decorador a todos los métodos de la clase
-    # @token_required
+    @token_required
     def get(self):
         return listarDocente()
 
