@@ -352,7 +352,7 @@ def download_file_texto(file_name):
 
 
 @app.route('/listar-archivos', methods=['GET'])
-@token_required
+# @token_required
 def listarArchivos():
     return f_listarArchivos()
 

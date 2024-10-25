@@ -3,8 +3,6 @@ from flask import request
 from services.texto_service import *  # Importa tus funciones de servicio
 from resources.Autenticacion import token_required
 
-
-# Parseadores de argumentos para TipoExtensionTexto
 parseCreateTipoExtensionTexto = reqparse.RequestParser()
 parseCreateTipoExtensionTexto.add_argument('tipextnombre', type=str, help='Ingrese nombre del tipo de extensión de texto', required=True)
 

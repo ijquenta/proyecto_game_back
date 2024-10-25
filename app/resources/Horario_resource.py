@@ -20,7 +20,6 @@ parseCreateHorario.add_argument('horfin', type=str, required=True, help='Ingrese
 parseCreateHorario.add_argument('horfecini', type=str, required=True, help='Ingrese horfecini (YYYY-MM-DD)')
 parseCreateHorario.add_argument('horfecfin', type=str, required=True, help='Ingrese horfecfin (YYYY-MM-DD)')
 parseCreateHorario.add_argument('horusureg', type=str, help='Ingrese horusureg')
-
 class CreateHorario(Resource):
     @token_required
     def post(self):
@@ -34,7 +33,6 @@ parseUpdateHorario.add_argument('horfin', type=str, help='Ingrese horfin (HH:MM:
 parseUpdateHorario.add_argument('horfecini', type=str, help='Ingrese horfecini (YYYY-MM-DD)')
 parseUpdateHorario.add_argument('horfecfin', type=str, help='Ingrese horfecfin (YYYY-MM-DD)')
 parseUpdateHorario.add_argument('horusumod', type=str, help='Ingrese horusumod')
-
 class UpdateHorario(Resource):
     @token_required
     def put(self, horid):

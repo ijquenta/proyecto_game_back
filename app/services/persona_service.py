@@ -159,6 +159,7 @@ def updatePerson(data, request):
         persona.pertipodoc = data["pertipodoc"]
         persona.pernrodoc = data["pernrodoc"]
         persona.perfecnac = formatDateBirth(data["perfecnac"])
+        persona.perfecnac = data["perfecnac"]
         persona.perdirec = data["perdirec"]
         persona.peremail = data["peremail"]
         persona.percelular = data["percelular"]

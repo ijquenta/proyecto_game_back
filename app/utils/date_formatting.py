@@ -94,28 +94,54 @@ def volverAFormatoOriginal(fecha_str):
     return fecha_formateada
 
 
+# def formatDateBirth(fecha_str):
+#     if not fecha_str:   
+#         return None
+
+#     # Lista de formatos posibles
+#     formatos_posibles = [
+#         "%a %b %d %Y %H:%M:%S GMT%z (hora de Bolivia)",
+#         "%Y-%m-%d",  # Formato '1999-01-30'
+#         "%Y-%m-%dT%H:%M:%S.%fZ",  # Formato '2023-07-03T20:01:12.881757Z'
+#         "%Y-%m-%d %H:%M:%S"  # Formato '2023-07-03 20:01:12'
+#     ]
+
+#     for formato in formatos_posibles:
+#         try:
+#             # Intentar convertir la fecha utilizando el formato actual
+#             fecha_datetime = datetime.strptime(fecha_str, formato)
+#             # Formatear la fecha en el formato deseado
+#             fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
+#             return fecha_formateada
+#         except ValueError:
+#             # Si ocurre un ValueError, continuar con el siguiente formato
+#             continue
+
+#     # Si ningún formato coincide, retornar None o lanzar una excepción
+#     return None
+from datetime import datetime
+
 def formatDateBirth(fecha_str):
-    if not fecha_str:   
+    if not fecha_str:
         return None
 
     # Lista de formatos posibles
     formatos_posibles = [
-        "%a %b %d %Y %H:%M:%S GMT%z (hora de Bolivia)",
-        "%Y-%m-%d",  # Formato '1999-01-30'
-        "%Y-%m-%dT%H:%M:%S.%fZ",  # Formato '2023-07-03T20:01:12.881757Z'
-        "%Y-%m-%d %H:%M:%S"  # Formato '2023-07-03 20:01:12'
+        "%d/%m/%Y",  # Formato '28/08/1978'
+        "%Y-%m-%d"   # Formato '1978-08-28'
     ]
 
     for formato in formatos_posibles:
         try:
-            # Intentar convertir la fecha utilizando el formato actual
+            # Convertir la fecha usando el formato actual
             fecha_datetime = datetime.strptime(fecha_str, formato)
-            # Formatear la fecha en el formato deseado
-            fecha_formateada = fecha_datetime.strftime("%d/%m/%Y")
+            # Formatear la fecha en 'YYYY-MM-DD'
+            fecha_formateada = fecha_datetime.strftime("%Y-%m-%d")
             return fecha_formateada
         except ValueError:
-            # Si ocurre un ValueError, continuar con el siguiente formato
+            # Continuar con el siguiente formato si ocurre un error
             continue
 
     # Si ningún formato coincide, retornar None o lanzar una excepción
     return None
+
