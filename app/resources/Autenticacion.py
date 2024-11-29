@@ -4,12 +4,11 @@ import jwt
 
 class TokenGenerator:
     @staticmethod
-    def encode_token(user_id, user_rol):
+    def encode_token(user_id):
         payload = {
             'exp': datetime.utcnow() + timedelta(days=0,minutes=60,seconds=0),
             'iat': datetime.utcnow(),
             'sub': user_id,
-            'rol': user_rol 
         }
         token = jwt.encode(payload, os.environ.get("APP_SECRET_KEY"), algorithm='HS256')
         return token.decode('utf-8')
@@ -50,27 +49,15 @@ class TokenGenerator:
             return False 
     
     @staticmethod
-    def generate_confirmation_token(user_id, user_rol):
+    def generate_confirmation_token(user_id):
         payload = {
             'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0),
             'iat': datetime.utcnow(),
             'usuid': user_id,
-            'rolid': user_rol
         }
         token = jwt.encode(payload, os.environ.get("APP_SECRET_KEY"), algorithm='HS256')
         return token.decode('utf-8')
     
-    @staticmethod
-    def generate_confirmation_token_for_email(user_id, user_rol, user_email):
-        payload = {
-            'exp': datetime.utcnow() + timedelta(days=1,minutes=0,seconds=0),
-            'usuid': user_id,
-            'rolid': user_rol,
-            'usuemail': user_email
-        }
-        token = jwt.encode(payload, os.environ.get("APP_SECRET_KEY"), algorithm='HS256')
-        return token.decode('utf-8')
-
     @staticmethod
     def confirm_token(token):
         try:
