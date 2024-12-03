@@ -1,6 +1,6 @@
 from flask_restful import Api
-import resources.Persona_resource as Persona
-import resources.Usuario as Usuario
+import resources.game_resource as Persona
+import resources.game_resource as Usuario
 
 
 from client.routes import Routes as routes
