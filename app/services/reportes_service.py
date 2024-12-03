@@ -1,0 +1,148 @@
+from flask import make_response
+from core.rml.report_generator import Report
+from core.database import select
+from utils.date_formatting import *
+
+def make(pdf):
+    response = make_response(pdf)
+    response.headers["Content-Disposition"] = "attachment; filename={}".format("archivo.pdf")
+    response.mimetype = 'application/pdf'
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=reporte.pdf'
+    return response
+    
+def rptCursoMateriaContabilidad(data):
+    params_descuentos = data['descuentos']
+    params_resumen = data["resumen"]
+    params = select(f'''
+                    SELECT 
+                    cm.curmatid, cm.curid, c.curnombre, cm.matid, m.matnombre, 
+                    cm.periddocente, p.pernomcompleto, p.perfoto, cm.curmatfecini, cm.curmatfecfin, cm.curmatcosto, t1.numest as numero_estudiantes
+                    FROM academico.curso_materia cm
+                    JOIN ( SELECT curmatid, count(peridestudiante) as numest FROM 
+                            academico.inscripcion  WHERE insestado = 1 GROUP BY curmatid
+                    ) as t1 ON t1.curmatid = cm.curmatid
+                    LEFT JOIN academico.curso c ON c.curid = cm.curid
+                    LEFT JOIN academico.materia m ON m.matid = cm.matid
+                    left JOIN academico.persona p on p.perid = cm.periddocente
+                    WHERE cm.curmatfecini > '{data['fecini']}' AND cm.curmatfecfin < '{data['fecfin']}'
+                    and cm.curmatestado = 1
+                    ''')
+    for p in params:
+        p['curmatfecini'] = darFormatoFechaSinHora(p['curmatfecini'])
+        p['curmatfecfin'] = darFormatoFechaSinHora(p['curmatfecfin'])   
+    return make(Report().RptCursoMateriaContabilidad(params, params_descuentos, params_resumen))
+
+def rptCursoMateriaEstudiante(data):
+    user = data['usuname']
+    param = select(f'''
+        SELECT distinct i.insid, i.matrid, tm.tipmatrgestion, i.curmatid, c.curnombre, c.curfchini, c.curfchfin ,cm.curmatfecini, cm.curmatestado, cm.curmatfecfin, cm.periddocente, p.pernomcompleto, p.pernrodoc, p.perfoto, m2.matnombre, i.peridestudiante, p3.pernomcompleto as pernomcompletoestudiante, p3.pernrodoc as pernrodocestudiante, p3.perfoto as perfotoestudiante, p3.peremail, p3.percelular, p3.pertelefono, i.pagid, i.insusureg, i.insfecreg, 
+        i.insusumod, i.insfecmod, i.insestado, i.insestadodescripcion, m.pagoidmatricula, p2.pagmonto, p2.pagestado
+        FROM academico.inscripcion i
+        left join academico.matricula m on m.matrid = i.matrid 
+        left join academico.curso_materia cm on cm.curmatid = i.curmatid 
+        left join academico.materia m2 on m2.matid = cm.matid 
+        left join academico.curso c on c.curid = cm.curid 
+        left join academico.persona p on p.perid = cm.periddocente
+        left join academico.persona p3 on p3.perid = i.peridestudiante
+        left join academico.tipo_matricula tm on tm.tipmatrid = m.tipmatrid
+        left join academico.pago p2 on p2.pagid = m.pagoidmatricula
+        where i.peridestudiante = {data['perid']}
+    ''')
+    for p in param:
+        p["insfecreg"] = darFormatoFechaConHora(p["insfecreg"])
+        p["insfecmod"] = darFormatoFechaConHora(p["insfecmod"])
+        p["curmatfecini"] = darFormatoFechaSinHora(p["curmatfecini"])
+        p["curmatfecfin"] = darFormatoFechaSinHora(p["curmatfecfin"])
+        p["curfchini"] = darFormatoFechaSinHora(p["curfchini"])
+        p["curfchfin"] = darFormatoFechaSinHora(p["curfchfin"])
+
+    return make(Report().RptCursoMateriaEstudiante(param, user))
+
+
+def rptInformacionAdmision(data):
+    perid = data['perid']
+    usuname = data['usuname']
+    
+    datos_informacion_personal = select(f'''
+        SELECT pip.perid, p.pernomcompleto, p.perfecnac, p.pernrodoc, p.perdirec, te.estadocivilnombre, p.percelular, p.pertelefono, pip.peredad, pip.pernrohijos, pip.perprofesion, tp.pronombre,pip.perfecconversion, pip.perlugconversion, 
+        CASE 
+            WHEN pip.perbautizoagua IS NOT NULL THEN 'Sí' 
+            ELSE 'No' 
+        END AS perbautizoagua,
+        CASE 
+            WHEN pip.perbautizoespiritu IS NOT NULL THEN 'Sí' 
+            ELSE 'No' 
+        END AS perbautizoespiritu,
+        
+        pip.pernomiglesia, pip.perdiriglesia, pip.pernompastor, pip.percelpastor,pip.perexperiencia, pip.permotivo, pip.perplanesmetas  
+        FROM academico.persona_info_personal pip
+        INNER JOIN academico.tipo_profesion tp on tp.proid = pip.perprofesion
+        left join academico.persona p on p.perid = pip.perid
+        left join academico.tipo_estadocivil te on te.estadocivilid = p.perestcivil
+        WHERE pip.perid = {perid};
+    ''')
+    if not datos_informacion_personal:
+        datos_informacion_personal = [{"pernomcompleto": "", "perdirec": "", "perfecnac": "", "peredad": "", "estadocivilnombre": "", "pernrohijos": "", "pronombre": "", "pernrodoc": "", "perfecconversion": "", "perlugconversion": "", "perbautizoagua": "", "perbautizoespiritu": "", "pertelefono": "", "percelular": "", "pernomiglesia": "", "perdiriglesia": "", "pernompastor": "", "percelpastor": "", "perexperiencia": "", "permotivo":"", "perplanesmetas":""}]
+    
+    datos_informacion_academica = select(f'''
+        SELECT pia.perinfoaca, pia.perid, pia.pereducacion,te.edunombre, pia.pernominstitucion, pia.perdirinstitucion, pia.pergescursadas, pia.perfechas, pia.pertitulo 
+        FROM academico.persona_info_academica pia
+        JOIN academico.tipo_educacion te on te.eduid = pia.pereducacion
+        WHERE perid = {perid}
+        order by te.edunombre;
+    ''')
+    if not datos_informacion_academica:
+        datos_informacion_academica = [{"perinfoaca": "", "pereducacion": "", "edunombre": "", "pernominstitucion": "", "perdirinstitucion": "", "pergescursadas": "", "perfechas": "", "pertitulo": ""}]
+    
+    datos_informacion_ministerial = select(f'''
+        SELECT pim.perinfomin, pim.perid, pim.pernomiglesia, pim.percargo,tc.carnombre, pim.pergestion
+        FROM academico.persona_info_ministerial pim
+        INNER JOIN academico.tipo_cargo tc on tc.carid = pim.percargo
+        WHERE perid = {perid}
+        order by pim.pernomiglesia;
+    ''')
+    if not datos_informacion_ministerial:
+        datos_informacion_ministerial = [{"perinfomin": "", "perid": "", "pernomiglesia": "", "percargo": "", "carnombre": "", "pergestion": ""}]
+    
+    datos_documentos_admision = select(f'''
+        SELECT 
+             perid, 
+             CASE 
+                 WHEN perfoto IS NOT NULL THEN 'Sí' 
+                 ELSE 'No' 
+             END AS perfoto,
+             CASE 
+                 WHEN perfotoci IS NOT NULL THEN 'Sí' 
+                 ELSE 'No' 
+             END AS perfotoci,
+             CASE 
+                 WHEN perfototitulo IS NOT NULL THEN 'Sí' 
+                 ELSE 'No' 
+             END AS perfototitulo,
+             CASE 
+                 WHEN percartapastor IS NOT NULL THEN 'Sí' 
+                 ELSE 'No' 
+             END AS percartapastor
+         FROM 
+             academico.persona_doc_admision
+         WHERE 
+             perid = {perid};
+    ''')
+    if not datos_documentos_admision:
+        datos_documentos_admision = [{"perid": perid, "perfoto": "No", "perfotoci": "No", "perfototitulo": "No", "percartapastor": "No"}]
+    
+    try:
+        pdf = Report().RptInformacionAdmision(usuname, datos_informacion_personal, datos_informacion_academica, datos_informacion_ministerial, datos_documentos_admision)
+        return make(pdf)
+    except Exception as e:
+        print("Error generating report: ", str(e))
+        return {"code": 0, "message": f"Error generating report: {str(e)}"}, 500
+    
+# Reportes de ejemplo
+def rptTotalesSigma():
+    params = select(f'''
+        SELECT id, nombre_usuario, contrasena, nombre_completo, rol
+        FROM public.usuarios;
+    ''')
+    return make(Report().RptTotalesSigma(params, 1))
