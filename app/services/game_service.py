@@ -30,6 +30,21 @@ def obtenerUsuarios():
             "code": HTTPStatus.INTERNAL_SERVER_ERROR
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    
+def obtenerUsuarioPorId(usuario_id):
+    try:
+        usuario = Usuario.query.get(usuario_id)
+        if usuario:
+            return make_response(jsonify(usuario.to_dict()), HTTPStatus.OK)
+        else:
+            return make_response(jsonify({"error": "Usuario no encontrado"}), HTTPStatus.NOT_FOUND)
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error en la base de datos.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 # Pacientes
 def obtenerPacientes():

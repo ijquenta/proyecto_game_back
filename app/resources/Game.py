@@ -17,6 +17,10 @@ class ObtenerDoctores(Resource):
 class ObtenerSesiones(Resource):
     def get(self):
         return obtenerSesiones()
+    
+class ObtenerUsuarioPorId(Resource):
+    def get(self, usuario_id):
+        return obtenerUsuarioPorId(usuario_id)
 
 
 # Parsers para Usuario

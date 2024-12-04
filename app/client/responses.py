@@ -1,5 +1,5 @@
 class clientResponses:
-  index =  {"code":1 , "message": "Bienvenido a APIS de Backend IBCI"}
+  index =  {"code":1 , "message": "Bienvenido"}
   protected =  {"code":1 , "message": "Tiene el acceso garantizado"}
 
   accesoDenegado = {"code": 0, "message": "No esta permitido su acceso"}
