@@ -15,9 +15,9 @@ import logging  # Para el registro de eventos
 import os  # Para usar funcionalidades del istema operativo
 
 # Importamos las rutas de los diferentes recursos de la aplicación
-from routes.usuario_routes import usuario_routes
+# from routes.usuario_routes import usuario_routes
 from routes.game_routes import game_routes
-from routes.subir_archivos_routes import *
+# from routes.subir_archivos_routes import *
 
 from models.game_model import Usuario, db  # Importamos Usuario
 
@@ -73,7 +73,7 @@ def index():
    return make_response(jsonify(resp)), 200
 
 # Invocar las funciones que define las rutas de API
-usuario_routes(api=api)
+# usuario_routes(api=api)
 game_routes(api=api)
 
 @app.route('/v1/register', methods=['POST'])
@@ -131,12 +131,13 @@ def f_login_usuario():
 
         if user:
             # Generar un token de autenticación (ajusta esto según tu implementación)
-            auth_token = TokenGenerator.encode_token(user.id_usuario)  # Asegúrate de que el método encode_token esté definido
+            auth_token = TokenGenerator.encode_token(user.id_usuario, user.rol)  # Asegúrate de que el método encode_token esté definido
             resp = {
                 "status": "success",
                 "message": "Successfully logged in",
                 'auth_token': auth_token,
                 "usuario": user.id_usuario,
+                "rol": user.rol
             }
             return jsonify(resp), 200
         else:
