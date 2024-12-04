@@ -1,10 +1,8 @@
 from flask_restful import Resource, reqparse
-from resources.Autenticacion import token_required
 from core.auth import *
-from services.usuario_service import *
+from services.game_service import *
 
 class ListaUsuario(Resource):
-  @token_required
   def get(self):
     return listaUsuario()
   
@@ -18,17 +16,14 @@ class ListarProgresos(Resource):
     return listarProgresos()
   
 class TipoPersona(Resource):
-  @token_required
   def get(self):
     return tipoPersona()
   
 class TipoPersonaDocente(Resource):
-  @token_required
   def get(self):
     return tipoPersonaDocente()
 
 class ListarRoles(Resource):
-  @token_required
   def get(self):
       return listarRoles()
 
@@ -45,7 +40,6 @@ parseGestionarUsuario.add_argument('usudescripcion', type=str, help='Debe elegir
 parseGestionarUsuario.add_argument('usuestado', type=int, help='Debe elegir estado', required=True)
 parseGestionarUsuario.add_argument('usuusureg', type=str, help='Debe elegir usuRe', required=True)
 class GestionarUsuario(Resource):
-  @token_required
   def post(self):
     data = parseGestionarUsuario.parse_args()
     return gestionarUsuario(data)
@@ -55,7 +49,6 @@ parseGestionarUsuarioEstado.add_argument('tipo', type=int, help='Debe elegir tip
 parseGestionarUsuarioEstado.add_argument('usuid', type=int, help='Debe elegir usuid', required=True)
 parseGestionarUsuarioEstado.add_argument('usuusumod', type=str, help='Debe elegir usumod', required=True)
 class GestionarUsuarioEstado(Resource):
-  @token_required
   def post(self):
     data = parseGestionarUsuarioEstado.parse_args()
     return gestionarUsuarioEstado(data)
@@ -65,7 +58,6 @@ parseGestionarUsuarioPassword.add_argument('usuid', type=int, help='Debe elegir 
 parseGestionarUsuarioPassword.add_argument('usupassword', type=str, help='Debe elegir usupassword', required=True)
 parseGestionarUsuarioPassword.add_argument('usuusumod', type=str, help='Debe elegir usumod', required=True)
 class GestionarUsuarioPassword(Resource):
-  @token_required
   def post(self):
     data = parseGestionarUsuarioPassword.parse_args()
     return gestionarUsuarioPassword(data)
@@ -73,7 +65,6 @@ class GestionarUsuarioPassword(Resource):
 parsePerfil = reqparse.RequestParser()
 parsePerfil.add_argument('usuid', type=int, help = 'Debe elegir el usuid', required = True)
 class Perfil(Resource):
-  @token_required
   def post(self):
       data = parsePerfil.parse_args()
       return perfil(data)
@@ -83,7 +74,6 @@ parseCrearRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nombre 
 parseCrearRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
 parseCrearRol.add_argument('rolUsuReg', type=str, help = 'Debe elegir el usuario de registro')
 class CrearRol(Resource):
-  @token_required
   def post(self):
       data = parseCrearRol.parse_args()
       return crearRol(data)
@@ -94,7 +84,6 @@ parseModificarRol.add_argument('rolNombre', type=str, help = 'Debe elegir el nom
 parseModificarRol.add_argument('rolDescripcion', type=str, help = 'Debe elegir la Descripción del rol', required = True)
 parseModificarRol.add_argument('rolUsuMod', type=str, help = 'Debe elegir el usuario de registro', required = True)
 class ModificarRol(Resource):
-  @token_required
   def post(self):
       data = parseModificarRol.parse_args()
       return modificarRol(data)
@@ -103,7 +92,6 @@ parseEliminarRol = reqparse.RequestParser()
 parseEliminarRol.add_argument('rolid', type=str, help = 'Debe elegir el Id del rol', required = True)
 parseEliminarRol.add_argument('rolusumod', type=str, help = 'Debe elegir el usuario de registro', required = True)
 class EliminarRol(Resource):
-  @token_required
   def post(self):
       data = parseEliminarRol.parse_args()
       return eliminarRol(data)
@@ -164,7 +152,6 @@ parseChangePassword = reqparse.RequestParser()
 parseChangePassword.add_argument('usuname', type=str, required=True, help='usuname cannot be blank')
 parseChangePassword.add_argument('usupassword', type=str, required=True, help='usupassword cannot be blank')
 class ChangePasswordResource(Resource):
-    @token_required
     def post(self):
         data = parseChangePassword.parse_args()
         return changePassword(data)
