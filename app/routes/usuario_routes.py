@@ -2,6 +2,8 @@ from flask_restful import Api
 import resources.Persona_resource as Persona
 import resources.Usuario as Usuario
 
+apiVersion = "/v1"
+
 
 from client.routes import Routes as routes
 
@@ -20,3 +22,5 @@ def usuario_routes(api: Api):
     api.add_resource(Usuario.RequestChangePassword, routes.requestChangePassword)
     api.add_resource(Usuario.BuscarUsuario, routes.buscarUsuario)
     api.add_resource(Usuario.ChangePasswordResource, routes.changePassword)
+    api.add_resource(Usuario.ListarPacientes, apiVersion + '/pacientes')
+    api.add_resource(Usuario.ListarProgresos, apiVersion + '/progresos')

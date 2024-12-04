@@ -108,7 +108,7 @@ def gestionarUsuarioPassword(data):
 # Lista de Usuarios
 def listaUsuario():
     try:
-        users = db.session.query(Usuario).all()
+        users = db.session.query(Usuario2).all()
         users_dict = [user.to_dict() for user in users]
         return make_response(jsonify(users_dict))
     
@@ -164,6 +164,61 @@ def listarRoles():
     where rolestado = 1
     order by rolid;        
     ''')
+
+
+
+
+from models.usuario_model import Usuario2
+def listarPacientes(): 
+    """
+    try:
+        pacientes = Paciente.query.order_by(Paciente.id).all()
+        _data = [paciente.to_dict() for paciente in pacientes]
+       
+        response_data = {
+            "message": "Pacientes, OK",
+            "data": _data,
+            "code": HTTPStatus.OK
+        }
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+    
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    """
+from models.usuario_model import Usuario2
+
+def listarProgresos():
+    """
+    try:
+        # Consulta a la base de datos para obtener todos los registros de la tabla Progreso
+        progresos = Progreso.query.order_by(Progreso.id).all()
+        
+        # Convertir cada objeto Progreso en un diccionario
+        _data = [progreso.to_dict() for progreso in progresos]
+        
+        # Construir la respuesta exitosa
+        response_data = {
+            "message": "Progresos, OK",
+            "data": _data,
+            "code": HTTPStatus.OK
+        }
+        return make_response(jsonify(response_data), HTTPStatus.OK)
+    
+    except SQLAlchemyError as e:
+        # Construir la respuesta en caso de error en la base de datos
+        error_response = {
+            "error": "Error in the database.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+    """
+
     
 def crearRol(data):
     result = {'code': 0, 'message': 'No hay datos disponibles'}, 404
@@ -275,7 +330,7 @@ def resetPassword(token, data):
     return {'message': 'User not found.'}, 404
 
 # Change Password of the user panel
-from models.usuario_model import Usuario, db
+from models.usuario_model import Usuario2, db
 def changePassword(data):
     # Buscar al usuario por su nombre de usuario
     user = Usuario.query.filter_by(usuname=data['usuname']).first()

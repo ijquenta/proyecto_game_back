@@ -1,7 +1,7 @@
 from . import db
 
-class Usuario(db.Model):
-    __tablename__ = 'usuarios'
+class Usuario2(db.Model):
+    __tablename__ = 'usuariosa'
     __table_args__ = {'schema': 'game'}  # Especifica el esquema
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)  # ID generado automáticamente
@@ -14,3 +14,4 @@ class Usuario(db.Model):
             'username': self.username,
             'email': self.email,
         }
+    
