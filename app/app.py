@@ -15,10 +15,11 @@ import logging  # Para el registro de eventos
 import os  # Para usar funcionalidades del istema operativo
 
 # Importamos las rutas de los diferentes recursos de la aplicación
-from routes.usuario_routes import usuario_routes
-from routes.subir_archivos_routes import *
+# from routes.usuario_routes import usuario_routes
+from routes.game_routes import game_routes
+# from routes.subir_archivos_routes import *
 
-from models.usuario_model import Usuario, db  # Importamos Usuario
+from models.game_model import Usuario, db  # Importamos Usuario
 
 # Define el nombre del archivo de registro y configura el nivel de registro
 LOG_FILENAME = 'aplication.log'
@@ -72,7 +73,8 @@ def index():
    return make_response(jsonify(resp)), 200
 
 # Invocar las funciones que define las rutas de API
-usuario_routes(api=api)
+# usuario_routes(api=api)
+game_routes(api=api)
 
 @app.route('/v1/register', methods=['POST'])
 def f_register_usuario():
@@ -121,24 +123,25 @@ def f_login_usuario():
     
     # Verificar si el campo requerido está presente en la solicitud
     if 'username' not in user_data:
-        return jsonify({"status": "Error", "message": "Missing username"}), 400
+        return jsonify({"status": "Error", "message": "Missing email"}), 400
 
     try:
-        # Recuperar el usuario de la base de datos por username
-        user = Usuario.query.filter_by(username=user_data['username']).first()
+        # Recuperar el usuario de la base de datos por email
+        user = Usuario.query.filter_by(email=user_data['username']).first()
 
         if user:
             # Generar un token de autenticación (ajusta esto según tu implementación)
-            auth_token = TokenGenerator.encode_token(user.id)  # Asegúrate de que el método encode_token esté definido
+            auth_token = TokenGenerator.encode_token(user.id_usuario, user.rol)  # Asegúrate de que el método encode_token esté definido
             resp = {
                 "status": "success",
                 "message": "Successfully logged in",
                 'auth_token': auth_token,
-                "usuario": user.id,
+                "usuario": user.id_usuario,
+                "rol": user.rol
             }
             return jsonify(resp), 200
         else:
-            return jsonify({"status": "Error", "message": "Invalid username"}), 401
+            return jsonify({"status": "Error", "message": "Invalid email"}), 401
 
     except Exception as e:
         print("Error login user: ", e)

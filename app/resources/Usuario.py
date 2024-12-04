@@ -6,6 +6,15 @@ class ListaUsuario(Resource):
   def get(self):
     return listaUsuario()
   
+class ListarPacientes(Resource):
+  # @token_required
+  def get(self):
+    return listarPacientes()
+  
+class ListarProgresos(Resource):
+  def get(self):
+    return listarProgresos()
+  
 class TipoPersona(Resource):
   def get(self):
     return tipoPersona()
