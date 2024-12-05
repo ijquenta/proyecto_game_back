@@ -184,7 +184,13 @@ def crearSesion(data):
             observaciones=data.get('observaciones'),
             ejercicios_realizados=data.get('ejercicios_realizados'),
             nivel_dificultad=data['nivel_dificultad'],
-            estado_emocional=data['estado_emocional']
+            estado_emocional=data['estado_emocional'],
+            mejoras_observadas=data['mejoras_observadas'],
+            feedback=data['feedback'],
+            notas=data['notas'],
+            resultados_prueba=data['resultados_prueba'],
+            estado=data['estado'],
+            fecha_sesion=datetime.strptime(data['fecha_sesion'], '%Y-%m-%d').date() if data.get('fecha_sesion') else None
         )
         db.session.add(nueva_sesion)
         db.session.commit()
@@ -258,6 +264,11 @@ def modificarSesion(data , sesion_id):
             sesion.ejercicios_realizados = data.get('ejercicios_realizados', sesion.ejercicios_realizados)
             sesion.nivel_dificultad = data.get('nivel_dificultad', sesion.nivel_dificultad)
             sesion.estado_emocional = data.get('estado_emocional', sesion.estado_emocional)
+            sesion.mejoras_observadas = data.get('mejoras_observadas', sesion.mejoras_observadas)
+            sesion.feedback = data.get('feedback', sesion.feedback)
+            sesion.notas = data.get('notas', sesion.notas)
+            sesion.resultados_prueba = data.get('resultados_prueba', sesion.resultados_prueba)
+            sesion.estado = data.get('estado', sesion.estado)
             db.session.commit()
             return make_response(jsonify({'message': 'Sesión actualizada correctamente'}), HTTPStatus.OK)
         else:
