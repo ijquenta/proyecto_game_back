@@ -16,6 +16,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy import case
 from datetime import datetime
 from core.database import db, select, execute_function
+from sqlalchemy.orm import joinedload
 
 # Usuarios
 def obtenerUsuarios():
@@ -46,40 +47,19 @@ def obtenerUsuarioPorId(usuario_id):
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-# Pacientes
 def obtenerPacientes():
     try:
-        pacientes = Paciente.query.order_by(Paciente.id_paciente).all()
-        response = [paciente.to_dict() for paciente in pacientes]
-        return make_response(jsonify(response), HTTPStatus.OK)
-    except SQLAlchemyError as e:
-        error_response = {
-            "error": "Error en la base de datos.",
-            "message": str(e),
-            "code": HTTPStatus.INTERNAL_SERVER_ERROR
-        }
-        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-    
-    
-# Doctores
-def obtenerDoctores():
-    try:
-        doctores = Doctor.query.order_by(Doctor.id_doctor).all()
-        response = [doctor.to_dict() for doctor in doctores]
-        return make_response(jsonify(response), HTTPStatus.OK)
-    except SQLAlchemyError as e:
-        error_response = {
-            "error": "Error en la base de datos.",
-            "message": str(e),
-            "code": HTTPStatus.INTERNAL_SERVER_ERROR
-        }
-        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
-    
-  
-def obtenerSesiones():
-    try:
-        sesiones = Sesion.query.order_by(Sesion.id_session).all()
-        response = [sesion.to_dict() for sesion in sesiones]
+        pacientes = Paciente.query.options(
+            joinedload(Paciente.usuario)  # Eager load the related Usuario
+        ).order_by(Paciente.id_paciente).all()
+        
+        response = []
+        for paciente in pacientes:
+            paciente_dict = paciente.to_dict()
+            # Add the related usuario information
+            paciente_dict['usuario'] = paciente.usuario.to_dict() if paciente.usuario else None
+            response.append(paciente_dict)
+        
         return make_response(jsonify(response), HTTPStatus.OK)
     except SQLAlchemyError as e:
         error_response = {
@@ -89,6 +69,59 @@ def obtenerSesiones():
         }
         return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
+def obtenerDoctores():
+    try:
+        doctores = Doctor.query.options(
+            joinedload(Doctor.usuario)  # Eager load the related Usuario
+        ).order_by(Doctor.id_doctor).all()
+        
+        response = []
+        for doctor in doctores:
+            doctor_dict = doctor.to_dict()
+            # Add the related usuario information
+            doctor_dict['usuario'] = doctor.usuario.to_dict() if doctor.usuario else None
+            response.append(doctor_dict)
+        
+        return make_response(jsonify(response), HTTPStatus.OK)
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error en la base de datos.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+def obtenerSesiones():
+    try:
+        sesiones = Sesion.query.options(
+            joinedload(Sesion.paciente),  # Eager load the related Paciente
+            joinedload(Sesion.doctor)     # Eager load the related Doctor
+        ).order_by(Sesion.id_session).all()
+        
+        response = []
+        for sesion in sesiones:
+            sesion_dict = sesion.to_dict()
+            # Add the related paciente and doctor information
+            sesion_dict['paciente'] = sesion.paciente.to_dict() if sesion.paciente else None
+            sesion_dict['doctor'] = sesion.doctor.to_dict() if sesion.doctor else None
+            
+            # Optional: Add usuario information for paciente and doctor
+            if sesion_dict['paciente']:
+                sesion_dict['paciente']['usuario'] = sesion.paciente.usuario.to_dict() if sesion.paciente.usuario else None
+            
+            if sesion_dict['doctor']:
+                sesion_dict['doctor']['usuario'] = sesion.doctor.usuario.to_dict() if sesion.doctor.usuario else None
+            
+            response.append(sesion_dict)
+        
+        return make_response(jsonify(response), HTTPStatus.OK)
+    except SQLAlchemyError as e:
+        error_response = {
+            "error": "Error en la base de datos.",
+            "message": str(e),
+            "code": HTTPStatus.INTERNAL_SERVER_ERROR
+        }
+        return make_response(jsonify(error_response), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 def crearUsuario(data):
     try:
